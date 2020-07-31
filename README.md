@@ -1,2 +1,2 @@
 # rbugs
-A light-weight tools like spotbugs
+A light-weight tool like spotbugs
