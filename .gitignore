@@ -2,3 +2,4 @@
 PR_database/
 log/
 **/__pycache__/
+**/.pytest_cache

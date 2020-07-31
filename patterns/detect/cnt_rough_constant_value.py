@@ -1,4 +1,4 @@
-from patterns.utils import logger
+from patterns.utils import logger, is_comment
 import patterns.priorities as Priorities
 from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
@@ -64,20 +64,27 @@ class FindRoughConstants(Detector):
             idx_add_lines = hunk.addlines
             for i in idx_add_lines:
                 content = hunk.lines[i].content[1:]  # 移除开头的 '+'
+
+                if is_comment(content):
+                    continue
+
                 match = self.regexp.findall(content)
 
                 for m in match:
-                    if m == '6.2831':
-                        print('here')
                     float_const = float(m)
                     p, bad_const = check_const(float_const)
                     if p < Priorities.IGNORE_PRIORITY:
-                        description = 'Rough value of %s found: %s' % (bad_const.replacement, m)
-                        self.bug_accumulator.append(
-                            BugInstance("CNT_ROUGH_CONSTANT_VALUE", p,
-                                        file_name, hunk.lines[i].lineno[1], description)
-                        )
+                        bug_ins = RoughConstantValueBugInstance("CNT_ROUGH_CONSTANT_VALUE", p, file_name, hunk.lines[i].lineno[1])
+                        bug_ins.gen_description(float_const, bad_const)
+                        self.bug_accumulator.append(bug_ins)
 
     def report(self):
         for bug_ins in self.bug_accumulator:
             logger.warning(str(bug_ins))
+
+
+class RoughConstantValueBugInstance(BugInstance):
+    def gen_description(self, constant: float, bad_constant: BadConstant):
+        self.constant = constant
+        self.bad_constant = bad_constant
+        self.description = 'Rough value of %s found: %s' % (bad_constant.replacement, str(constant))

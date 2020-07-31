@@ -8,7 +8,7 @@ confidence_map = {
 
 
 class BugInstance:
-    def __init__(self, pattern_type: str, priority: int, file_name: str, line_no: int, description):
+    def __init__(self, pattern_type: str, priority: int, file_name: str, line_no: int, description=''):
         self.type = pattern_type
         self.description = description
         self.priority = priority
