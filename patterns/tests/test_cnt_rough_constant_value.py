@@ -22,5 +22,5 @@ class TestCntRoughConstantValue:
             assert len(detector.bug_accumulator) == 28
 
 
-if __name__ == '__main__':
-    pytest.main(['-q', 'test_cnt_rough_constant_value.py'])
+# if __name__ == '__main__':
+#     pytest.main(['-q', 'test_cnt_rough_constant_value.py'])

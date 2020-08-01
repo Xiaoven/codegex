@@ -2,7 +2,8 @@ import json
 import glob
 
 from parser import Patch
-from patterns.detect.cnt_rough_constant_value import FindRoughConstants
+# from patterns.detect.cnt_rough_constant_value import FindRoughConstants
+from patterns.detect.imse_dont_catch_imse import DontCatchIllegalMonitorStateException
 from patterns.utils import logger
 
 
@@ -29,7 +30,7 @@ if __name__ == '__main__':
     for p in paths:
         patchset = get_modified_patchset(p)
         if patchset:
-            detector = FindRoughConstants()
+            detector = DontCatchIllegalMonitorStateException()
             detector.visit(patchset)
             if detector.bug_accumulator:
                 logger.info(p)

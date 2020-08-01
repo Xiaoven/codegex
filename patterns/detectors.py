@@ -1,6 +1,4 @@
-import re
-
-
+from patterns.utils import logger
 class Detector:
     '''
     The interface which all bug pattern detectors must implement.
@@ -18,10 +16,9 @@ class Detector:
         '''
         pass
 
-
     def report(self):
         '''
         This method is called after all patches to be visited.
         '''
-        pass
-
+        for bug_ins in self.bug_accumulator:
+            logger.warning(str(bug_ins))

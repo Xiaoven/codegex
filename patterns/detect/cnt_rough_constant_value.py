@@ -1,4 +1,4 @@
-from patterns.utils import logger, is_comment
+from patterns.utils import is_comment
 import patterns.priorities as Priorities
 from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
@@ -78,9 +78,6 @@ class FindRoughConstants(Detector):
                         bug_ins.gen_description(float_const, bad_const)
                         self.bug_accumulator.append(bug_ins)
 
-    def report(self):
-        for bug_ins in self.bug_accumulator:
-            logger.warning(str(bug_ins))
 
 
 class RoughConstantValueBugInstance(BugInstance):
