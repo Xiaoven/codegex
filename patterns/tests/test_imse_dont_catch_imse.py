@@ -1,5 +1,3 @@
-import pytest
-
 from parser import Patch
 from patterns.detect.imse_dont_catch_imse import DontCatchIllegalMonitorStateException
 
@@ -10,6 +8,3 @@ class TestImseDontCatchImse:
         detector = DontCatchIllegalMonitorStateException()
         detector.visit([patch])
         assert len(detector.bug_accumulator) == 1
-
-if __name__ == '__main__':
-    pytest.main(['-q', 'test_imse_dont_catch_imse.py'])

@@ -1,5 +1,3 @@
-import pytest
-
 from parser import Patch
 from patterns.detect.cnt_rough_constant_value import FindRoughConstants
 
@@ -20,7 +18,3 @@ class TestCntRoughConstantValue:
             detector = FindRoughConstants()
             detector.visit([patch])
             assert len(detector.bug_accumulator) == 28
-
-
-# if __name__ == '__main__':
-#     pytest.main(['-q', 'test_cnt_rough_constant_value.py'])
