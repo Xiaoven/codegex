@@ -1,5 +1,5 @@
 .idea/
-PR_database/
-log/
+Java/
+**/log/
 **/__pycache__/
 **/.pytest_cache

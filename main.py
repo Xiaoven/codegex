@@ -1,9 +1,8 @@
 import json
 import glob
 
-from parser import Patch
-# from patterns.detect.cnt_rough_constant_value import FindRoughConstants
-from patterns.detect.imse_dont_catch_imse import DontCatchIllegalMonitorStateException
+from rparser import Patch
+from patterns.detect.dumb_methods import DmRunFinalizerOnExit
 from patterns.utils import logger
 
 
@@ -25,12 +24,12 @@ def get_modified_patchset(path):
 
 
 if __name__ == '__main__':
-    root = 'PR_database/Java'
+    root = 'Java'
     paths = glob.glob(f'{root}/**/*.json', recursive=True)
     for p in paths:
         patchset = get_modified_patchset(p)
         if patchset:
-            detector = DontCatchIllegalMonitorStateException()
+            detector = DmRunFinalizerOnExit() # run different detector on Java pull requests
             detector.visit(patchset)
             if detector.bug_accumulator:
                 logger.info(p)

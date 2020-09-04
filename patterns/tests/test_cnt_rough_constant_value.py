@@ -1,4 +1,4 @@
-from parser import Patch
+from rparser import Patch
 from patterns.detect.cnt_rough_constant_value import FindRoughConstants
 
 class TestCntRoughConstantValue:

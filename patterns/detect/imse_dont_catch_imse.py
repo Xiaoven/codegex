@@ -19,8 +19,6 @@ class DontCatchIllegalMonitorStateException(Detector):
         self.regexp2 = re.compile('([a-zA-Z0-9\.]+)\s+[a-zA-Z0-9\.]+')  # 提取类名
 
     def _visit_patch(self, patch):
-        file_name = patch.name
-
         for hunk in patch:
             idx_add_lines = hunk.addlines
             for i in idx_add_lines:
@@ -37,6 +35,6 @@ class DontCatchIllegalMonitorStateException(Detector):
                         if exp.endswith('IllegalMonitorStateException'):
                             self.bug_accumulator.append(
                                 BugInstance('IMSE_DONT_CATCH_IMSE', Priorities.HIGH_PRIORITY,
-                                            file_name, hunk.lines[i].lineno[1],
+                                            patch.name, hunk.lines[i].lineno[1],
                                             'Dubious catching of IllegalMonitorStateException')
                             )

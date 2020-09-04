@@ -1,47 +1,38 @@
+import re
+
 from patterns.detectors import Detector
-import patterns.utils as utils
+from patterns.bug_instance import BugInstance
+import patterns.priorities as Priorities
+from patterns.utils import is_comment
 
 
-class DmExit(Detector):
-    '''
-    TODO: 对所在的 method 做一些限制
-    if (!isPublicStaticVoidMain && seen == Const.INVOKESTATIC && "java/lang/System".equals(getClassConstantOperand())
-                        && "exit".equals(getNameConstantOperand()) && !"processWindowEvent".equals(getMethodName())
-                        && !getMethodName().startsWith("windowClos") && getMethodName().indexOf("exit") == -1
-                        && getMethodName().indexOf("Exit") == -1 && getMethodName().indexOf("crash") == -1
-                        && getMethodName().indexOf("Crash") == -1 && getMethodName().indexOf("die") == -1
-                        && getMethodName().indexOf("Die") == -1 && getMethodName().indexOf("main") == -1) {
-                    accumulator.accumulateBug(new BugInstance(this, "DM_EXIT", getMethod().isStatic() ? LOW_PRIORITY
-                            : NORMAL_PRIORITY).addClassAndMethod(this), SourceLineAnnotation.fromVisitedInstruction(this));
-
-    识别方法声明的正则：
-        (?:(?:public|private|protected|static|final|native|synchronized|abstract|transient)\s+)+[$_\w<>\[\]\.]*\s+[$_\w]+\s*\(
-    '''
+class DmRunFinalizerOnExit(Detector):
     def __init__(self):
-        self.regex_method = '(?:(?:public|private|protected|static|final|native|synchronized|abstract|transient)\s+)+[$_\w<>\[\]\.]*\s+[$_\w]+\s*\('
-        self.regex_exit = 'System\.exit\(\d+\)'
+        self.pattern = re.compile('(\w*)\.*runFinalizersOnExit\(')
 
     def _visit_patch(self, patch):
-        file_name = patch.name
-
         for hunk in patch:
-            idx_add_lines = hunk.addlines
-
-            # 寻找 system.exit 所在行数
-            idx_exit = []
-            for i in idx_add_lines:
-                content = hunk.lines[i].content[1:]
-                if utils.is_comment(content):
+            for i in range(len(hunk.lines)):
+                # detect all lines in the patch rather than the addition
+                if i in hunk.dellines:
                     continue
 
-                match = self.regex_exit.search(content)
-                if match:
-                    idx_exit.append(i)
+                line_content = hunk.lines[i].content
+                if i in hunk.addlines:
+                    line_content = line_content[1:]  # remove "+"
 
-            # 往回寻找 method definition
-            for i in idx_exit:
-                cur = i-1
-                while cur >= 0:
+                if is_comment(line_content):
+                    continue
 
-                    cur -= 1
-                
+                line_content = line_content.strip()
+                m = self.pattern.search(line_content)
+                if m:
+                    pkg_name = m.groups()[0]
+                    confidence = Priorities.HIGH_PRIORITY
+                    if pkg_name == 'System' or 'Runtime':
+                        confidence = Priorities.NORMAL_PRIORITY
+
+                    self.bug_accumulator.append(
+                        BugInstance('DM_RUN_FINALIZERS_ON_EXIT', confidence, patch.name, hunk.lines[i].lineno[1],
+                                    'Method invokes dangerous method runFinalizersOnExit')
+                    )
