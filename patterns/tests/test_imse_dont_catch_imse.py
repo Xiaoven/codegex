@@ -1,4 +1,4 @@
-from parser import Patch
+from rparser import Patch
 from patterns.detect.imse_dont_catch_imse import DontCatchIllegalMonitorStateException
 
 class TestImseDontCatchImse:
