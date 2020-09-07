@@ -61,14 +61,19 @@ class FindRoughConstants(Detector):
         file_name = patch.name
 
         for hunk in patch:
-            idx_add_lines = hunk.addlines
-            for i in idx_add_lines:
-                content = hunk.lines[i].content[1:]  # 移除开头的 '+'
-
-                if is_comment(content):
+            for i in range(len(hunk.lines)):
+                # detect all lines in the patch rather than the addition
+                if i in hunk.dellines:
                     continue
 
-                match = self.regexp.findall(content)
+                line_content = hunk.lines[i].content
+                if i in hunk.addlines:
+                    line_content = line_content[1:]  # remove "+"
+
+                if is_comment(line_content):
+                    continue
+
+                match = self.regexp.findall(line_content)
 
                 for m in match:
                     float_const = float(m)
