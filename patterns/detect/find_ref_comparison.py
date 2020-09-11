@@ -9,7 +9,7 @@ from patterns.utils import is_comment
 class FindRefComparison(Detector):
     def __init__(self):
         self.comp_eq = regex.compile(
-            '((?:(?P<p1>\((?:[^\(\)]|(?&p1))*\))|(?P<p2>[\w\.]))+)\s*[!=]=\s*((?:(?&p1)|(?&p2))+)')
+            '((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.])++)\s*[!=]=\s*((?:(?&aux1)|[\w.])+)')
         self.bool_objs = ('Boolean.TRUE', 'Boolean.FALSE')
 
     def _visit_patch(self, patch):
@@ -29,8 +29,8 @@ class FindRefComparison(Detector):
                 line_content = line_content.strip()
                 m = self.comp_eq.search(line_content)
                 if m:
-                    op_1 = m.groups()[0]  # 1 and 2 are group `p1` and `p2`
-                    op_2 = m.groups()[3]
+                    op_1 = m.groups()[0]  # m.groups()[0] is the result of named pattern
+                    op_2 = m.groups()[2]
 
                     if op_1 in self.bool_objs or op_2 in self.bool_objs:
                         self.bug_accumulator.append(
