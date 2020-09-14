@@ -2,13 +2,12 @@ from patterns.utils import is_comment
 import patterns.priorities as Priorities
 from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
-import re
+import regex
 
 
 class ChekBitSigned(Detector):
     def __init__(self):
-        self.regexp1 = re.compile('&{1}')
-        self.regexp2 = re.compile('\s*0(?!(\.|\w))')
+        self.regexp = regex.compile('\(\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.])++)\s*&\s*((?:(?&aux1)|[\w.])+)\s*\)\s*>\s*0')
 
     def _visit_patch(self, patch):
         file_name = patch.name
@@ -25,9 +24,8 @@ class ChekBitSigned(Detector):
 
                 if is_comment(line_content):
                     continue
-                containsOp = bool(self.regexp1.search(line_content))
-                containsZero = bool(self.regexp2.search(line_content))
-                if containsOp and containsZero:
+                contains = self.regexp.search(line_content)
+                if contains:
                     bug_ins = BugInstance("BIT_SIGNED_CHECK", Priorities.IGNORE_PRIORITY, file_name,
                                           hunk.lines[i].lineno[1], 'There may be a sign mistake. You '
                                                                    'can replace >0 with !=0 ')
