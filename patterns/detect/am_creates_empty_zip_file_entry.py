@@ -6,10 +6,10 @@ import patterns.priorities as Priorities
 from patterns.utils import is_comment
 
 
-class AMCREATESEMPTYZIPFILEENTRY(Detector):
+class AmCreatesEmptyZipFileEntry(Detector):
     def __init__(self):
-        self.pattern1 = re.compile('(\w*)\.putNextEntry\(')
-        self.pattern2 = re.compile('(\w*)\.closeEntry\(')
+        self.pattern1 = re.compile('\.putNextEntry\(')
+        self.pattern2 = re.compile('\.closeEntry\(\s*\)')
 
     def _visit_patch(self, patch):
         for hunk in patch:
@@ -22,12 +22,7 @@ class AMCREATESEMPTYZIPFILEENTRY(Detector):
                 if i in hunk.addlines:
                     line_content = line_content[1:]  # remove "+"
 
-                if is_comment(line_content):
-                    continue
-
-                match1 = self.pattern1.search(line_content)
-                if match1:
-                    putNext = True
+                if (not line_content.strip()) or is_comment(line_content):
                     continue
 
                 match2 = self.pattern2.search(line_content)
@@ -36,4 +31,10 @@ class AMCREATESEMPTYZIPFILEENTRY(Detector):
                     self.bug_accumulator.append(BugInstance('AM_CREATES_EMPTY_ZIP_FILE_ENTRY', confidence,
                                                             patch.name, hunk.lines[i].lineno[1],
                                                             'Creates an empty zip file entry'))
+
+                match1 = self.pattern1.search(line_content)
+                if match1:
+                    putNext = True
+                    continue
+
                 putNext = False
