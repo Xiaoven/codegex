@@ -12,7 +12,6 @@ class TestAmCreatesEmptyZipFileEntry:
         detector = AmCreatesEmptyZipFileEntry()
         detector.visit([patch])
         assert len(detector.bug_accumulator) == 1
-        detector.report()
 
     #DIY
     def test_AM_CREATES_EMPTY_ZIP_FILE_ENTRY_02(self):
@@ -22,4 +21,3 @@ class TestAmCreatesEmptyZipFileEntry:
         detector = AmCreatesEmptyZipFileEntry()
         detector.visit([patch])
         assert len(detector.bug_accumulator) == 1
-        detector.report()

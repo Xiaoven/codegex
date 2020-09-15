@@ -12,4 +12,3 @@ class TestFiPublicShouldBeProtected:
         detector = FiPublicShouldBeProtected()
         detector.visit([patch])
         assert len(detector.bug_accumulator) == 1
-        detector.report()

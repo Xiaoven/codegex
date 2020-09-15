@@ -25,16 +25,17 @@ class AmCreatesEmptyZipFileEntry(Detector):
                 if (not line_content.strip()) or is_comment(line_content):
                     continue
 
-                match2 = self.pattern2.search(line_content)
-                if match2 and putNext:
-                    confidence = Priorities.NORMAL_PRIORITY
-                    self.bug_accumulator.append(BugInstance('AM_CREATES_EMPTY_ZIP_FILE_ENTRY', confidence,
-                                                            patch.name, hunk.lines[i].lineno[1],
-                                                            'Creates an empty zip file entry'))
+                if not putNext:
+                    m = self.pattern1.search(line_content)
+                    if m:
+                        putNext = True
+                        continue
 
-                match1 = self.pattern1.search(line_content)
-                if match1:
-                    putNext = True
-                    continue
+                if putNext:
+                    m = self.pattern2.search(line_content)
+                    if m:
+                        self.bug_accumulator.append(BugInstance('AM_CREATES_EMPTY_ZIP_FILE_ENTRY', Priorities.NORMAL_PRIORITY,
+                                                                patch.name, hunk.lines[i].lineno[1],
+                                                                'Creates an empty zip file entry'))
 
                 putNext = False

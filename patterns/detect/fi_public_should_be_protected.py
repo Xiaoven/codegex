@@ -25,7 +25,6 @@ class FiPublicShouldBeProtected(Detector):
 
                 match = self.pattern.search(line_content)
                 if match:
-                    confidence = Priorities.NORMAL_PRIORITY
-                    self.bug_accumulator.append(BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', confidence,
+                    self.bug_accumulator.append(BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', Priorities.NORMAL_PRIORITY,
                                                             patch.name, hunk.lines[i].lineno[1],
                                                             'Finalizer should be protected, not public'))
