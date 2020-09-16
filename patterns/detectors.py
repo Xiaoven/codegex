@@ -1,4 +1,6 @@
-from patterns.utils import logger
+from patterns.utils import logger, is_comment
+
+
 class Detector:
     '''
     The interface which all bug pattern detectors must implement.
@@ -22,3 +24,62 @@ class Detector:
         '''
         for bug_ins in self.bug_accumulator:
             logger.warning(str(bug_ins))
+
+'''
+ParentDetector and SubDetector are for multiple single-line patterns in the same file
+'''
+class ParentDetector(Detector):
+    def __init__(self, detectors: list):
+        '''
+        Init the parent detector
+        :param detectors: SubDetectors
+        '''
+        self.subdetectors = detectors
+
+    def _visit_patch(self, patch):
+        '''
+        Scan the patch using sub-detectors and generate bug instances
+        :param patch:
+        :return: None
+        '''
+        # detect patch
+        for hunk in patch:
+            for i in range(len(hunk.lines)):
+                # detect all lines in the patch rather than the addition
+                if i in hunk.dellines:
+                    continue
+
+                line_content = hunk.lines[i].content
+                if i in hunk.addlines:
+                    line_content = line_content[1:]  # remove "+"
+
+                line_content = line_content.strip()
+                if not line_content or is_comment(line_content):
+                    continue
+
+                for detector in self.subdetectors:
+                    detector.match(line_content, patch.name, hunk.lines[i].lineno[1])
+
+        # collect bug instances
+        for detector in self.subdetectors:
+            if detector.bug_accumulator:
+                self.bug_accumulator += detector.bug_accumulator
+                detector.reset()
+
+
+class SubDetector:
+    def __init__(self):
+        self.bug_accumulator = []
+
+    def match(self, linecontent: str, filename: str, lineno: int):
+        '''
+        Match single line and generate bug instance using regex pattern
+        :param linecontent: line string to be search
+        :param filename: file name
+        :param lineno: line number in the file
+        :return: None
+        '''
+        pass
+
+    def reset(self):
+        self.bug_accumulator = []

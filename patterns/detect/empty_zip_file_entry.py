@@ -6,7 +6,7 @@ import patterns.priorities as Priorities
 from patterns.utils import is_comment
 
 
-class AmCreatesEmptyZipFileEntry(Detector):
+class EmptyZipFileEntry(Detector):
     def __init__(self):
         self.pattern1 = re.compile('\.putNextEntry\(')
         self.pattern2 = re.compile('\.closeEntry\(\s*\)')

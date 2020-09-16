@@ -10,7 +10,9 @@ class TestCntRoughConstantValue:
         assert len(detector.bug_accumulator) == 2
 
     def test_02(self):
-        with open('data/cnt_rough_constant_value.java', 'r') as f:
+        # succeed to find file when run `python -m pytest tests/ ` from command line
+        # but fail when run from pycharm
+        with open('tests/data/cnt_rough_constant_value.java', 'r') as f:
             content = f.read()
         if content:
             patch = Patch()
