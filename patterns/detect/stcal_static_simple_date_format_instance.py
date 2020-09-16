@@ -13,7 +13,7 @@ from patterns.utils import is_comment
 
 class StcalStaticSimpleDateFormatInstance(Detector):
     def __init__(self):
-        self.regexp = re.compile('static\s*.*\s*SimpleDateFormat\s*.*\s*=\s*new\s*SimpleDateFormat\(')
+        self.regexp = re.compile('static\s*.*\s*(SimpleDateFormat|DateFormat|MyOwnDateFormat)')
     
     def _visit_patch(self, patch):
         for hunk in patch:
@@ -31,6 +31,6 @@ class StcalStaticSimpleDateFormatInstance(Detector):
                 
                 match = self.regexp.search(line_content)
                 if match:
-                    confidence = Priorities.LOW_PRIORITY
+                    confidence = Priorities.NORMAL_PRIORITY
                     self.bug_accumulator.append(BugInstance('STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE', confidence,patch.name, hunk.lines[i].lineno[1],'Static DateFormat'))
 
