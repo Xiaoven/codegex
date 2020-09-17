@@ -25,9 +25,12 @@ class Detector:
         for bug_ins in self.bug_accumulator:
             logger.warning(str(bug_ins))
 
+
 '''
 ParentDetector and SubDetector are for multiple single-line patterns in the same file
 '''
+
+
 class ParentDetector(Detector):
     def __init__(self, detectors: list):
         '''

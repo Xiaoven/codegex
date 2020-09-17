@@ -1,4 +1,4 @@
-from patterns.detect.incompat_mask import BitSignedCheckAndBitAndZZ
+from patterns.detect.incompat_mask import IncompatMaskMethods
 from rparser import Patch
 
 
@@ -13,7 +13,7 @@ class TestChekSignOfBitoperation:
             "rootPane;\n \n+          if ((e.getChangeFlags() & e.PARENT_CHANGED) > 0)\n+          if (("
             "e.getChangeFlags() & e.PARENT_CHANGED) != 0)\n           {\n             rootPane = getRootPane();\n     "
             "        if (rootPane == null)}")
-        detector = BitSignedCheckAndBitAndZZ()
+        detector = IncompatMaskMethods()
         detector.visit([patch])
         detector.report()
         assert len(detector.bug_accumulator) == 1
@@ -29,7 +29,7 @@ class TestChekSignOfBitoperation:
             "IResourceDelta.CHANGED) != 0 && (delta.getFlags() & IResourceDelta.MARKERS) != 0) {\n             "
             "getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {\n                 public void run() {"
             "\n                     loadProblems();")
-        detector = BitSignedCheckAndBitAndZZ()
+        detector = IncompatMaskMethods()
         detector.visit([patch])
         detector.report()
         assert len(detector.bug_accumulator) == 1
@@ -42,7 +42,7 @@ class TestChekSignOfBitoperation:
             "@@ -3,6 +3,8 @@  public static void main(String[] args){\n        int a = 1; int b = -1;\n+        "
             "Boolean test_var1 = (a&b)>0;\n        int     test_var2 = -1;\n +        if(test_var1&& test_var2 >0){\n "
             "           System.out.println(\"branch1\");\n        }\n    }  ")
-        detector = BitSignedCheckAndBitAndZZ()
+        detector = IncompatMaskMethods()
         detector.visit([patch])
         detector.report()
         assert len(detector.bug_accumulator) == 1
@@ -56,7 +56,7 @@ class TestChekSignOfBitoperation:
             "rootPane;\n \n+          if ((e.getChangeFlags() & e.PARENT_CHANGED) > 0)\n+          if (("
             "e.getChangeFlags() & 0) == 0)\n           {\n             rootPane = getRootPane();\n             if ("
             "rootPane == null)}")
-        detector = BitSignedCheckAndBitAndZZ()
+        detector = IncompatMaskMethods()
         detector.visit([patch])
         detector.report()
         assert len(detector.bug_accumulator) == 2
@@ -69,7 +69,7 @@ class TestChekSignOfBitoperation:
             "@@ -51,7 +51,7 @@ public void hierarchyChanged(HierarchyEvent e)\n         {\n           JRootPane "
             "rootPane;\n \n+          if ((e.getChangeFlags() & 0) == 0 &&(e.getChangeFlags() & e.PARENT_CHANGED)> 0)\n              {\n             rootPane = getRootPane("
             ");\n             if (rootPane == null)}")
-        detector = BitSignedCheckAndBitAndZZ()
+        detector = IncompatMaskMethods()
         detector.visit([patch])
         detector.report()
         assert len(detector.bug_accumulator) == 2
