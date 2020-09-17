@@ -6,7 +6,7 @@ import patterns.priorities as Priorities
 from patterns.utils import is_comment
 
 
-class FiExplicitInvocation(Detector):
+class FindFinalizeInvocations(Detector):
     def __init__(self):
         self.pattern = re.compile('\.finalize\s*\(\s*\)\s*;')
 

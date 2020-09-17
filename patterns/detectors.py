@@ -22,3 +22,20 @@ class Detector:
         '''
         for bug_ins in self.bug_accumulator:
             logger.warning(str(bug_ins))
+
+class SubDetector:
+    '''
+    For single line pattern
+    '''
+    def __init__(self):
+        self.bug_accumulator = []
+
+    def match(self, linecontent: str, filename: str, lineno: int):
+        '''
+        Match single line and generate bug instance using regex pattern
+        :param linecontent: line string to be search
+        :param filename: file name
+        :param lineno: line number in the file
+        :return: None
+        '''
+        pass
