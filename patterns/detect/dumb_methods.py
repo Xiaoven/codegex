@@ -1,41 +1,16 @@
 import regex
 
-from patterns.detectors import Detector, SubDetector
+from patterns.detectors import ParentDetector, SubDetector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
-from patterns.utils import is_comment
 
 
-class DumbMethods(Detector):
-    def _visit_patch(self, patch):
-        # init sub detectors
-        subdetectors = [
+class DumbMethods(ParentDetector):
+    def __init__(self):
+        ParentDetector.__init__(self, [
             FinalizerOnExitSubDetector(),
-            RandomOnceSubDetector()]
-
-        # detect patch
-        for hunk in patch:
-            for i in range(len(hunk.lines)):
-                # detect all lines in the patch rather than the addition
-                if i in hunk.dellines:
-                    continue
-
-                line_content = hunk.lines[i].content
-                if i in hunk.addlines:
-                    line_content = line_content[1:]  # remove "+"
-
-                line_content = line_content.strip()
-                if not line_content or is_comment(line_content):
-                    continue
-
-                for detector in subdetectors:
-                    detector.match(line_content, patch.name, hunk.lines[i].lineno[1])
-
-        # collect bug instances
-        for detector in subdetectors:
-            if detector.bug_accumulator:
-                self.bug_accumulator += detector.bug_accumulator
-
+            RandomOnceSubDetector()
+        ])
 
 
 class FinalizerOnExitSubDetector(SubDetector):
