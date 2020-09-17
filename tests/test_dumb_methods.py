@@ -1,4 +1,3 @@
-from patterns.detect.find_finalize_invocations import FiExplicitInvocation
 from rparser import Patch
 from patterns.detect.dumb_methods import DumbMethods
 
