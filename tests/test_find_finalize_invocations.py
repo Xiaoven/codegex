@@ -14,5 +14,27 @@ class Test:
         detector = FindFinalizeInvocations()
         detector.visit([patch])
         assert len(detector.bug_accumulator) == 1
+        bug_ins = detector.bug_accumulator[0]
+        assert bug_ins.type == 'FI_EXPLICIT_INVOCATION'
+        assert bug_ins.line_no == 622
+
+    # From other repository: https: // github.com / ustcweizhou / libvirt - java / commit / c827e87d958d1cb7a969747fcb6c8c1724a7889d
+    def test_FI_PUBLIC_SHOULD_BE_PROTECTED_01(self):
+        patch = Patch()
+        patch.name = "Connect.java"
+        patch.parse(
+            '''@@ -533,6 +533,7 @@ public String domainXMLToNative(String nativeFormat, String domainXML, int flags
+                        }
+                  
+                        @Override
+                   +    public void finalize() throws LibvirtException {
+                          close();
+                               }''')
+        detector = FindFinalizeInvocations()
+        detector.visit([patch])
+        assert len(detector.bug_accumulator) == 1
+        bug_ins = detector.bug_accumulator[0]
+        assert bug_ins.type == 'FI_PUBLIC_SHOULD_BE_PROTECTED'
+        assert bug_ins.line_no == 536
 
 
