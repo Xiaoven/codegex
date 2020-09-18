@@ -9,7 +9,8 @@ class DumbMethods(ParentDetector):
     def __init__(self):
         ParentDetector.__init__(self, [
             FinalizerOnExitSubDetector(),
-            RandomOnceSubDetector()
+            RandomOnceSubDetector(),
+            StringCtorSubDetector()
         ])
 
 
@@ -44,3 +45,25 @@ class RandomOnceSubDetector(SubDetector):
                 BugInstance('DMI_RANDOM_USED_ONLY_ONCE', Priorities.HIGH_PRIORITY, filename, lineno,
                             'Random object created and used only once')
             )
+
+
+class StringCtorSubDetector(SubDetector):
+    def __init__(self):
+        self.pattern = regex.compile('new\s+String(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
+        SubDetector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int):
+        m = self.pattern.search(linecontent)
+        if m:
+            groups = m.groups()
+            assert len(groups) == 2
+            if not groups[1] or not groups[1].strip():
+                self.bug_accumulator.append(BugInstance('DM_STRING_VOID_CTOR', Priorities.NORMAL_PRIORITY,
+                                                        filename, lineno,
+                                                        'Method invokes inefficient new String() constructor'))
+            else:
+                if '"' in groups[1] or '+' in groups[1]:
+                    # new String(var1 + var2) means that both var1 and var2 are of String type
+                    self.bug_accumulator.append(BugInstance('DM_STRING_CTOR', Priorities.NORMAL_PRIORITY,
+                                                            filename, lineno,
+                                                            'Method invokes inefficient new String(String) constructor'))
