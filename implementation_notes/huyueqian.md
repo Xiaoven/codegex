@@ -45,3 +45,24 @@ String s2 = new String(stringVar1 + stringVar2);
 ```
 ##### 实现思路
 见 DM_STRING_VOID_CTOR.
+
+#### AM: Creates an empty zip file entry (AM_CREATES_EMPTY_ZIP_FILE_ENTRY)
+
+##### Regex
+
+```php
+\.putNextEntry\s*\(
+\.closeEntry\s*\(\s*\)   
+```
+
+##### Examples
+
+```java
+	  out.putNextEntry(feedbackSubAttachmentFolderEntry);
+ -    out.flush();
+ 	  out.closeEntry(); 
+```
+
+##### 实现思路
+
+1. 判断`putNextEntry（）`和`closeEntry（）`是否在相邻非空行
