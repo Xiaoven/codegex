@@ -1,7 +1,7 @@
 #### Dm: Method invokes inefficient new String() constructor (DM_STRING_VOID_CTOR)
 ##### Regex
 ```regexp
-new\s+String(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))
+new\s+String\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))
 ```
 ##### Examples
 ```java
@@ -18,7 +18,7 @@ new String (  )
 #### Dm: Method invokes inefficient new String(String) constructor (DM_STRING_CTOR)
 ##### Regex
 ```regexp
-new\s+String(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))
+new\s+String\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))
 ```
 ##### Examples
 ```java

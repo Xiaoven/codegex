@@ -142,6 +142,20 @@ class TestFinalizer:
         bugins = detector.bug_accumulator[0]
         assert bugins.type == 'DM_STRING_VOID_CTOR'
         assert bugins.line_no == 1153
+    # DIY
+    def test_DM_STRING_VOID_CTOR_03(self):
+        patch = Patch()
+        patch.name = "Fake.java"
+        patch.parse(
+            '''@@ -1153,7 +1153,7 @@ public String toStringRecursive(String prefix, boolean prefixAtStart,
+            String s = new String ();
+            ''')
+        detector = DumbMethods()
+        detector.visit([patch])
+        assert len(detector.bug_accumulator) == 1
+        bugins = detector.bug_accumulator[0]
+        assert bugins.type == 'DM_STRING_VOID_CTOR'
+        assert bugins.line_no == 1153
 
     # From other repository: https://github.com/test-pki/dogtag-pki/commit/a4db0f39e257950a5c89203452c1184c7080e5bd#diff-a73d367ef2afa1ab0151ca0df88ac96d
     def test_DM_STRING_CTOR_01(self):

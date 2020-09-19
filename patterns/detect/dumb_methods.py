@@ -49,7 +49,7 @@ class RandomOnceSubDetector(SubDetector):
 
 class StringCtorSubDetector(SubDetector):
     def __init__(self):
-        self.pattern = regex.compile('new\s+String(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
+        self.pattern = regex.compile('new\s+String\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
         SubDetector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int):
