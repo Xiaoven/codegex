@@ -29,7 +29,7 @@ class ExplicitInvSubDetector(SubDetector):
 
 class PublicAccessSubDetector(SubDetector):
     def __init__(self):
-        self.pattern = re.compile('public\s+void\s+finalize\(\s*\)')
+        self.pattern = re.compile('public\s+void\s+finalize\s*\(\s*\)')
         SubDetector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int):

@@ -3,7 +3,7 @@
 ##### Regex
 
 ```php
-public\s+void\s+finalize\(\s*\) 
+public\s+void\s+finalize\s*\(\s*\) 
 ```
 
 ##### Examples
