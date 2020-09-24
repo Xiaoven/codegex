@@ -10,7 +10,6 @@ class TestStcalStaticSimpleDateFormatInstance:
         patch.parse('''@@ -0,0 +1,34 @@
         import java.text.DateFormat;
         import java.text.SimpleDateFormat;
-        
         public class Main{
             public static final SimpleDateFormat FORMAT_DB_DATE = new SimpleDateFormat("yyyyMMdd");
             public static final DateFormat FORMAT_DB_DATE2 = new SimpleDateFormat("yyyyMMdd");
@@ -19,3 +18,19 @@ class TestStcalStaticSimpleDateFormatInstance:
         detector = StaticCalendarDetector()
         detector.visit([patch])
         assert len(detector.bug_accumulator) == 3
+
+    def test_STCAL_STATIC_CALENDAR_INSTANCE_01(self):
+        patch = Patch()
+        patch.name = "Bug3441912.java"
+        patch.parse('''@@ -0,0 +1,34 @@
+                import java.util.Calendar;
+                public class Main{
+                    public static final Calendar cal = Calendar.getInstance();
+                }''')
+        detector = StaticCalendarDetector()
+        detector.visit([patch])
+        detector.report()
+        assert len(detector.bug_accumulator) == 1
+        bugins = detector.bug_accumulator[0]
+        assert bugins.type == 'STCAL_STATIC_CALENDAR_INSTANCE'
+        assert bugins.line_no == 3
