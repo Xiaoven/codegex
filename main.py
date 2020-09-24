@@ -2,7 +2,7 @@ import json
 import glob
 
 from rparser import Patch
-from patterns.detect.dumb_methods import DmRunFinalizerOnExit
+from patterns.detect.dumb_methods import DumbMethods
 from patterns.utils import logger
 
 
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     for p in paths:
         patchset = get_modified_patchset(p)
         if patchset:
-            detector = DmRunFinalizerOnExit() # run different detector on Java pull requests
+            detector = DumbMethods() # run different detector on Java pull requests
             detector.visit(patchset)
             if detector.bug_accumulator:
                 logger.info(p)

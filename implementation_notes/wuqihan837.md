@@ -1,7 +1,27 @@
-STCAL: Static DateFormat （STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE）
-Regex
-static\s*.\s(SimpleDateFormat|DateFormat|MyOwnDateFormat)
-Examples
-①public static final SimpleDateFormat PRV_ST_FI_LOCAL_SIMPLE_DATE_FORMAT = new SimpleDateFormat(); ②static DateFormat; ③static DateFormat = null; ④static MyOwnDateFormat = new MyOwnDateFormat();
-实现思路 DateFormat和SimpleDateFormat这些类是非线程安全的，不宜和static一起使用
-无论是否有'=' 或者 'new 类名()' 该正则表达式都可以匹配到该pattern Example①： 匹配到static final SimpleDateFormat PRV_ST_FI_LOCAL_SIMPLE_DATE_FORMAT = new SimpleDateFormat() Example②：匹配到static DateFormat Example③：匹配到static DateFormat Example④：匹配到static MyOwnDateFormat = new MyOwnDateFormat()
+#### STCAL: Static DateFormat（STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE）
+[简要描述](https://spotbugs.readthedocs.io/en/stable/bugDescriptions.html#stcal-static-dateformat-stcal-static-simple-date-format-instance):
+As the JavaDoc states, DateFormats are inherently unsafe for multithreaded use. 
+##### Regex
+```regexp
+(\w*\s*)static\s+(?:final){0,1}\s*(?:java\.text\.){0,1}(DateFormat|SimpleDateFormat)\s+(\w*)
+```
+##### Examples
+```java
+static final SimpleDateFormat d;
+static java.text.DateFormat d; 
+static DateFormat d = null;
+static SimpleDateFormat d = new SimpleDateFormat();
+```
+##### 实现思路
+1. [spotbugs 实现思路](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/StaticCalendarDetector.java#L196): 
+```java
+/**
+ * Checks if the visited field is of type {@link java.util.Calendar} or
+ * {@link java.text.DateFormat} or a subclass of either one. If so and the
+ * field is static and non-private it is suspicious and will be reported.
+ */
+```
+2. 我的实现思路： 
+	- 由于我们不方便获取变量类型信息，我们可以直接匹配 Field 的声明语句是否类似于 `public static DateFormat d`
+	- 正则表达式会提取权限修饰符、类名和变量名，如果是 `private` field 则跳过，否则判断类名是 DateFormat 还是 Calendar
+	- 根据 [Javadoc](https://docs.oracle.com/javase/8/docs/api/java/text/DateFormat.html), `DateFormat` 的 Direct Known Subclasses 只有 `SimpleDateFormat` 类，故只匹配这两种类型，先不考虑自定义的 DateFormat 的子类

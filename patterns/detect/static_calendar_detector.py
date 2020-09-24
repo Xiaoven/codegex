@@ -1,34 +1,35 @@
-import re
+import regex
 
-from patterns.detectors import Detector
-
+from patterns.detectors import ParentDetector, SubDetector
 from patterns.bug_instance import BugInstance
-
 import patterns.priorities as Priorities
 
-from patterns.utils import is_comment
 
-
-class StcalStaticSimpleDateFormatInstance(Detector):
+class StaticCalendarDetector(ParentDetector):
     def __init__(self):
-        self.regexp = re.compile('static\s*.*\s*(SimpleDateFormat|DateFormat|MyOwnDateFormat)')
-    
-    def _visit_patch(self, patch):
-        for hunk in patch:
-            for i in range(len(hunk.lines)):
-                if i in hunk.dellines:
-                    continue
+        ParentDetector.__init__(self, [
+            StaticDateFormatSubDetector()
+        ])
 
-                line_content = hunk.lines[i].content
-                if i in hunk.addlines:
-                    line_content = line_content[1:]  # remove "+"
 
-                   
-                if is_comment(line_content):
-                    continue
-                
-                match = self.regexp.search(line_content)
-                if match:
-                    confidence = Priorities.NORMAL_PRIORITY
-                    self.bug_accumulator.append(BugInstance('STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE', confidence,patch.name, hunk.lines[i].lineno[1],'Static DateFormat'))
+class StaticDateFormatSubDetector(SubDetector):
+    def __init__(self):
+        self.p = regex.compile(r'(\w*\s*)static\s+(?:final){0,1}\s*(?:java\.text\.){0,1}(DateFormat|SimpleDateFormat)\s+(\w*)')
+        SubDetector.__init__(self)
 
+    def match(self, linecontent: str, filename: str, lineno: int):
+        m = self.p.search(linecontent)
+
+        if m:
+            groups = m.groups()
+            assert len(groups) == 3
+            access = groups[0]
+            if access and 'private' in access.split():
+                return
+            class_name = groups[1]
+            field_name = groups[2]
+            if class_name.endswith('DateFormat'): # may extend with Calendar in the future
+                self.bug_accumulator.append(
+                    BugInstance('STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE',
+                                Priorities.NORMAL_PRIORITY, filename, lineno,
+                                f"{field_name} is a static field of type java.text.DateFormat, which isn't thread safe"))
