@@ -51,7 +51,7 @@ class Patch(object):
             yield h
 
     def parse(self, stream):
-        re_hunk_start = re.compile('^@@ -(\d+),?(\d+)? \+(\d+),?(\d+)? @@.*?')
+        re_hunk_start = re.compile(r'^@@ -(\d+),?(\d+)? \+(\d+),?(\d+)? @@.*?')
         f = StringIO(stream)
         hunk = None
         cnt_dict = {}
