@@ -4,12 +4,12 @@
 (?:(?:String\.format)|printf)\([\w\.\s\(\)]*,{0,1}\s*\"([^\"]*)\"\s*
 
 ##### Examples
-printf("[WARN] Failed to set an integer 
-    value of ")
+```java
 
 String.format( Locale.US , "Payload:\n%s" , new Object[1]);
 
 String.format("Payload:\n%s" , new Object[1]);
+```
 
 ##### 实现思路
 
@@ -21,8 +21,9 @@ String.format("Payload:\n%s" , new Object[1]);
 
 #### DMI: Random object created and used only once (DMI_RANDOM_USED_ONLY_ONCE)
 ##### Regex
+```regexp
 new\s+[\w\.]*Random(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))++\.next\w*\(\s*\)
-...
+```
 ##### Examples
 ```java
 // https://github.com/jenkinsci/android-emulator-plugin/commit/0e104f3f0fc18505c13932fccd3b2297e78db694#diff-238b9af87181bb379670392cdb1dcd6bL173
@@ -38,3 +39,20 @@ seedValue = new java.util.Random().nextLong();
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/DumbMethods.java#L495): 判断变量类型，其中freshRandomOnTos和freshRandomOneBelowTos两个变量意思不明。
 
 根据[搜到的例子](https://github.com/search?q=DMI_RANDOM_USED_ONLY_ONCE&type=commits)，可以匹配形如 `new java.util.Random(XXX).nextXXX()` 的用法，它创建对象后马上使用，而不是把对象存在变量里，方便复用
+
+#### UI: Usage of GetResource may be unsafe if class is extended (UI_INHERITANCE_UNSAFE_GETRESOURCE)
+
+##### Regex
+```regexp
+(\w*)\.*getClass\(\s*\)\.getResource(?:AsStream){0,1}\(
+```
+##### Examples
+```java
+getClass().getResourceAsStream("XStreamDOMTest.data1.xml")
+this.getClass().getResourceAsStream(DB_SCHEMA)
+URL url = this.getClass().getResource(imagePath)
+```
+##### 实现思路
+[spotbugs](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/InheritanceUnsafeGetResource.java#L108)
+
+我的思路：提取 `this.getClass().getResource(...)` 里 `this` 位置的内容，如果为 None 或 this， 则生成 warning
