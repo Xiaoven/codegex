@@ -23,7 +23,8 @@ param_DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION = [
         }
         String itemName = item.get("class") + "/" + itemSubclass;
         String imagePath = "/data/sprites/items/" + itemName + ".png";
-        URL url = this.getClass().getResource(imagePath);''', 1, 157)
+        URL url = this.getClass().getResource(imagePath);
+        URL url = ItemListImageViewerEvent.class.getResource(imagePath);''', 1, 157)
 ]
 
 
