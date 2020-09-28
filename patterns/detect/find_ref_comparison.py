@@ -1,43 +1,51 @@
 import regex
 
-from patterns.detectors import Detector
+from patterns.detectors import ParentDetector, SubDetector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
 from patterns.utils import is_comment
 
 
-class FindRefComparison(Detector):
+class FindRefComparison(ParentDetector):
     def __init__(self):
-        self.comp_eq = regex.compile(
-            '((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.])++)\s*[!=]=\s*((?:(?&aux1)|[\w.])+)')
+        ParentDetector.__init__(self,[EqualitySubDetector()])
+
+
+class EqualitySubDetector(SubDetector):
+    def __init__(self):
+        self.p = regex.compile(
+            r'((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w."])++)\s*[!=]=\s*((?:(?&aux1)|[\w."])+)')
         self.bool_objs = ('Boolean.TRUE', 'Boolean.FALSE')
+        SubDetector.__init__(self)
 
-    def _visit_patch(self, patch):
-        for hunk in patch:
-            for i in range(len(hunk.lines)):
-                # detect all lines in the patch rather than the addition
-                if i in hunk.dellines:
-                    continue
+    def match(self, linecontent: str, filename: str, lineno: int):
+        m = self.p.search(linecontent)
+        if m:
+            op_1 = m.groups()[0]  # m.groups()[1] is the result of named pattern
+            op_2 = m.groups()[2]
 
-                line_content = hunk.lines[i].content
-                if i in hunk.addlines:
-                    line_content = line_content[1:]  # remove "+"
+            if op_1 in self.bool_objs or op_2 in self.bool_objs:
+                self.bug_accumulator.append(
+                    BugInstance('RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN', Priorities.NORMAL_PRIORITY,
+                                filename, lineno,
+                                "Suspicious reference comparison of Boolean values")
+                )
+            else:
+                if op_2.startswith('"'):
+                    op_1, op_2 = op_2, op_1
+                elif not op_1.startswith('"'):
+                    return  # both op_1 and op_2 are not a string
 
-                if is_comment(line_content):
-                    continue
+                # now op_1 is a string with double quotes
+                if op_2.startswith('"') or op_2.startswith('String.intern'):
+                    return
+                else:
+                    self.bug_accumulator.append(
+                        BugInstance('ES_COMPARING_STRINGS_WITH_EQ', Priorities.NORMAL_PRIORITY,
+                                    filename, lineno,
+                                    "Suspicious reference comparison of Boolean values")
+                    )
 
-                line_content = line_content.strip()
-                m = self.comp_eq.search(line_content)
-                if m:
-                    op_1 = m.groups()[0]  # m.groups()[0] is the result of named pattern
-                    op_2 = m.groups()[2]
-
-                    if op_1 in self.bool_objs or op_2 in self.bool_objs:
-                        self.bug_accumulator.append(
-                            BugInstance('RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN', Priorities.NORMAL_PRIORITY,
-                                        patch.name, hunk.lines[i].lineno[1],
-                                        "Suspicious reference comparison of Boolean values")
-                        )
 
 
 
