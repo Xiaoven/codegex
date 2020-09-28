@@ -76,6 +76,7 @@ if ("FOO" == value)
 由于我们无法获得变量类型等信息，故提取 `op_1 == op_2` 中的 `op_1` 和 `op_2`。如果其中一个是带双引号的string constant，另一个既不是string constant，也不以 `String.intern` 开头，则判断它为 ES_COMPARING_STRINGS_WITH_EQ
 
 #### Nm: Class names shouldn’t shadow simple name of superclass (NM_SAME_SIMPLE_NAME_AS_SUPERCLASS)
+注意： java只能继承一个父类，但可以实现多个接口
 ##### Regex
 ```regexp
 class\s+(\w+)\s+extends\s+([\w\.]+)
@@ -88,3 +89,28 @@ public class SpringLiquibase extends liquibase.integration.spring.SpringLiquibas
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L308) 
 
 对于像 `public class HsqlDatabase extends liquibase.database.core.HsqlDatabase` 的 class 定义，会获取两个 class 去除 package 部分后的 simple name，比较是否相等
+
+#### Nm: Class names shouldn’t shadow simple name of implemented interface (NM_SAME_SIMPLE_NAME_AS_INTERFACE)
+注意： 
+1. interface 可以 `extends` 多个 interfaces
+2. `extends` 和 `implements` 的顺序不能互换，IDE 会报错
+
+##### Regex
+```regexp
+class\s+((?:(?!extends)(?P<name>[\w\.\s<>,]))+)\s+(?&name)*implements\s+((?&name)+)
+interface\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?&name)+)
+```
+第二个正则表达式参考了 `((?!m).)*`， 表示匹配 `.` 的时候不包含
+##### Examples
+
+```java
+public class LocaleResolver implements org.springframework.web.servlet.LocaleResolver
+
+public interface Future<V> extends io.netty.util.concurrent.Future<V> {
+
+public class LocaleResolver implements DIY, org.springframework.web.servlet.LocaleResolver {
+
+public class ALActivityImpl extends org.apache.shindig.social.core.model.ActivityImpl implements Activity
+```
+##### 实现思路
+[spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L313) 类似 NM_SAME_SIMPLE_NAME_AS_SUPERCLASS
