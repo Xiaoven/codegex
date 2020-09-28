@@ -1,8 +1,9 @@
 #### FS: Format string should use %n rather than n (VA_FORMAT_STRING_USES_NEWLINE)
 
 ##### Regex
+```regexp
 (?:(?:String\.format)|printf)\([\w\.\s\(\)]*,{0,1}\s*\"([^\"]*)\"\s*
-
+```
 ##### Examples
 ```java
 
@@ -39,6 +40,39 @@ seedValue = new java.util.Random().nextLong();
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/DumbMethods.java#L495): 判断变量类型，其中freshRandomOnTos和freshRandomOneBelowTos两个变量意思不明。
 
 根据[搜到的例子](https://github.com/search?q=DMI_RANDOM_USED_ONLY_ONCE&type=commits)，可以匹配形如 `new java.util.Random(XXX).nextXXX()` 的用法，它创建对象后马上使用，而不是把对象存在变量里，方便复用
+
+#### DMI: Don’t use removeAll to clear a collection (DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION)
+检测形如 c.removeAll(c) 的pattern
+
+##### Regex
+
+```regexp
+(.*)\.removeAll\((.*)\)
+```
+##### Examples
+```java
+c.removeAll(c)
+```
+##### 实现思路
+[spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindUnrelatedTypesInGenericContainer.java#L509)
+
+1. 判断 object 和传参是否相等
+2. 如是，再判断 method name 是否是 `removeAll`
+
+#### ES: Comparison of String objects using == or != (ES_COMPARING_STRINGS_WITH_EQ)
+如题，unless both strings are either constants in a source file, or have been interned using the String.intern() method
+##### Regex
+```regexp
+((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w."])++)\s*[!=]=\s*((?:(?&aux1)|[\w."])+)
+```
+##### Examples
+```java
+if ("FOO" == value)
+```
+##### 实现思路
+[spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindRefComparison.java#L996) 
+
+由于我们无法获得变量类型等信息，故提取 `op_1 == op_2` 中的 `op_1` 和 `op_2`。如果其中一个是带双引号的string constant，另一个既不是string constant，也不以 `String.intern` 开头，则判断它为 ES_COMPARING_STRINGS_WITH_EQ
 
 #### UI: Usage of GetResource may be unsafe if class is extended (UI_INHERITANCE_UNSAFE_GETRESOURCE)
 
