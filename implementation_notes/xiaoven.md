@@ -74,3 +74,17 @@ if ("FOO" == value)
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindRefComparison.java#L996) 
 
 由于我们无法获得变量类型等信息，故提取 `op_1 == op_2` 中的 `op_1` 和 `op_2`。如果其中一个是带双引号的string constant，另一个既不是string constant，也不以 `String.intern` 开头，则判断它为 ES_COMPARING_STRINGS_WITH_EQ
+
+#### Nm: Class names shouldn’t shadow simple name of superclass (NM_SAME_SIMPLE_NAME_AS_SUPERCLASS)
+##### Regex
+```regexp
+class\s+(\w+)\s+extends\s+([\w\.]+)
+```
+##### Examples
+```java
+public class SpringLiquibase extends liquibase.integration.spring.SpringLiquibase
+```
+##### 实现思路
+[spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L308) 
+
+对于像 `public class HsqlDatabase extends liquibase.database.core.HsqlDatabase` 的 class 定义，会获取两个 class 去除 package 部分后的 simple name，比较是否相等
