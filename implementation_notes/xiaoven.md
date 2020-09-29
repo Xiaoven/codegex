@@ -131,3 +131,27 @@ public class ALActivityImpl extends org.apache.shindig.social.core.model.Activit
 ##### 实现思路
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L313) 类似 NM_SAME_SIMPLE_NAME_AS_SUPERCLASS
 
+#### RV: Random value from 0 to 1 is coerced to the integer 0 (RV_01_TO_INT)
+##### Regex
+```regexp
+\(\s*int\s*\)\s*(\w+)\.(?:random|nextDouble|nextFloat)\(\s*\)
+```
+##### Examples
+```java
+(int) Math.random()
+(int) randomObject.nextDouble()
+(int) randomObject.nextFloat()
+```
+##### 实现思路
+[spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/DumbMethods.java#L1144)
+1. 首先要满足以下条件, 似乎是调用了 `Random.nextDouble` 或 `Math.random` 方法
+```java
+seen == Const.INVOKEVIRTUAL && "java/util/Random".equals(getClassConstantOperand())
+&& "nextDouble".equals(getNameConstantOperand()) || seen == Const.INVOKESTATIC
+&& ClassName.isMathClass(getClassConstantOperand()) && "random".equals(getNameConstantOperand())
+```
+2. 然后要满足 `seen == Const.D2I` ，其中 seen 是传入的参数，Const.D2I 是某个库定义的，应该是什么浮点数被 convert 成 integer 的意思
+
+我的实现思路：
+1. 匹配静态调用 `(int) Math.random()`
+2. 匹配调用 `(int) randomObject.nextDouble()`， 并且拓展到 `nextFloat()` 方法。由于 randomObject 的名字可变，我们可以提取变量名，转成lowercase，看看是否包含 `rand`或者等于 `r`, 如果是，则 confidence 可以较高一点。

@@ -10,7 +10,8 @@ class DumbMethods(ParentDetector):
         ParentDetector.__init__(self, [
             FinalizerOnExitSubDetector(),
             RandomOnceSubDetector(),
-            StringCtorSubDetector()
+            StringCtorSubDetector(),
+            RandomD2ISubDetector()
         ])
 
 
@@ -44,6 +45,25 @@ class RandomOnceSubDetector(SubDetector):
             self.bug_accumulator.append(
                 BugInstance('DMI_RANDOM_USED_ONLY_ONCE', Priorities.HIGH_PRIORITY, filename, lineno,
                             'Random object created and used only once')
+            )
+
+
+class RandomD2ISubDetector(SubDetector):
+    def __init__(self):
+        self.pattern = regex.compile('\(\s*int\s*\)\s*(\w+)\.(?:random|nextDouble|nextFloat)\(\s*\)')
+        SubDetector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int):
+        m = self.pattern.search(linecontent)
+        if m:
+            confidence = Priorities.NORMAL_PRIORITY
+            obj = m.groups()[0].strip().lower()
+            if obj == 'math' or obj == 'r' or 'rand' in obj:
+                confidence = Priorities.HIGH_PRIORITY
+
+            self.bug_accumulator.append(
+                BugInstance('RV_01_TO_INT', confidence, filename, lineno,
+                            'Random value from 0 to 1 is coerced to the integer 0')
             )
 
 
