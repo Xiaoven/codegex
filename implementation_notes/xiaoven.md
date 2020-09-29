@@ -131,3 +131,20 @@ public class ALActivityImpl extends org.apache.shindig.social.core.model.Activit
 ##### 实现思路
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L313) 类似 NM_SAME_SIMPLE_NAME_AS_SUPERCLASS
 
+#### IL: A collection is added to itself (IL_CONTAINER_ADDED_TO_ITSELF)
+As a result, computing the hashCode of this set will throw a StackOverflowException.
+##### Regex
+```regexp
+(.*)\.add\((.*)\)
+```
+不建议使用 `(\w*)\.add\(\1\)` 这样的写法，会少匹配。如 `bb.add(b)` 会匹配 `b.add(b)`
+##### Examples
+```java
+testee.add(testee)
+```
+##### 实现思路
+[spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/InfiniteRecursiveLoop.java#L104):
+1. 检查 add 方法的 signature
+2. 判断 stack 里的 object 和参数是否相等
+
+我的做法：用正则匹配 `c.add(c)` 中 object 和参数位置，判断它们是否相等. 类似 DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION.
