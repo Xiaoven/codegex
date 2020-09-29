@@ -4,6 +4,9 @@
 # patterns/utils.py: 1
 loguru == 0.5.1
 
+# tests/test_inheritance_unsafe_get_resource.py: 1
+pytest == 6.0.1
+
 # patterns/detect/find_ref_comparison.py: 1
 # patterns/detect/incompat_mask.py: 5
 regex == 2020.7.14
