@@ -33,3 +33,21 @@ static SimpleDateFormat d = new SimpleDateFormat();
 ##### Examples
 ##### 实现思路
 见 STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE
+
+
+
+
+####  JCIP: Fields of immutable classes should be final(JCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS)
+简要描述：不可变类前面要加final
+
+##### Regex
+```regexp
+(f{0,1}i{0,1}n{0,1}a{0,1}l{0,1}\s+class\s+.*implements).*(String|Double|BigInteger|BigDecimal|Integer|Long|Float|Short|Byte|Charater|Boolean)
+```
+
+##### Examples
+```java
+public class String implements java.io.Serializable, Comparable<String>, CharSequence {
+```
+##### 实现思路
+匹配该正则表达式之后，用.groups()方法获取括号中的内容，对一个括号使用.split()方法，看final是否在其中，如果不在，则为bug。
