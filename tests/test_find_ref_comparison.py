@@ -46,3 +46,17 @@ class TestSerializableIdiom:
         assert len(detector.bug_accumulator) == 2
         assert detector.bug_accumulator[0].line_no == 21
         assert detector.bug_accumulator[1].line_no == 25
+
+    # DIY
+    def test_EC_NULL_ARG_01(self):
+        patch = Patch()
+        patch.name = "test.java"
+        patch.parse('''@@ -20,2 +19,2 @@ private static Object toJavaObject(Object maybeJson) throws JSONException{
+           if (maybeJson == null || maybeJson.equals(null))
+                return null;
+        }''')
+        detector = FindRefComparison()
+        detector.visit([patch])
+        detector.report()
+        assert len(detector.bug_accumulator) == 1
+        assert detector.bug_accumulator[0].line_no == 19
