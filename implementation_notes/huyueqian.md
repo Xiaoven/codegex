@@ -2,7 +2,7 @@
 
 ##### Regex
 
-```php
+```regexp
 public\s+void\s+finalize\s*\(\s*\) 
 ```
 
@@ -45,3 +45,24 @@ String s2 = new String(stringVar1 + stringVar2);
 ```
 ##### 实现思路
 见 DM_STRING_VOID_CTOR.
+
+### EC: Call to equals(null) (EC_NULL_ARG)
+
+##### Regex
+
+```regexp
+(.*)\.equals\s*\(\s*null\s*\)
+```
+
+##### Examples
+
+```java
+//DIY
+maybeJson.equals( null )
+```
+
+##### 实现思路
+
+[spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindRefComparison.java#L1127)
+
+使用正则表达式可以直接判断`.equals(null)`

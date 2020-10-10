@@ -8,7 +8,10 @@ from patterns.utils import is_comment
 
 class FindRefComparison(ParentDetector):
     def __init__(self):
-        ParentDetector.__init__(self,[EqualitySubDetector()])
+        ParentDetector.__init__(self, [
+            EqualitySubDetector(),
+            CalToNullSubDetector()
+        ])
 
 
 class EqualitySubDetector(SubDetector):
@@ -47,5 +50,17 @@ class EqualitySubDetector(SubDetector):
                     )
 
 
+class CalToNullSubDetector(SubDetector):
+    def __init__(self):
+        self.p = regex.compile(
+            r'(.*)\.equals\s*\(\s*null\s*\)')
+        SubDetector.__init__(self)
 
-
+    def match(self, linecontent: str, filename: str, lineno: int):
+        m = self.p.search(linecontent)
+        if m:
+            self.bug_accumulator.append(
+                BugInstance('EC_NULL_ARG', Priorities.NORMAL_PRIORITY,
+                            filename, lineno,
+                            "Call to equals(null)")
+            )
