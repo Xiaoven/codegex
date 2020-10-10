@@ -56,15 +56,12 @@ class RandomD2ISubDetector(SubDetector):
     def match(self, linecontent: str, filename: str, lineno: int):
         m = self.pattern.search(linecontent)
         if m:
-            confidence = Priorities.NORMAL_PRIORITY
             obj = m.groups()[0].strip().lower()
             if obj == 'math' or obj == 'r' or 'rand' in obj:
-                confidence = Priorities.HIGH_PRIORITY
-
-            self.bug_accumulator.append(
-                BugInstance('RV_01_TO_INT', confidence, filename, lineno,
-                            'Random value from 0 to 1 is coerced to the integer 0')
-            )
+                self.bug_accumulator.append(
+                    BugInstance('RV_01_TO_INT', Priorities.HIGH_PRIORITY, filename, lineno,
+                                'Random value from 0 to 1 is coerced to the integer 0')
+                )
 
 
 class StringCtorSubDetector(SubDetector):

@@ -13,6 +13,10 @@ params = [
     ('RV_01_TO_INT', 'Fake.java',
      '''@@ -3,1 +5,1 @@
      System.out.println((int) Math.random());''', 1, 5),
+    ('RV_01_TO_INT', 'Fake.java',
+     '''@@ -0,0 +1,2 @@
+     Scanner scanner = new Scannner(System.in);
+     int a = (int)scanner.nextFloat();''', 0, 0),
     # From other repository
     ('DM_RUN_FINALIZERS_ON_EXIT', 'StdEntropyDecoder.java',
      "@@ -622,7 +622,7 @@ public StdEntropyDecoder(CodedCBlkDataSrcDec src, DecoderSpecs decSpec,\n"
