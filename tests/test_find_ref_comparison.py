@@ -3,7 +3,7 @@ from rparser import Patch
 
 
 
-class TestSerializableIdiom:
+class TestFindRefComparison:
     # From other repository: https://github.com/aljohn368/first/commit/22c43eba4c4bb08e456b46d27695ff604e726d71
     def test_RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN_01(self):
         patch = Patch()
