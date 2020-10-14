@@ -33,3 +33,18 @@ static SimpleDateFormat d = new SimpleDateFormat();
 ##### Examples
 ##### 实现思路
 见 STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE
+
+####  Se: The readResolve method must not be declared as a static method (SE_READ_RESOLVE_IS_STATIC)
+简要描述：为使readResolve方法得到序列化机制的识别，不能作为一个静态方法来声明。
+
+##### Regex
+```regexp
+(s{0,1}t{0,1}a{0,1}t{0,1}i{0,1}c{0,1}\s+Object)\s+(readResolve\(\))
+```
+##### Examples
+```java
+private static Object readResolve() throws ObjectStreamException 
+```
+##### 实现思路
+匹配该正则表达式之后，用.groups()方法获取括号中的内容，对一个括号使用.split()方法，看static是否在其中，如果在，则为bug。
+
