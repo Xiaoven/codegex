@@ -3,7 +3,6 @@ import regex
 from patterns.detectors import ParentDetector, SubDetector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
-from patterns.utils import is_comment
 
 
 class FindRefComparison(ParentDetector):
