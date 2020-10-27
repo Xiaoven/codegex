@@ -3,3 +3,5 @@ Java/
 **/log/
 **/__pycache__/
 **/.pytest_cache
+**/out
+**/.DS_Store
