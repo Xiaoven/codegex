@@ -14,7 +14,7 @@ class MethodReturnCheck(ParentDetector):
 
 class NotThrowSubDetector(SubDetector):
     def __init__(self):
-        self.pattern = regex.compile(r'^\s*new\s+([\w]+)Exception\s*\(')
+        self.pattern = regex.compile(r'^\s*new\s+(\w+)(?:Exception|Error)\s*\(')
         SubDetector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int):

@@ -74,7 +74,7 @@ maybeJson.equals( null )
 ##### Regex
 
 ```regexp
-^\s*new\s+([\w]+)Exception\s*\(
+^\s*new\s+(\w+)(?:Exception|Error)\s*\(
 ```
 
 ##### Examples
@@ -95,5 +95,5 @@ maybeJson.equals( null )
 
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/MethodReturnCheck.java#L300)
 
-通过`^\s`判断new前无throw  然后判断`new xxxException(`的部分
+SpotBugs 是通过 class name 是否以 “Exception” 或 “Error” 结尾来判断的，我们用regex采取类似方法判断。然后通过`^\s`匹配new前无throw。
 
