@@ -24,7 +24,7 @@ class CollectionAddItselfSubDetector(SubDetector):
             assert len(g) == 2
             obj = g[0].strip()
             arg = g[1].strip()
-            if obj == arg:
+            if obj and obj == arg:
                 self.bug_accumulator.append(
                     BugInstance('IL_CONTAINER_ADDED_TO_ITSELF', Priorities.HIGH_PRIORITY, filename,
                                 lineno,

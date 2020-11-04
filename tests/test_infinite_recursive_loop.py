@@ -10,7 +10,12 @@ params = [
     final java.util.List<Object> testee = empty();
     testee.add(testee);
     assertThat(testee.containsAll(testee)).isTrue();
-    ''', 1, 16)
+    ''', 1, 16),
+    # From other repository: https://github.com/powsybl/powsybl-core/pull/1316/files#diff-ec7fd47ba0877273594bf79f852d46fde2adb8c2319c39467c7fe162d4c0c80bR34
+    ('IL_CONTAINER_ADDED_TO_ITSELF', 'Fake.java',
+     '''@@ -1,0 +1,0 @@ Substation substation = network.newSubstation()
+                .setId("S")
+                .add();''', 0, 2)
 ]
 
 @pytest.mark.parametrize('pattern_type,file_name,patch_str,expected_length,line_no', params)

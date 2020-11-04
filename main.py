@@ -65,3 +65,5 @@ if __name__ == '__main__':
                     detector.report()
                     has_bug = True
 
+        if has_bug:
+            logger.info(p)
