@@ -25,23 +25,25 @@ class Detector:
         for bug_ins in self.bug_accumulator:
             logger.warning(str(bug_ins))
 
-'''
-ParentDetector and SubDetector are for multiple single-line patterns in the same file
-'''
+
 class ParentDetector(Detector):
+    """
+    ParentDetector and SubDetector are for multiple single-line patterns in the same file
+    """
     def __init__(self, detectors: list):
-        '''
+        """
         Init the parent detector
         :param detectors: SubDetectors
-        '''
+        """
         self.subdetectors = detectors
 
     def _visit_patch(self, patch):
-        '''
+        """
         Scan the patch using sub-detectors and generate bug instances
         :param patch:
         :return: None
-        '''
+        """
+        in_multiline_comments = False
         # detect patch
         for hunk in patch:
             for i in range(len(hunk.lines)):
@@ -54,7 +56,18 @@ class ParentDetector(Detector):
                     line_content = line_content[1:]  # remove "+"
 
                 line_content = line_content.strip()
-                if not line_content or is_comment(line_content):
+                if not line_content or line_content.startswith('//'):
+                    continue
+
+                # skip multiline comments
+                if line_content.startswith('/*'):
+                    if not line_content.endswith('*/'):
+                        in_multiline_comments = True
+                    continue
+
+                if in_multiline_comments:
+                    if line_content.endswith('*/'):
+                        in_multiline_comments = False
                     continue
 
                 for detector in self.subdetectors:

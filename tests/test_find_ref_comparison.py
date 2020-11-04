@@ -1,3 +1,5 @@
+import pytest
+
 from patterns.detect.find_ref_comparison import FindRefComparison
 from rparser import Patch
 
@@ -60,3 +62,33 @@ class TestSerializableIdiom:
         detector.report()
         assert len(detector.bug_accumulator) == 1
         assert detector.bug_accumulator[0].line_no == 19
+
+
+params = [
+    (FindRefComparison(), 'ES_COMPARING_STRINGS_WITH_EQ', 'Fake.java',
+     '''@@ -1,0 +1,0 @@
+     @Override
+    public void onReceive(final Context context, Intent intent) {
+       /*  dbhelper = new DatabaseHandler(context, "RG", null, 1);
+        mURL = dbhelper.Obt_url();
+        if (mURL == ""){  
+            mURL = "http://186.96.89.66:9090/crccoding/f?p=2560:9999";
+            Log.i("SQLL","Url vacio");
+        }else{
+            Log.i("SQLL","Url cargado   "+mURL);
+        }*/
+        WebView gv = new WebView(context);''', 0, 5)
+]
+
+@pytest.mark.parametrize('detector,pattern_type,file_name,patch_str,expected_length,line_no', params)
+def test(detector, pattern_type:str, file_name: str, patch_str: str, expected_length: int, line_no: int):
+    patch = Patch()
+    patch.name = file_name
+    patch.parse(patch_str)
+    detector.visit([patch])
+    if expected_length > 0:
+        assert len(detector.bug_accumulator) == expected_length
+        assert detector.bug_accumulator[0].line_no == line_no
+        assert detector.bug_accumulator[0].type == pattern_type
+    else:
+        assert len(detector.bug_accumulator) == 0

@@ -6,6 +6,7 @@ os.makedirs(LOG_PATH, exist_ok=True)
 TRACE = logger.add(LOG_PATH + '/{time}.log')
 
 
+# TODO: deprecate is_comment method and refactor
 def is_comment(content: str):
     strip_content = content.strip()
     if strip_content.startswith('//') or strip_content.startswith('/*') or \
