@@ -39,12 +39,16 @@ static SimpleDateFormat d = new SimpleDateFormat();
 
 ##### Regex
 ```regexp
-(s{0,1}t{0,1}a{0,1}t{0,1}i{0,1}c{0,1}\s+Object)\s+(readResolve\(\))
+(static)?\s*Object\s+readResolve\(\)\s+throws\s+ObjectStreamException
 ```
 ##### Examples
 ```java
 private static Object readResolve() throws ObjectStreamException 
+static Object readResolve() throws ObjectStreamException
+public Object readResolve() throws ObjectStreamException  
 ```
 ##### 实现思路
-匹配该正则表达式之后，用.groups()方法获取括号中的内容，对一个括号使用.split()方法，看static是否在其中，如果在，则为bug。
-
+Spotbugs中的思路是先检测方法名是否为readResolve，如果是，则继续检测是否有static修饰词，如果有，则触发该pattern。
+#https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/SerializableIdiom.java
+我的实现思路为：将static用括号括起来，后面加？表示0次或者一次匹配。无论linecontent中是否有static，使用groups方法后得到的元组g长度都为1。
+得到该元组后，if 'static' in g, 则说明有static，触发pattern。

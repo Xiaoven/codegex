@@ -19,7 +19,48 @@ params = [
 ]
 
 @pytest.mark.parametrize('pattern_type,file_name,patch_str,expected_length,line_no', params)
-def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
+def test1(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
+    patch = Patch()
+    patch.name = file_name
+    patch.parse(patch_str)
+    detector = SeReadResolveIsStatic()
+    detector.visit([patch])
+    if expected_length > 0:
+        assert len(detector.bug_accumulator) == expected_length
+        assert detector.bug_accumulator[0].line_no == line_no
+        assert detector.bug_accumulator[0].type == pattern_type
+    else:
+        assert len(detector.bug_accumulator) == 0
+        
+
+params1 = [
+    ('SE_READ_RESOLVE_IS_STATIC', 'xxx.java',
+    '''@@ -0,0 +1,1 @@
+    static Object readResolve() throws ObjectStreamException {
+    ''', 1, 1)
+]
+@pytest.mark.parametrize('pattern_type,file_name,patch_str,expected_length,line_no', params1)
+def test2(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
+    patch = Patch()
+    patch.name = file_name
+    patch.parse(patch_str)
+    detector = SeReadResolveIsStatic()
+    detector.visit([patch])
+    if expected_length > 0:
+        assert len(detector.bug_accumulator) == expected_length
+        assert detector.bug_accumulator[0].line_no == line_no
+        assert detector.bug_accumulator[0].type == pattern_type
+    else:
+        assert len(detector.bug_accumulator) == 0
+        
+params2 = [
+    ('SE_READ_RESOLVE_IS_STATIC', 'xxx.java',
+    '''@@ -0,0 +1,1 @@
+    public Object readResolve() throws ObjectStreamException {
+    ''', 0, 1)
+]
+@pytest.mark.parametrize('pattern_type,file_name,patch_str,expected_length,line_no', params2)
+def test3(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = Patch()
     patch.name = file_name
     patch.parse(patch_str)
