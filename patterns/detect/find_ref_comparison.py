@@ -45,7 +45,7 @@ class EqualitySubDetector(SubDetector):
                     self.bug_accumulator.append(
                         BugInstance('ES_COMPARING_STRINGS_WITH_EQ', Priorities.NORMAL_PRIORITY,
                                     filename, lineno,
-                                    "Suspicious reference comparison of Boolean values")
+                                    "Suspicious reference comparison of String objects")
                     )
 
 
