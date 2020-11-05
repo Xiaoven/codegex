@@ -5,6 +5,12 @@ from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
 
 
+def is_str_with_quotes(s:str):
+    s = s.strip()
+    if s.startswith('"') and s.endswith('"'):
+        return True
+    return False
+
 class FindRefComparison(ParentDetector):
     def __init__(self):
         ParentDetector.__init__(self, [
@@ -33,13 +39,13 @@ class EqualitySubDetector(SubDetector):
                                 "Suspicious reference comparison of Boolean values")
                 )
             else:
-                if op_2.startswith('"'):
+                if is_str_with_quotes(op_2):
                     op_1, op_2 = op_2, op_1
-                elif not op_1.startswith('"'):
+                elif not is_str_with_quotes(op_1):
                     return  # both op_1 and op_2 are not a string
 
                 # now op_1 is a string with double quotes
-                if op_2.startswith('"') or op_2.startswith('String.intern'):
+                if is_str_with_quotes(op_2) or op_2.startswith('String.intern'):
                     return
                 else:
                     self.bug_accumulator.append(
