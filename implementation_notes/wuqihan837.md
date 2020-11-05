@@ -28,7 +28,7 @@ static SimpleDateFormat d = new SimpleDateFormat();
 #### STCAL: Static Calendar field (STCAL_STATIC_CALENDAR_INSTANCE)
 ##### Regex
 ```regexp
-(\w*\s*)static\s+(?:final){0,1}\s*(DateFormat|SimpleDateFormat|Calendar|GregorianCalendar)\s+(\w*)
+(\w*\s*)static\s*(?:final)?\s+(DateFormat|SimpleDateFormat|Calendar|GregorianCalendar)\s+(\w*)\s*[;=]
 ```
 ##### Examples
 ##### 实现思路
