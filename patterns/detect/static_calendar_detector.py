@@ -14,7 +14,7 @@ class StaticCalendarDetector(ParentDetector):
 
 class StaticDateFormatSubDetector(SubDetector):
     def __init__(self):
-        self.p = regex.compile(r'(\w*\s*)static\s+(?:final){0,1}\s*(DateFormat|SimpleDateFormat|Calendar|GregorianCalendar)\s+(\w*)')
+        self.p = regex.compile(r'(\w*\s*)static\s*(?:final)?\s+(DateFormat|SimpleDateFormat|Calendar|GregorianCalendar)\s+(\w*)\s*[;=]')
         SubDetector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int):
@@ -22,13 +22,12 @@ class StaticDateFormatSubDetector(SubDetector):
 
         if m:
             groups = m.groups()
-            assert len(groups) == 3
-            access = groups[0]
+            access = groups[0].strip()
             if access and 'private' in access.split():
                 return
             class_name = groups[1]
             field_name = groups[2]
-            if class_name.endswith('DateFormat'): # may extend with Calendar in the future
+            if class_name.endswith('DateFormat'):
                 self.bug_accumulator.append(
                     BugInstance('STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE',
                                 Priorities.NORMAL_PRIORITY, filename, lineno,
