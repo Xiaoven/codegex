@@ -15,12 +15,12 @@ class FindFinalizeInvocations(ParentDetector):
 
 class ExplicitInvSubDetector(SubDetector):
     def __init__(self):
-        self.pattern = re.compile('\.finalize\s*\(\s*\)\s*;')
+        self.pattern = re.compile(r'([\w_]*)\.finalize\s*\(\s*\)\s*;')
         SubDetector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int):
         m = self.pattern.search(linecontent)
-        if m:
+        if m and m.groups()[0] != 'super':
             self.bug_accumulator.append(
                 BugInstance('FI_EXPLICIT_INVOCATION', Priorities.HIGH_PRIORITY, filename, lineno,
                             'Explicit invocation of Object.finalize()')
@@ -29,7 +29,7 @@ class ExplicitInvSubDetector(SubDetector):
 
 class PublicAccessSubDetector(SubDetector):
     def __init__(self):
-        self.pattern = re.compile('public\s+void\s+finalize\s*\(\s*\)')
+        self.pattern = re.compile(r'public\s+void\s+finalize\s*\(\s*\)')
         SubDetector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int):
