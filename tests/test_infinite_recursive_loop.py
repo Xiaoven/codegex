@@ -1,28 +1,28 @@
 import pytest
 
 from patterns.detect.infinite_recursive_loop import InfiniteRecursiveLoop
-from rparser import Patch
+from rparser import parse
 
 params = [
     #  From other repository: https://github.com/vavr-io/vavr/pull/1752#discussion_r92956593
-    ('IL_CONTAINER_ADDED_TO_ITSELF', 'Fake.java',
+    (True, 'IL_CONTAINER_ADDED_TO_ITSELF', 'Fake.java',
     '''@@ -14,8 +15,9 @@
     final java.util.List<Object> testee = empty();
     testee.add(testee);
     assertThat(testee.containsAll(testee)).isTrue();
     ''', 1, 16),
     # From other repository: https://github.com/powsybl/powsybl-core/pull/1316/files#diff-ec7fd47ba0877273594bf79f852d46fde2adb8c2319c39467c7fe162d4c0c80bR34
-    ('IL_CONTAINER_ADDED_TO_ITSELF', 'Fake.java',
+    (True, 'IL_CONTAINER_ADDED_TO_ITSELF', 'Fake.java',
      '''@@ -1,0 +1,0 @@ Substation substation = network.newSubstation()
                 .setId("S")
                 .add();''', 0, 2)
 ]
 
-@pytest.mark.parametrize('pattern_type,file_name,patch_str,expected_length,line_no', params)
-def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
-    patch = Patch()
+
+@pytest.mark.parametrize('is_patch,pattern_type,file_name,patch_str,expected_length,line_no', params)
+def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
+    patch = parse(patch_str, is_patch)
     patch.name = file_name
-    patch.parse(patch_str)
     detector = InfiniteRecursiveLoop()
     detector.visit([patch])
     if expected_length > 0:

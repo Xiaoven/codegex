@@ -12,7 +12,7 @@ from patterns.detect.inheritance_unsafe_get_resource import InheritanceUnsafeGet
 from patterns.detect.naming import Naming
 from patterns.detect.serializable_idiom import SerializableIdiom
 from patterns.detect.static_calendar_detector import StaticCalendarDetector
-from rparser import Patch
+from rparser import Patch, parse
 from patterns.detect.dumb_methods import DumbMethods
 from patterns.utils import logger, logger_add, TRACE
 
@@ -20,7 +20,7 @@ from patterns.utils import logger, logger_add, TRACE
 DETECTORS = [FindRoughConstants(), DumbMethods(), FindFinalizeInvocations(),
              FindRefComparison(), FindUnrelatedTypesInGenericContainer(), FormatStringChecker(),
              DontCatchIllegalMonitorStateException(), InfiniteRecursiveLoop(), InheritanceUnsafeGetResource(),
-             Naming(),SerializableIdiom(),StaticCalendarDetector()]
+             Naming(), SerializableIdiom(), StaticCalendarDetector()]
 
 
 def get_modified_patchset(path):
@@ -32,10 +32,10 @@ def get_modified_patchset(path):
 
             if name.endswith('.java'):
                 if 'patch' in file and file['status'] != 'removed':
-                    patch = Patch()
+                    patch = parse(file['patch'])
                     patch.name = name
                     patch.type = file['status']
-                    patch.parse(file['patch'])
+
                     patchset.append(patch)
     return patchset
 
