@@ -17,7 +17,7 @@ class StaticDateFormatSubDetector(SubDetector):
         self.p = regex.compile(r'(\w*\s*)static\s*(?:final)?\s+(DateFormat|SimpleDateFormat|Calendar|GregorianCalendar)\s+(\w*)\s*[;=]')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.p.search(linecontent)
 
         if m:

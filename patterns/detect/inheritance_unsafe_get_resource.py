@@ -17,7 +17,7 @@ class GetResourceSubDetector(SubDetector):
         self.pattern = re.compile(r'(\w*)\.*getClass\(\s*\)\.getResource(?:AsStream){0,1}\(')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
         if m:
             obj_name = m.groups()[0]

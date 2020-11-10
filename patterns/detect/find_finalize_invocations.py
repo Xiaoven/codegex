@@ -18,7 +18,7 @@ class ExplicitInvSubDetector(SubDetector):
         self.pattern = re.compile(r'([\w_]*)\.finalize\s*\(\s*\)\s*;')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
         if m and m.groups()[0] != 'super':
             self.bug_accumulator.append(
@@ -32,7 +32,7 @@ class PublicAccessSubDetector(SubDetector):
         self.pattern = re.compile(r'public\s+void\s+finalize\s*\(\s*\)')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
         if m:
             self.bug_accumulator.append(

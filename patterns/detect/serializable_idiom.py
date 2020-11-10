@@ -19,7 +19,7 @@ class DefSerialVersionID(SubDetector):
         self.pattern = re.compile(r'((?:static|final|\s)*)\s+(long|int)\s+serialVersionUID(?!\w\()')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
         if m:
             g = m.groups()

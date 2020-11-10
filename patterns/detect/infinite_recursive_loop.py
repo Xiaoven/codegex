@@ -17,7 +17,7 @@ class CollectionAddItselfSubDetector(SubDetector):
         self.pattern = re.compile(r'(.*)\.add\((.*)\)')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
         if m:
             g = m.groups()
