@@ -66,32 +66,3 @@ maybeJson.equals( null )
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindRefComparison.java#L1127)
 
 使用正则表达式可以直接判断`.equals(null)`
-
-### RV: Exception created and dropped rather than thrown(RV_EXCEPTION_NOT_THROWN)
-
-##### Regex
-
-```regexp
-^\s*new\s+(\w+)(?:Exception|Error)\s*\(
-```
-
-##### Examples
-
-```java
-//https://github.com/spotbugs/spotbugs/blob/3883a7b750fb339577be073bc45e36b6f268777b/spotbugsTestCases/src/java/bugIdeas/Ideas_2011_11_02.java
-    public void setCheckedElements(Object[] elements) {
-        new UnsupportedOperationException();
-    }
-//https://github.com/bndtools/bnd/commit/960664b12a8f8886779617a283883cdc901cef5e
-		} catch (Exception e) {
-			new RuntimeException("Signature failed for" + signature, e);
-		}
-	}
-```
-
-##### 实现思路
-
-[spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/MethodReturnCheck.java#L300)
-
-SpotBugs 是通过 class name 是否以 “Exception” 或 “Error” 结尾来判断的，我们用regex采取类似方法判断。然后通过`^\s`匹配new前无throw。
-
