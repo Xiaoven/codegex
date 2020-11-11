@@ -3,12 +3,12 @@ import re
 from patterns.detectors import ParentDetector, SubDetector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
-from patterns.utils import is_comment
 
 
 class FormatStringChecker(ParentDetector):
     def __init__(self):
         ParentDetector.__init__(self, [NewLineSubDetector()])
+
 
 class NewLineSubDetector(SubDetector):
     def __init__(self):

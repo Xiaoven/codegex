@@ -28,9 +28,9 @@ params = [
     # DIY   two errors in different lines
     (True, BitSignedCheckAndBitAndZZ(), 'BIT_SIGNED_CHECK', "Fake.java",
             "@@ -51,7 +51,7 @@ public void hierarchyChanged(HierarchyEvent e)\n         {\n           JRootPane "
-            "rootPane;\n \n+          if ((e.getChangeFlags() & e.PARENT_CHANGED) > 0)\n+          if (("
-            "e.getChangeFlags() & 0) == 0)\n           {\n             rootPane = getRootPane();\n             if ("
-            "rootPane == null)}", 2, 54),
+            "rootPane;\n \n+          if ((e.getChangeFlags() & e.PARENT_CHANGED) > 0)\n"
+            "{\n             rootPane = getRootPane();\n             if ("
+            "rootPane == null)}", 1, 54),
 
     # DIY   two errors in one line
     (True, BitSignedCheckAndBitAndZZ(), 'BIT_SIGNED_CHECK', "Fake.java",
@@ -46,6 +46,7 @@ def test(is_patch:bool, detector, pattern_type: str, file_name: str, patch_str: 
     detector.visit([patch])
     if expected_length > 0:
         assert len(detector.bug_accumulator) == expected_length
+        assert detector.bug_accumulator[0].line_no == line_no
         assert detector.bug_accumulator[0].line_no == line_no
         assert detector.bug_accumulator[0].type == pattern_type
     else:

@@ -1,27 +1,62 @@
 import pytest
-
-from patterns.detect.find_finalize_invocations import FindFinalizeInvocations
 from rparser import parse
 
-params = [(True, FindFinalizeInvocations(), 'FI_EXPLICIT_INVOCATION', 'Fake.java',
-             '''@@ -1 +1,21 @@
-             void bug(FI_EXPLICIT_INVOCATION any) throws Throwable {
-                 any.finalize();
-             }''', 1, 2),
-          (False, FindFinalizeInvocations(), 'FI_EXPLICIT_INVOCATION', 'Fake.java',
-               '''void bug(FI_EXPLICIT_INVOCATION any) throws Throwable {
-                   any.finalize();
-               }''', 1, 2)
-          ]
+params = [
+    # test support for patch and non-patch
+#     (True,
+#              '''@@ -1 +1,21 @@
+#              void bug(FI_EXPLICIT_INVOCATION any) throws Throwable {
+#                  any.finalize();
+#              }''', 3),
+#     (False,
+#                '''void bug(FI_EXPLICIT_INVOCATION any) throws Throwable {
+#                    any.finalize();
+#                }''', 3),
+#     # test single-line comments
+#     (False,
+#        '''void bug(FI_EXPLICIT_INVOCATION any) throws Throwable {
+#            any.finalize(); // this is a single statement
+#        }''', 3),
+#     (False,
+#        '''void bug(FI_EXPLICIT_INVOCATION any) throws Throwable {
+#            // this is a single statement
+#            any.finalize();
+#            // this is a single statement
+#        }''', 5),
+#     (True,
+#        '''@@ -1,0 +1,0 @@
+#        void bug(FI_EXPLICIT_INVOCATION any) throws Throwable {
+# -    // this is a single statement
+# +    any.finalize();
+# +    // this is a single statement
+# }''', 5),
+    # test multi-line comments
+    (True,
+         '''@@ -1,0 +1,0 @@
+         @Override
+        public void onReceive(final Context context, Intent intent) {
+           /*  dbhelper = new DatabaseHandler(context, "RG", null, 1);
+            mURL = dbhelper.Obt_url();
+            if (mURL == ""){
+                mURL = "http://186.96.89.66:9090/crccoding/f?p=2560:9999";
+                Log.i("SQLL","Url vacio");
+            }else{
+                Log.i("SQLL","Url cargado   "+mURL);
+            }*/
+            WebView gv = new WebView(context);''', 4),
+    (True,
+         '''@@ -1,0 +1,0 @@ /*  dbhelper = new DatabaseHandler(context, "RG", null, 1);
+            mURL = dbhelper.Obt_url();
+            if (mURL == ""){
+                mURL = "http://186.96.89.66:9090/crccoding/f?p=2560:9999";
+                Log.i("SQLL","Url vacio");
+            }else{
+                Log.i("SQLL","Url cargado   "+mURL);
+            }*/
+            WebView gv = new WebView(context);''', 2),
+]
 
-@pytest.mark.parametrize('is_patch,detector,pattern_type,file_name,patch_str,expected_length,line_no', params)
-def test(is_patch:bool, detector, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
+@pytest.mark.parametrize('is_patch,patch_str,expected_length', params)
+def test_statement_length(is_patch:bool, patch_str: str, expected_length: int):
     patch = parse(patch_str, is_patch)
-    patch.name = file_name
-    detector.visit([patch])
-    if expected_length > 0:
-        assert len(detector.bug_accumulator) == expected_length
-        assert detector.bug_accumulator[0].line_no == line_no
-        assert detector.bug_accumulator[0].type == pattern_type
-    else:
-        assert len(detector.bug_accumulator) == 0
+    assert len(patch.hunks[0].lines) == expected_length
