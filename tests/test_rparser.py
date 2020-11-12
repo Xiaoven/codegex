@@ -31,19 +31,38 @@ params = [
 # +    // this is a single statement
 # }''', 5),
     # test multi-line comments
-    (True,
-         '''@@ -1,0 +1,0 @@
-         @Override
-        public void onReceive(final Context context, Intent intent) {
-           /*  dbhelper = new DatabaseHandler(context, "RG", null, 1);
-            mURL = dbhelper.Obt_url();
-            if (mURL == ""){
-                mURL = "http://186.96.89.66:9090/crccoding/f?p=2560:9999";
-                Log.i("SQLL","Url vacio");
-            }else{
-                Log.i("SQLL","Url cargado   "+mURL);
-            }*/
-            WebView gv = new WebView(context);''', 4),
+    # (False,
+    #      '''@Override
+    #     public void onReceive(final Context context, Intent intent) {
+    #        /*  dbhelper = new DatabaseHandler(context, "RG", null, 1);
+    #         mURL = dbhelper.Obt_url();
+    #         if (mURL == ""){
+    #             mURL = "http://186.96.89.66:9090/crccoding/f?p=2560:9999";
+    #             Log.i("SQLL","Url vacio");
+    #         }else{
+    #             Log.i("SQLL","Url cargado   "+mURL);
+    #         }*/
+    #         WebView gv = new WebView(context);''', 4),
+#     (True,
+#      '''@@ -1,0 +1,0 @@ @Override
+#     public void onReceive(final Context context, Intent intent) {
+#        /*  This is a multi-line comments
+# -       1st line
+# +       this is the first line
+#         This is the second line
+# -       This is the third line
+#         This is the final line
+#       */
+#       return false;''', 4),
+#     (True,
+#      '''@@ -1,0 +1,0 @@
+#      /*  dbhelper = new DatabaseHandler(context, "RG", null, 1);
+#         mURL = dbhelper.Obt_url();
+#         if (mURL == ""){
+#             mURL = "http://186.96.89.66:9090/crccoding/f?p=2560:9999";
+# +            Log.i("SQLL","Url vacio");
+#         }else{
+#         ''', 2),
     (True,
          '''@@ -1,0 +1,0 @@ /*  dbhelper = new DatabaseHandler(context, "RG", null, 1);
             mURL = dbhelper.Obt_url();
@@ -51,10 +70,11 @@ params = [
                 mURL = "http://186.96.89.66:9090/crccoding/f?p=2560:9999";
                 Log.i("SQLL","Url vacio");
             }else{
-                Log.i("SQLL","Url cargado   "+mURL);
-            }*/
+-                Log.i("SQLL","Url cargado   "+mURL);
++                Log.i("SQLL","Url cargado   "+mURL);} */
+-            }*/
             WebView gv = new WebView(context);''', 2),
-]
+    ]
 
 @pytest.mark.parametrize('is_patch,patch_str,expected_length', params)
 def test_statement_length(is_patch:bool, patch_str: str, expected_length: int):

@@ -55,7 +55,7 @@ def check_const(const_val: float):
 
 class FindRoughConstants(Detector):
     def __init__(self):
-        self.regexp = re.compile('(\d*\.\d+)')
+        self.regexp = re.compile(r'(\d*\.\d+)')
 
     def _visit_patch(self, patch):
         file_name = patch.name
