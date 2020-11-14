@@ -15,8 +15,7 @@ class Naming(ParentDetector):
     def __init__(self):
         ParentDetector.__init__(self, [
             SimpleNameSubDetector1(),
-            SimpleNameSubDetector2(),
-            typoOverrideDetector()
+            SimpleNameSubDetector2()
         ])
 
 
@@ -62,34 +61,3 @@ class SimpleNameSubDetector2(SubDetector):
                     BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', Priorities.NORMAL_PRIORITY, filename, lineno,
                                 "Class or interface names shouldn’t shadow simple name of implemented interface")
                 )
-
-class typoOverrideDetector(SubDetector):
-    def __init__(self):
-        self.pattern1 = regex.compile(
-            r'public\s+int\s+hashcode\s*\(\s*\)')
-        self.pattern2 = regex.compile(
-            r'public\s+String\s+tostring\s*\(\s*\)')
-        self.pattern3 = regex.compile(
-            r'public\s+boolean\s+equal\s*\(\s*Object\s+\)'
-        )
-        SubDetector.__init__(self)
-
-    def match(self, linecontent: str, filename: str, lineno: int):
-        typoHash = self.pattern1.search(linecontent)
-        typotoString = self.pattern2.search(linecontent)
-        typoEquals = self.pattern3.search(linecontent)
-        if typoHash:
-            self.bug_accumulator.append(
-                BugInstance('NM_LCASE_HASHCODE', Priorities.HIGH_PRIORITY, filename, lineno,
-                                "Class defines hashcode(); should it be hashCode()?")
-                )
-        if typotoString:
-            self.bug_accumulator.append(
-                BugInstance('NM_LCASE_TOSTRINGE', Priorities.HIGH_PRIORITY, filename, lineno,
-                           "Class defines tostring(); should it be toString()?")
-            )
-        if typoEquals:
-            self.bug_accumulator.append(
-                BugInstance('NM_LCASE_TOSTRINGE', Priorities.HIGH_PRIORITY, filename, lineno,
-                            "Class defines equal(Object); should it be equals(Object)?")
-            )

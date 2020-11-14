@@ -46,9 +46,6 @@ class TestSerializableIdiom:
     def test_VA_FORMAT_STRING_USES_NEWLINE_05(self):
         patch = Patch()
         patch.name = "ProjectCreationService.java"
-        patch.parse('''
-        
-        ''')
         patch.parse("@@ -280,7 +280,7 @@ private void setIntegerValue(final String projectAttributeValue,\n			value.setIntegerValue(Long.valueOf(projectAttributeValue));\n		} catch (NumberFormatException e) {\n			logWriter.printf(\"[WARN] Failed to set an integer value\\n\");")
         detector = FormatStringChecker()
         detector.visit([patch])
@@ -57,7 +54,7 @@ class TestSerializableIdiom:
     # DIY
     def test_VA_FORMAT_STRING_USES_NEWLINE_06(self):
         patch = Patch()
-        patch.name = "ProjectCreationService.java"
+        patch.name = "Test.java"
         patch.parse(
         '''@@ -7,22 +7,22 @@
            public static void main(String[] args) throws IOException {\n
