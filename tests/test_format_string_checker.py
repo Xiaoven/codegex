@@ -46,7 +46,47 @@ class TestSerializableIdiom:
     def test_VA_FORMAT_STRING_USES_NEWLINE_05(self):
         patch = Patch()
         patch.name = "ProjectCreationService.java"
+        patch.parse('''
+        
+        ''')
         patch.parse("@@ -280,7 +280,7 @@ private void setIntegerValue(final String projectAttributeValue,\n			value.setIntegerValue(Long.valueOf(projectAttributeValue));\n		} catch (NumberFormatException e) {\n			logWriter.printf(\"[WARN] Failed to set an integer value\\n\");")
         detector = FormatStringChecker()
         detector.visit([patch])
         assert len(detector.bug_accumulator) == 1
+
+    # DIY
+    def test_VA_FORMAT_STRING_USES_NEWLINE_06(self):
+        patch = Patch()
+        patch.name = "ProjectCreationService.java"
+        patch.parse(
+        '''@@ -7,22 +7,22 @@
+           public static void main(String[] args) throws IOException {\n
+                        Formatter formatter = new Formatter();\n
+                        File file = new File(\"test.txt\");\n
+                        File file2 = new File(\"test2.txt\");\n
+                        PrintStream printStream = new PrintStream(new FileOutputStream(file,true),true,\"UTF-8\");\n
+                        PrintWriter printWriter = new PrintWriter(file2,\"UTF-8\");\n
+                        System.out.printf(\"|%-6s|%-12s|%-12s|\\\\n\", \"№ з/п\", \"Вхідний бал\", \"Результат округлення\");\n
+                        printWriter.printf(\"This is the %s bug\\n\",\"first\");\n
+                        printWriter.format(\"This is not a bug\");\n
+                        try{\n
+                            int c = 4/0;\n
+                            System.out.println(\"c=\" + c);\n
+                        }catch(Exception e){\n
+                            printStream.printf(\"This is the %d bug\\n\",2);\n
+                            printStream.format(\"This is the %d bug\\n\",3);\n
+                            e.printStackTrace(printStream);\n
+                        }\n
+                        formatter.format(\"This is the %d bug\\n\",4);\n
+                        String str = formatter.toString();\n
+                        System.out.println(str);\n
+                        printStream.close();\n
+                        printWriter.close();\n
+                }\n
+        '''
+        )
+        detector = FormatStringChecker()
+        detector.visit([patch])
+
+        assert len(detector.bug_accumulator) == 4
+
