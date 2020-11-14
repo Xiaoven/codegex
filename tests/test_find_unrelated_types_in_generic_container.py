@@ -7,7 +7,7 @@ class TestFindUnrelatedTypesInGenericContainer:
     def test_DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION_01(self):
         patch = Patch()
         patch.name = "OBlock.java"
-        patch.parse('''@@ -963,6 +967,7 @@ public void dispose() {                 sda
+        patch.parse('''@@ -963,6 +967,7 @@ public void dispose() {
             // remove portal and stub paths through portal in opposing block
             opBlock.removePortal(portal);
         }
