@@ -41,8 +41,8 @@ class FormatStringChecker(Detector):
                     format_str = m.groups()[0]
                     last_line = ''
                     idx_list = []
-                    for i in range(len(format_str)):
-                        if format_str[i] == '\\' and i + 1 < len(format_str) and format_str[i+1] == 'n'and (i==0 or (i-1>=0 and format_str[i-1] != '\\')):
+                    for idx in range(len(format_str)):
+                        if format_str[idx] == '\\' and idx + 1 < len(format_str) and format_str[idx+1] == 'n'and (idx==0 or (idx-1>=0 and format_str[idx-1] != '\\')):
                             idx_list.append(i)
 
                     if idx_list:
@@ -55,8 +55,8 @@ class FormatStringChecker(Detector):
                     format_str = relax_m.groups()[4]
                     last_line = ''
                     idx_list = []
-                    for i in range(len(format_str)):
-                        if format_str[i] == '\\' and i + 1 < len(format_str) and format_str[i+1] == 'n'and (i==0 or (i-1>=0 and format_str[i-1] != '\\')):
+                    for idx in range(len(format_str)):
+                        if format_str[idx] == '\\' and idx + 1 < len(format_str) and format_str[idx+1] == 'n'and (idx==0 or (idx-1>=0 and format_str[idx-1] != '\\')):
                             idx_list.append(i)
 
                     if idx_list:
