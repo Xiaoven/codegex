@@ -6,6 +6,7 @@ params = [
     (True,
              '''@@ -1 +1,21 @@
              void bug(FI_EXPLICIT_INVOCATION any) throws Throwable {
+             
                  any.finalize();
              }''', 3),
     (False,

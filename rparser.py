@@ -171,28 +171,6 @@ def _finish_statement(line_obj: Line, vt_stmt: VirtualStatement, hunk: Hunk, pre
 #         if prefix_tgt == '' or prefix_tgt == prefix_cur:
 #             to_del_stmt_idx.append(i)
 #
-#         #
-#         # if prefix_tgt == '-' and prefix_cur != '+':
-#         #     # init virtual statements
-#         #     if del_vt_stmt is None:
-#         #         del_vt_stmt = VirtualStatement(line_obj)
-#         #
-#         #     if isinstance(line_obj, VirtualStatement):
-#         #         del_vt_stmt.merge_vt_stmt(line_obj)
-#         #     else:
-#         #         del_vt_stmt.append_sub_line(line_obj)
-#         # elif prefix_tgt == '+' and prefix_cur != '-':
-#         #     # init virtual statements
-#         #     if add_vt_stmt is None:
-#         #         add_vt_stmt = VirtualStatement(line_obj)
-#         #
-#         #     if isinstance(line_obj, VirtualStatement):
-#         #         add_vt_stmt.merge_vt_stmt(line_obj)
-#         #     else:
-#         #         add_vt_stmt.append_sub_line(line_obj)
-#         # else:  # prefix_tgt == ''
-#         #     pass
-#
 #         def append_to_vt_stmt(line: Line, vt_stmt: VirtualStatement):
 #             if isinstance(line, VirtualStatement):
 #                 vt_stmt.merge_vt_stmt(line)
@@ -236,9 +214,10 @@ def _finish_statement(line_obj: Line, vt_stmt: VirtualStatement, hunk: Hunk, pre
 #             incomplete_common_statement[0], incomplete_common_statement[1] = False, False
 #
 #     # delete
-#     if prefix_tgt == '':
-#         # only common_vt_stmt is not None, or only del__vt_stmt and add_vt_stmt are not None
-#         pass
+#     del_line_objs = [hunk.lines[i] for i in hunk.dellines]
+#     add_line_objs = [hunk.lines[i] for i in hunk.addlines]
+#
+
 
 
 def _parse_hunk(stream, hunk=None):
