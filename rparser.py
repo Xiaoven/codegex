@@ -97,20 +97,21 @@ re_stmt_end = re.compile(r'[;{}](\s*//[^\n]*)?$')
 re_annotation = re.compile(r'^@[\w\_$]+(?:\(.*\))?')
 
 
-# def trim_single_line_comment(line: str):
-#     """
-#     Remove single-line comment from line
-#     :param line: the original line content
-#     :return: the trimmed line content
-#     """
-#
-#     if line.strip().startswith('//'):
-#         return ''
-#     else:
-#         m = re_stmt_end.search(line)
-#         if m and m.groups()[0]:
-#             group_start = m.start(1)  # get the start of the first group
-#             return line[:group_start]
+def trim_useless_content(line: str):
+    """
+    Remove single-line comment from line
+    :param line: the original line content
+    :return: the trimmed line content
+    """
+    strip_line = line.strip()
+    if not strip_line or strip_line.startswith('//'):
+        return ''
+    else:
+        m = re_stmt_end.search(line)
+        if m and m.groups()[0]:
+            group_start = m.start(1)  # get the start of the first group
+            return line[:group_start]
+        return line
 
 
 def _check_statement_end(line: str):
@@ -284,8 +285,14 @@ def _parse_hunk(stream, hunk=None):
                     if not del_statement and common_statement:
                         del_statement = copy.deepcopy(common_statement)
                     del_statement.append_sub_line(line_obj)  # then goto reset common_statement
-            elif _check_statement_end(line[1:]):  # whether line is a complete statement or not
-                # if _check_statement_end(line[1:]):  # whether line is a complete statement or not
+            elif _check_statement_end(line_obj.content):  # whether line is a complete statement or not
+                # trim blank line or single-line comments
+                trimmed_content = trim_useless_content(line_obj.content)
+                if not trimmed_content:
+                    continue  # skip blank line or single line comments
+                else:
+                    line_obj.content = trimmed_content
+
                 if not (common_statement or del_statement):
                     hunk.dellines.append(len(hunk.lines))
                     hunk.lines.append(line_obj)
@@ -330,9 +337,13 @@ def _parse_hunk(stream, hunk=None):
                     if not add_statement and common_statement:
                         add_statement = copy.deepcopy(common_statement)
                     add_statement.append_sub_line(line_obj)  # then goto reset common_statement
-            elif _check_statement_end(line[1:]):
+            elif _check_statement_end(line_obj.content):
+                trimmed_content = trim_useless_content(line_obj.content)
+                if not trimmed_content:
+                    continue  # skip blank line or single line comments
+                else:
+                    line_obj.content = trimmed_content
 
-                # if _check_statement_end(line[1:]):
                 if not (common_statement or add_statement):
                     hunk.addlines.append(len(hunk.lines))
                     hunk.lines.append(line_obj)
@@ -393,6 +404,11 @@ def _parse_hunk(stream, hunk=None):
                         add_statement.append_sub_line(line_obj)
 
             elif _check_statement_end(line):
+                trimmed_content = trim_useless_content(line_obj.content)
+                if not trimmed_content:
+                    continue  # skip blank line or single line comments
+                else:
+                    line_obj.content = trimmed_content
 
                 if not (common_statement or del_statement or add_statement):
                     hunk.lines.append(line_obj)
