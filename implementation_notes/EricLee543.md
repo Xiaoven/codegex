@@ -93,6 +93,24 @@ public static void main(String[] args) throws IOException {
 
 **实现思路**
 
+[Spotbugs实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FormatStringChecker.java#L107-L113)
+- java.util.Formatter#format()
+	- format(Locale l, String format, Object... args)
+	- format(String format, Object... args)
+- java.lang.String#format()
+	- format(Locale l, String format, Object... args)
+	- format(String format, Object... args)
+- java.io.PrintStream#format()
+	- format(Locale l, String format, Object... args)
+	- format(String format, Object... args)
+- java.io.PrintStream#printf()
+	- printf(Locale l, String format, Object... args)
+	- printf(String format, Object... args)
+- \*\*Writer#format()
+- \*\*Writer#printf()
+- \*\*Logger#fmt()
+
+
 如果出现printf，则根据原来的pattern检测，断定是VA_FORMAT_STRING_USES_NEWLINE
 
 如果出现了 formatter/printStream/Writer.format 的字样，则进入 relax_p （松弛条件）。由于部分变量的命名会和类型有关， 比如PrintStream 可能会命名为 xxprintStream. 通过匹配类似的变量名，来检测这个pattern。 这个pattern的等级为  Priorities.EXP_PRIORITY 。最后提示 If java/util/Formatter class, java/io/PrintStream class or java/io/Writer class was used, format string should use %n rather than \\n. Otherwise, ignore this bug. 让用户自己去检查是否使用了这些类。
