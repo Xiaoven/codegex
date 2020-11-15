@@ -97,21 +97,20 @@ re_stmt_end = re.compile(r'[;{}](\s*//[^\n]*)?$')
 re_annotation = re.compile(r'^@[\w\_$]+(?:\(.*\))?')
 
 
-def trim_useless_content(line: str):
+def trim_useless_content(line_obj: Line):
     """
     Remove single-line comment from line
     :param line: the original line content
     :return: the trimmed line content
     """
-    strip_line = line.strip()
+    strip_line = line_obj.content.strip()
     if not strip_line or strip_line.startswith('//'):
-        return ''
+        line_obj.content = ''
     else:
-        m = re_stmt_end.search(line)
+        m = re_stmt_end.search(line_obj.content)
         if m and m.groups()[0]:
             group_start = m.start(1)  # get the start of the first group
-            return line[:group_start]
-        return line
+            line_obj.content = line_obj.content[:group_start]
 
 
 def _check_statement_end(line: str):
@@ -136,6 +135,10 @@ def _check_multiline_comment_end(line: str):
 
 
 def _add_virtual_statement_to_hunk(vt_stmt: VirtualStatement, hunk: Hunk, prefix=''):
+    # skip multiline comments
+    if _check_multiline_comment_start(vt_stmt.content) or _check_multiline_comment_end(vt_stmt.content):
+        return
+
     if prefix == '+':
         hunk.addlines.append(len(hunk.lines))
     elif prefix == '-':
@@ -145,7 +148,7 @@ def _add_virtual_statement_to_hunk(vt_stmt: VirtualStatement, hunk: Hunk, prefix
     hunk.lines.append(vt_stmt)
 
 
-def _finish_statement(line_obj: Line, vt_stmt: VirtualStatement, hunk: Hunk, prefix=''):
+def _finish_vt_statement(line_obj: Line, vt_stmt: VirtualStatement, hunk: Hunk, prefix=''):
     """
     Add line object to the virtual statement, add virtual statement to the hunk
     """
@@ -153,71 +156,41 @@ def _finish_statement(line_obj: Line, vt_stmt: VirtualStatement, hunk: Hunk, pre
     _add_virtual_statement_to_hunk(vt_stmt, hunk, prefix)
 
 
-# def _gen_multiline_comment_from_previous_statements(comment_end_line_obj: Line, hunk: Hunk):
-#     prefix_tgt = comment_end_line_obj.prefix
-#
-#     # clear hunk, since the incomplete multi-line comment must be the first statement of the hunk
-#     common_vt_stmt = None
-#     del_vt_stmt = None
-#     add_vt_stmt = None
-#     incomplete_common_statement = [False, False]
-#
-#     to_del_stmt_idx = []
-#
-#     for i, line_obj in enumerate(hunk):
-#         prefix_cur = line_obj.prefix
-#
-#         # to delete later or not
-#         if prefix_tgt == '' or prefix_tgt == prefix_cur:
-#             to_del_stmt_idx.append(i)
-#
-#         def append_to_vt_stmt(line: Line, vt_stmt: VirtualStatement):
-#             if isinstance(line, VirtualStatement):
-#                 vt_stmt.merge_vt_stmt(line)
-#             else:
-#                 vt_stmt.append_sub_line(line)
-#
-#         if prefix_cur == '-':
-#             # init virtual statement
-#             if not del_vt_stmt and (prefix_cur == '' or prefix_tgt == prefix_cur):
-#                 if common_vt_stmt:
-#                     del_vt_stmt = copy.deepcopy(common_vt_stmt)
-#                     incomplete_common_statement[0] = True
-#                 else:
-#                     del_vt_stmt = VirtualStatement(line_obj)
-#
-#             append_to_vt_stmt(line_obj, del_vt_stmt)
-#         elif prefix_cur == '+':
-#             if not add_vt_stmt and (prefix_cur == '' or prefix_tgt == prefix_cur):
-#                 if common_vt_stmt:
-#                     add_vt_stmt = copy.deepcopy(common_vt_stmt)
-#                     incomplete_common_statement[1] = True
-#                 else:
-#                     add_vt_stmt = VirtualStatement(line_obj)
-#
-#             append_to_vt_stmt(line_obj, add_vt_stmt)
-#         else:  # prefix_cur == ''
-#             if not (common_vt_stmt or add_vt_stmt or del_vt_stmt):
-#                 common_vt_stmt = VirtualStatement(line_obj)
-#                 continue
-#
-#             if common_vt_stmt:
-#                 append_to_vt_stmt(line_obj, common_vt_stmt)
-#             if del_vt_stmt:
-#                 append_to_vt_stmt(line_obj, del_vt_stmt)
-#             if add_vt_stmt:
-#                 append_to_vt_stmt(line_obj, add_vt_stmt)
-#
-#         # -------------------------- Reset Common_VI_Statement -----------------------------
-#         if incomplete_common_statement[0] and incomplete_common_statement[1]:
-#             common_vt_stmt = None
-#             incomplete_common_statement[0], incomplete_common_statement[1] = False, False
-#
-#     # delete
-#     del_line_objs = [hunk.lines[i] for i in hunk.dellines]
-#     add_line_objs = [hunk.lines[i] for i in hunk.addlines]
-#
+def _skip_started_incomplete_multi_line_comments(comment_end_line_obj: Line, hunk: Hunk):
+    prefix_tgt = comment_end_line_obj.prefix
 
+    hunk.dellines.clear()
+    hunk.addlines.clear()
+
+    if prefix_tgt == '':
+        # 更改前后的开头都是多行注释，清空 hunk
+        hunk.lines.clear()
+        return
+
+    to_del_stmt = []
+
+    # find lines to be remove
+    for line_obj in hunk:
+        prefix_cur = line_obj.prefix
+        if prefix_tgt == prefix_cur:
+            to_del_stmt.append(line_obj)
+
+    # remove lines
+    for line_obj in to_del_stmt:
+        hunk.lines.remove(line_obj)
+
+    # reset prefix of common lines, set hunk.dellines and hunk.addlines
+    for i, line_obj in enumerate(hunk.lines):
+        if line_obj.prefix == '':
+            if prefix_tgt == '-':
+                line_obj.prefix = '+'
+            else:  # prefix_tgt == '+'
+                line_obj.prefix = '-'
+
+        if line_obj.prefix == '-':
+            hunk.dellines.append(i)
+        elif line_obj.prefix == '+':
+            hunk.addlines.append(i)
 
 
 def _parse_hunk(stream, hunk=None):
@@ -245,7 +218,7 @@ def _parse_hunk(stream, hunk=None):
             if common_statement:
                 incomplete_common_statement[0] = True
 
-            if _check_multiline_comment_start(line[1:]):
+            if not (del_multi_comment or add_multi_comment) and _check_multiline_comment_start(line_obj.content):
                 del_multi_comment = True
                 if del_statement:
                     # store the last del_statement
@@ -254,23 +227,23 @@ def _parse_hunk(stream, hunk=None):
                 del_statement = VirtualStatement(line_obj)
                 # then goto reset common_statement
             elif del_multi_comment:
-                if _check_multiline_comment_end(line[1:]):
+                if _check_multiline_comment_end(line_obj.content):
                     if not del_statement and common_statement:
                         del_statement = copy.deepcopy(common_statement)
-                    _finish_statement(line_obj, del_statement, hunk, '-')
+                    _finish_vt_statement(line_obj, del_statement, hunk, '-')
                     del_statement = None
                     del_multi_comment = False
                 else:
                     if not del_statement and common_statement:
                         del_statement = copy.deepcopy(common_statement)
                     del_statement.append_sub_line(line_obj)  # then goto reset common_statement
+            elif not del_multi_comment and _check_multiline_comment_end(line_obj.content):
+                _skip_started_incomplete_multi_line_comments(line_obj, hunk)
             elif _check_statement_end(line_obj.content):  # whether line is a complete statement or not
                 # trim blank line or single-line comments
-                trimmed_content = trim_useless_content(line_obj.content)
-                if not trimmed_content:
+                trim_useless_content(line_obj)
+                if not line_obj.content:
                     continue  # skip blank line or single line comments
-                else:
-                    line_obj.content = trimmed_content
 
                 if not (common_statement or del_statement):
                     hunk.dellines.append(len(hunk.lines))
@@ -279,7 +252,7 @@ def _parse_hunk(stream, hunk=None):
                 # line_obj belongs to a del_statement
                 if not del_statement and common_statement:
                     del_statement = copy.deepcopy(common_statement)
-                _finish_statement(line_obj, del_statement, hunk, '-')
+                _finish_vt_statement(line_obj, del_statement, hunk, '-')
                 del_statement = None
             else:
                 # if line_obj is a incomplete statement, it must belong to del_statement
@@ -297,7 +270,7 @@ def _parse_hunk(stream, hunk=None):
             if common_statement:
                 incomplete_common_statement[1] = True
 
-            if _check_multiline_comment_start(line[1:]):
+            if not (del_multi_comment or add_multi_comment) and _check_multiline_comment_start(line_obj.content):
                 add_multi_comment = True
                 if add_statement:
                     # store the last add_statement
@@ -306,22 +279,22 @@ def _parse_hunk(stream, hunk=None):
                 add_statement = VirtualStatement(line_obj)
                 # then goto reset common_statement
             elif add_multi_comment:
-                if _check_multiline_comment_end(line[1:]):
+                if _check_multiline_comment_end(line_obj.content):
                     if not add_statement and common_statement:
                         add_statement = copy.deepcopy(common_statement)
-                    _finish_statement(line_obj, add_statement, hunk, '+')
+                    _finish_vt_statement(line_obj, add_statement, hunk, '+')
                     add_statement = None
                     add_multi_comment = False
                 else:
                     if not add_statement and common_statement:
                         add_statement = copy.deepcopy(common_statement)
                     add_statement.append_sub_line(line_obj)  # then goto reset common_statement
+            elif not add_multi_comment and _check_multiline_comment_end(line_obj.content):
+                _skip_started_incomplete_multi_line_comments(line_obj, hunk)
             elif _check_statement_end(line_obj.content):
-                trimmed_content = trim_useless_content(line_obj.content)
-                if not trimmed_content:
+                trim_useless_content(line_obj)
+                if not line_obj.content:
                     continue  # skip blank line or single line comments
-                else:
-                    line_obj.content = trimmed_content
 
                 if not (common_statement or add_statement):
                     hunk.addlines.append(len(hunk.lines))
@@ -331,7 +304,7 @@ def _parse_hunk(stream, hunk=None):
                 # line_obj belongs to a add_statement
                 if common_statement and not add_statement:
                     add_statement = copy.deepcopy(common_statement)
-                _finish_statement(line_obj, add_statement, hunk, '+')
+                _finish_vt_statement(line_obj, add_statement, hunk, '+')
                 add_statement = None
             else:
                 # if line_obj is a incomplete statement, it must belong to add_statement
@@ -347,31 +320,31 @@ def _parse_hunk(stream, hunk=None):
             cnt_dict['linestgt'] += 1
             line_obj = Line(line, (cnt_dict['linessrc'], cnt_dict['linestgt']))
 
-            if _check_multiline_comment_start(line[1:]):
+            if not (del_multi_comment or add_multi_comment) and _check_multiline_comment_start(line_obj.content):
                 add_multi_comment = True
                 del_multi_comment = True
 
                 if common_statement:
-                    _finish_statement(line_obj, common_statement, hunk)
+                    _finish_vt_statement(line_obj, common_statement, hunk)
                 common_statement = VirtualStatement(line_obj)
 
                 if del_statement:
-                    _finish_statement(line_obj, del_statement, hunk, '-')
+                    _finish_vt_statement(line_obj, del_statement, hunk, '-')
                     del_statement = None
                 if add_statement:
-                    _finish_statement(line_obj, del_statement, hunk, '+')
+                    _finish_vt_statement(line_obj, del_statement, hunk, '+')
                     add_statement = None
 
-            elif add_multi_comment or del_multi_comment:
-                if _check_multiline_comment_end(line[1:]):
+            elif add_multi_comment and del_multi_comment:
+                if _check_multiline_comment_end(line_obj.content):
                     if common_statement:
-                        _finish_statement(line_obj, common_statement, hunk)
+                        _finish_vt_statement(line_obj, common_statement, hunk)
                         common_statement = None
                     if del_statement:
-                        _finish_statement(line_obj, del_statement, hunk, '-')
+                        _finish_vt_statement(line_obj, del_statement, hunk, '-')
                         del_statement = None
                     if add_statement:
-                        _finish_statement(line_obj, add_statement, hunk, '+')
+                        _finish_vt_statement(line_obj, add_statement, hunk, '+')
                         add_statement = None
                     add_multi_comment, del_multi_comment = False, False
                 else:
@@ -381,13 +354,68 @@ def _parse_hunk(stream, hunk=None):
                         del_statement.append_sub_line(line_obj)
                     if add_statement:
                         add_statement.append_sub_line(line_obj)
-
-            elif _check_statement_end(line):
-                trimmed_content = trim_useless_content(line_obj.content)
-                if not trimmed_content:
-                    continue  # skip blank line or single line comments
+            elif del_multi_comment and not add_multi_comment:
+                if _check_multiline_comment_end(line_obj.content):
+                    _finish_vt_statement(line_obj, del_statement, hunk, '-')
+                    del_statement, del_multi_comment = None, False
                 else:
-                    line_obj.content = trimmed_content
+                    # multi-line comments
+                    del_statement.append_sub_line(line_obj)
+
+                    # code branch: turn common line to added line
+                    line_obj = copy.deepcopy(line_obj)
+                    line_obj.prefix = '+'
+
+                    if _check_statement_end(line_obj.content):
+                        trim_useless_content(line_obj)
+                        if not line_obj.content:
+                            continue  # skip blank line or single line comments
+
+                        if not add_statement:
+                            hunk.addlines.append(len(hunk.lines))
+                            hunk.lines.append(line_obj)
+                        else:
+                            _finish_vt_statement(line_obj, add_statement, hunk, '+')
+                            add_statement = None
+                    else:
+                        if not add_statement:
+                            add_statement = VirtualStatement(line_obj)
+                        else:
+                            add_statement.append_sub_line(line_obj)
+            elif not del_multi_comment and add_multi_comment:
+                if _check_multiline_comment_end(line_obj.content):
+                    _finish_vt_statement(line_obj, del_statement, hunk, '+')
+                    add_statement, add_multi_comment = None, False
+                else:
+                    # multi-line comments
+                    add_statement.append_sub_line(line_obj)
+
+                    # code branch: turn common line to added line
+                    line_obj = copy.deepcopy(line_obj)
+                    line_obj.prefix = '-'
+
+                    if _check_statement_end(line_obj.content):
+                        trim_useless_content(line_obj)
+                        if not line_obj.content:
+                            continue  # skip blank line or single line comments
+
+                        if not del_statement:
+                            hunk.dellines.append(len(hunk.lines))
+                            hunk.lines.append(line_obj)
+                        else:
+                            _finish_vt_statement(line_obj, del_statement, hunk, '-')
+                            del_statement = None
+                    else:
+                        if not del_statement:
+                            del_statement = VirtualStatement(line_obj)
+                        else:
+                            del_statement.append_sub_line(line_obj)
+            elif not (del_multi_comment or add_multi_comment) and _check_multiline_comment_end(line_obj.content):
+                _skip_started_incomplete_multi_line_comments(line_obj, hunk)
+            elif _check_statement_end(line):
+                trim_useless_content(line_obj)
+                if not line_obj.content:
+                    continue  # skip blank line or single line comments
 
                 if not (common_statement or del_statement or add_statement):
                     hunk.lines.append(line_obj)
@@ -395,13 +423,13 @@ def _parse_hunk(stream, hunk=None):
 
                 # if both add_statement and del_statement are not None, common_statement must be none
                 if common_statement:
-                    _finish_statement(line_obj, common_statement, hunk)
+                    _finish_vt_statement(line_obj, common_statement, hunk)
                     common_statement = None
                 if del_statement:
-                    _finish_statement(line_obj, del_statement, hunk, '-')
+                    _finish_vt_statement(line_obj, del_statement, hunk, '-')
                     del_statement = None
                 if add_statement:
-                    _finish_statement(line_obj, add_statement, hunk, '+')
+                    _finish_vt_statement(line_obj, add_statement, hunk, '+')
                     add_statement = None
             else:
                 if not (common_statement or add_statement or del_statement):
