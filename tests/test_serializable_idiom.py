@@ -20,7 +20,34 @@ params = [
      '''@@ -1,3 +1,1 @@ public class Main{\n+    final long serialVersionUID = 10000L;''', 1, 1),
 
     (True, 'SE_NONFINAL_SERIALVERSIONID', 'Fake.java',
-     '''@@ -1,3 +1,1 @@ public class Main{\n+    static long serialVersionUID = 10000L;\n}''', 1, 1)
+     '''@@ -1,3 +1,1 @@ public class Main{\n+    static long serialVersionUID = 10000L;\n}''', 1, 1),
+
+    # ---------------- SE_READ_RESOLVE_MUST_RETURN_OBJECT DIY Tests -----------------
+    (False, 'SE_READ_RESOLVE_MUST_RETURN_OBJECT', 'Fake.java',
+     '''public class Main implements Serializable {
+            static String readResolve() throws ObjectStreamException {
+                return null;
+            }
+        }''', 1, 2),
+    (False, 'SE_READ_RESOLVE_MUST_RETURN_OBJECT', 'Fake.java',
+     '''public class Main implements Serializable {
+            public Object readResolve() throws ObjectStreamException {
+                return null;
+            }
+        }''', 0, 0),
+    # ---------------- SE_READ_RESOLVE_IS_STATIC DIY Tests -----------------
+    (False, 'SE_READ_RESOLVE_IS_STATIC', 'Fake.java',
+     '''public class Main implements Serializable {
+            private static Object readResolve() throws ObjectStreamException {
+                return null;
+            }
+        }''', 1, 2),
+    (False, 'SE_READ_RESOLVE_IS_STATIC', 'Fake.java',
+     '''public class Main implements Serializable {
+            public static final Object readResolve() throws ObjectStreamException {
+                return null;
+            }
+        }''', 1, 2),
 ]
 
 

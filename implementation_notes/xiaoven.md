@@ -1,10 +1,10 @@
-#### FS: Format string should use %n rather than n (VA_FORMAT_STRING_USES_NEWLINE)
+## FS: Format string should use %n rather than n (VA_FORMAT_STRING_USES_NEWLINE)
 
-##### Regex
+### Regex
 ```regexp
 (?:(?:String\.format)|printf)\([\w\.\s\(\)]*,?\s*"([^"]*)"\s*
 ```
-##### Examples
+### Examples
 ```java
 
 String.format( Locale.US , "Payload:\n%s" , new Object[1]);
@@ -12,16 +12,17 @@ String.format( Locale.US , "Payload:\n%s" , new Object[1]);
 String.format("Payload:\n%s" , new Object[1]);
 ```
 
-##### 实现思路
+### 实现思路
 
 [SpotBugs](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FormatStringChecker.java#L107-L113)
+
 - java.util.Formatter.format()
 - java.lang.String.format()
 - *Writer.format()
 - java.io.PrintStream.format()
 - java.io.PrintStream.printf()
-- *Writer.printf()
-- *Logger.fmt()
+- \*Writer.printf()
+- \*Logger.fmt()
 
 1. 提取 `String.format(Locale l, String format, Object... args)`  和 `String.format(String format, Object... args)` 调用中的 format 部分
 
@@ -29,12 +30,12 @@ String.format("Payload:\n%s" , new Object[1]);
 
 
 
-#### DMI: Random object created and used only once (DMI_RANDOM_USED_ONLY_ONCE)
-##### Regex
+## DMI: Random object created and used only once (DMI_RANDOM_USED_ONLY_ONCE)
+### Regex
 ```regexp
 new\s+[\w\.]*Random(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))++\.next\w*\(\s*\)
 ```
-##### Examples
+### Examples
 ```java
 // https://github.com/jenkinsci/android-emulator-plugin/commit/0e104f3f0fc18505c13932fccd3b2297e78db694#diff-238b9af87181bb379670392cdb1dcd6bL173
 seedValue = new Random().nextLong();
@@ -45,88 +46,88 @@ pool.setTimeBetweenEvictionRunsMillis(EVICT_RUN + new Random(EVICT_RUN).nextLong
 // DIY
 seedValue = new java.util.Random().nextLong();
 ```
-##### 实现思路
+### 实现思路
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/DumbMethods.java#L495): 判断变量类型，其中freshRandomOnTos和freshRandomOneBelowTos两个变量意思不明。
 
 根据[搜到的例子](https://github.com/search?q=DMI_RANDOM_USED_ONLY_ONCE&type=commits)，可以匹配形如 `new java.util.Random(XXX).nextXXX()` 的用法，它创建对象后马上使用，而不是把对象存在变量里，方便复用
 
-#### DMI: Don’t use removeAll to clear a collection (DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION)
+##DMI: Don’t use removeAll to clear a collection (DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION)
 检测形如 c.removeAll(c) 的pattern
 
-##### Regex
+### Regex
 
 ```regexp
 (.*)\.removeAll\((.*)\)
 ```
-##### Examples
+### Examples
 ```java
 c.removeAll(c)
 ```
-##### 实现思路
+### 实现思路
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindUnrelatedTypesInGenericContainer.java#L509)
 
 1. 判断 object 和传参是否相等
 2. 如是，再判断 method name 是否是 `removeAll`
 
-#### ES: Comparison of String objects using == or != (ES_COMPARING_STRINGS_WITH_EQ)
+## ES: Comparison of String objects using == or != (ES_COMPARING_STRINGS_WITH_EQ)
 如题，unless both strings are either constants in a source file, or have been interned using the String.intern() method
-##### Regex
+### Regex
 ```regexp
 ((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w."])++)\s*[!=]=\s*((?:(?&aux1)|[\w."])+)
 ```
-##### Examples
+### Examples
 ```java
 if ("FOO" == value)
 ```
-##### 实现思路
+### 实现思路
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindRefComparison.java#L996) 
 
 由于我们无法获得变量类型等信息，故提取 `op_1 == op_2` 中的 `op_1` 和 `op_2`。如果其中一个是带双引号的string constant，另一个既不是string constant，也不以 `String.intern` 开头，则判断它为 ES_COMPARING_STRINGS_WITH_EQ
 
-#### UI: Usage of GetResource may be unsafe if class is extended (UI_INHERITANCE_UNSAFE_GETRESOURCE)
+## UI: Usage of GetResource may be unsafe if class is extended (UI_INHERITANCE_UNSAFE_GETRESOURCE)
 
-##### Regex
+### Regex
 ```regexp
 (\w*)\.*getClass\(\s*\)\.getResource(?:AsStream){0,1}\(
 ```
-##### Examples
+### Examples
 ```java
 getClass().getResourceAsStream("XStreamDOMTest.data1.xml")
 this.getClass().getResourceAsStream(DB_SCHEMA)
 URL url = this.getClass().getResource(imagePath)
 ```
-##### 实现思路
+### 实现思路
 [spotbugs](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/InheritanceUnsafeGetResource.java#L108)
 
 我的思路：提取 `this.getClass().getResource(...)` 里 `this` 位置的内容，如果为 None 或 this， 则生成 warning
 
-#### Nm: Class names shouldn’t shadow simple name of superclass (NM_SAME_SIMPLE_NAME_AS_SUPERCLASS)
+## Nm: Class names shouldn’t shadow simple name of superclass (NM_SAME_SIMPLE_NAME_AS_SUPERCLASS)
 注意： java只能继承一个父类，但可以实现多个接口
-##### Regex
+### Regex
 ```regexp
 class\s+(\w+)\s+extends\s+([\w\.]+)
 ```
-##### Examples
+### Examples
 ```java
 public class SpringLiquibase extends liquibase.integration.spring.SpringLiquibase
 ```
-##### 实现思路
+### 实现思路
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L308) 
 
 对于像 `public class HsqlDatabase extends liquibase.database.core.HsqlDatabase` 的 class 定义，会获取两个 class 去除 package 部分后的 simple name，比较是否相等
 
-#### Nm: Class names shouldn’t shadow simple name of implemented interface (NM_SAME_SIMPLE_NAME_AS_INTERFACE)
+## Nm: Class names shouldn’t shadow simple name of implemented interface (NM_SAME_SIMPLE_NAME_AS_INTERFACE)
 注意： 
 1. interface 可以 `extends` 多个 interfaces
 2. `extends` 和 `implements` 的顺序不能互换，IDE 会报错
 
-##### Regex
+### Regex
 ```regexp
 class\s+((?:(?!extends)(?P<name>[\w\.\s<>,]))+)\s+(?&name)*implements\s+((?&name)+)
 interface\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?&name)+)
 ```
 第二个正则表达式参考了 `((?!m).)*`， 表示匹配 `.` 的时候不包含
-##### Examples
+### Examples
 
 ```java
 public class LocaleResolver implements org.springframework.web.servlet.LocaleResolver
@@ -137,40 +138,40 @@ public class LocaleResolver implements DIY, org.springframework.web.servlet.Loca
 
 public class ALActivityImpl extends org.apache.shindig.social.core.model.ActivityImpl implements Activity
 ```
-##### 实现思路
+### 实现思路
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L313) 类似 NM_SAME_SIMPLE_NAME_AS_SUPERCLASS
 
 
-#### IL: A collection is added to itself (IL_CONTAINER_ADDED_TO_ITSELF)
+## IL: A collection is added to itself (IL_CONTAINER_ADDED_TO_ITSELF)
 As a result, computing the hashCode of this set will throw a StackOverflowException.
-##### Regex
+### Regex
 ```regexp
 (.*)\.add\((.*)\)
 ```
 不建议使用 `(\w*)\.add\(\1\)` 这样的写法，会少匹配。如 `bb.add(b)` 会匹配 `b.add(b)`
-##### Examples
+### Examples
 ```java
 testee.add(testee)
 ```
-##### 实现思路
+### 实现思路
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/InfiniteRecursiveLoop.java#L104):
 1. 检查 add 方法的 signature
 2. 判断 stack 里的 object 和参数是否相等
 
 我的做法：用正则匹配 `c.add(c)` 中 object 和参数位置，判断它们是否相等. 类似 DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION.
 
-#### RV: Random value from 0 to 1 is coerced to the integer 0 (RV_01_TO_INT)
-##### Regex
+## RV: Random value from 0 to 1 is coerced to the integer 0 (RV_01_TO_INT)
+### Regex
 ```regexp
 \(\s*int\s*\)\s*(\w+)\.(?:random|nextDouble|nextFloat)\(\s*\)
 ```
-##### Examples
+### Examples
 ```java
 (int) Math.random()
 (int) randomObject.nextDouble()
 (int) randomObject.nextFloat()
 ```
-##### 实现思路
+### 实现思路
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/DumbMethods.java#L1144)
 1. 首先要满足以下条件, 似乎是调用了 `Random.nextDouble` 或 `Math.random` 方法
 ```java
@@ -184,3 +185,30 @@ seen == Const.INVOKEVIRTUAL && "java/util/Random".equals(getClassConstantOperand
 1. 匹配静态调用 `(int) Math.random()`
 2. 匹配调用 `(int) randomObject.nextDouble()`， 并且拓展到 `nextFloat()` 方法。由于 randomObject 的名字可变，我们可以提取变量名，转成lowercase，看看是否包含 `rand`或者等于 `r`, 如果是，则 confidence 可以较高一点。
 
+
+## Se: The readResolve method must be declared with a return type of Object. (SE_READ_RESOLVE_MUST_RETURN_OBJECT)
+
+规范的定义为 `ANY-ACCESS-MODIFIER Object readResolve() throws ObjectStreamException`；与 SE_READ_RESOLVE_IS_STATIC 一起实现
+
+### Regex
+```regexp
+((?:static|final|\s)*)\s+([^\s]+)\s+readResolve\s*\(\s*\)\s+throws\s+ObjectStreamException
+```
+### Examples
+```java
+Object readResolve() throws ObjectStreamException
+
+public String readResolve() throws ObjectStreamException
+
+static String readResolve() throws ObjectStreamException // 优先报返回值类型的 warning，而不报 static 的warning
+```
+### 实现思路
+[Spotbugs](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/SerializableIdiom.java)
+中的思路是先检测方法名是否为readResolve 且当前 class 是 serializable，如果是，则检查返回值类型是否是 `java.lang.Object` 类型，然后才
+检测是否有static修饰词。
+
+我的实现思路为：
+
+1. 我们无法获取 class 是否是 serializable，故将默认 priority 从 high 降为 normal，且假设程序员只在 serializable class 中重写 readResolve 方法
+
+2. 用 `([^\s]+)\s+readResolve` 提取返回值类型，判断是否为 `Object`
