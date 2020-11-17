@@ -46,6 +46,19 @@ class TestFindUnrelatedTypesInGenericContainer:
         assert len(detector.bug_accumulator) == 1
         assert detector.bug_accumulator[0].line_no == 969
 
+    # DIY
+    def test_DMI_VACUOUS_SELF_COLLECTION_CALL_03(self):
+        patch = Patch()
+        patch.name = "OBlock.java"
+        patch.parse('''@@ -963,6 +967,7 @@    private void verify(ConcatenatedLists<Long> c, int last) {
+            assertEquals((last == -1), c.isEmpty());
+            assertEquals(last + 1, c.size());
+            assertTrue(c.getlist().retainAll(c.getlist()));''')
+        detector = FindUnrelatedTypesInGenericContainer()
+        detector.visit([patch])
+        assert len(detector.bug_accumulator) == 1
+        assert detector.bug_accumulator[0].line_no == 969
+
     # https://github.com/josephearl/findbugs/blob/fd7ec8b5cc0b1b143589674cdcdb901fa5dc0dda/findbugsTestCases/src/java/gcUnrelatedTypes/Ideas_2011_06_30.java#L13
     def test_DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES_01(self):
         patch = Patch()
@@ -68,6 +81,21 @@ class TestFindUnrelatedTypesInGenericContainer:
                         @ExpectWarning("DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES")
                         public static void testTP(Collection<Integer> c) {
                             return c.remove(c);
+                        }
+            ''')
+        detector = FindUnrelatedTypesInGenericContainer()
+        detector.visit([patch])
+        assert len(detector.bug_accumulator) == 1
+        assert detector.bug_accumulator[0].line_no == 969
+
+    # DIY
+    def test_DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES_03(self):
+        patch = Patch()
+        patch.name = "Ideas_2011_06_30.java"
+        patch.parse('''@@ -963,6 +967,7 @@
+                            @ExpectWarning("DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES")
+                        public static void testTP(Collection<Integer> c) {
+                            return c.getlist().remove(c.getlist());
                         }
             ''')
         detector = FindUnrelatedTypesInGenericContainer()
