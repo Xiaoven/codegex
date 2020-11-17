@@ -17,10 +17,10 @@ class DumbMethods(ParentDetector):
 
 class FinalizerOnExitSubDetector(SubDetector):
     def __init__(self):
-        self.pattern = regex.compile('(\w*)\.*runFinalizersOnExit\(')
+        self.pattern = regex.compile(r'(\w*)\.*runFinalizersOnExit\(')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
         if m:
             pkg_name = m.groups()[0]
@@ -36,10 +36,10 @@ class FinalizerOnExitSubDetector(SubDetector):
 
 class RandomOnceSubDetector(SubDetector):
     def __init__(self):
-        self.pattern = regex.compile('new\s+[\w\.]*Random(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))++\.next\w*\(\s*\)')
+        self.pattern = regex.compile(r'new\s+[\w\.]*Random(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))++\.next\w*\(\s*\)')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
         if m:
             self.bug_accumulator.append(
@@ -50,10 +50,10 @@ class RandomOnceSubDetector(SubDetector):
 
 class RandomD2ISubDetector(SubDetector):
     def __init__(self):
-        self.pattern = regex.compile('\(\s*int\s*\)\s*(\w+)\.(?:random|nextDouble|nextFloat)\(\s*\)')
+        self.pattern = regex.compile(r'\(\s*int\s*\)\s*(\w+)\.(?:random|nextDouble|nextFloat)\(\s*\)')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
         if m:
             obj = m.groups()[0].strip().lower()
@@ -66,10 +66,10 @@ class RandomD2ISubDetector(SubDetector):
 
 class StringCtorSubDetector(SubDetector):
     def __init__(self):
-        self.pattern = regex.compile('new\s+String\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
+        self.pattern = regex.compile(r'new\s+String\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
         if m:
             groups = m.groups()

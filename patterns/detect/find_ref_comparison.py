@@ -26,7 +26,7 @@ class EqualitySubDetector(SubDetector):
         self.bool_objs = ('Boolean.TRUE', 'Boolean.FALSE')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.p.search(linecontent)
         if m:
             op_1 = m.groups()[0]  # m.groups()[1] is the result of named pattern
@@ -61,7 +61,7 @@ class CalToNullSubDetector(SubDetector):
             r'(.*)\.equals\s*\(\s*null\s*\)')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.p.search(linecontent)
         if m:
             self.bug_accumulator.append(

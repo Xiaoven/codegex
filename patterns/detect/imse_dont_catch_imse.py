@@ -15,8 +15,8 @@ class DontCatchIllegalMonitorStateException(Detector):
 
     def __init__(self):
         # 匹配形如 "catch (IOException e)"
-        self.regexp = re.compile('catch\s*\(\s*([a-zA-Z0-9\.]+\s+[a-zA-Z0-9\.]+.*?)\)')
-        self.regexp2 = re.compile('([a-zA-Z0-9\.]+)\s+[a-zA-Z0-9\.]+')  # 提取类名
+        self.regexp = re.compile(r'catch\s*\(\s*([a-zA-Z0-9\.]+\s+[a-zA-Z0-9\.]+.*?)\)')
+        self.regexp2 = re.compile(r'([a-zA-Z0-9\.]+)\s+[a-zA-Z0-9\.]+')  # 提取类名
 
     def _visit_patch(self, patch):
         for hunk in patch:

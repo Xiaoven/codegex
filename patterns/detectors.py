@@ -1,4 +1,5 @@
 from patterns.utils import logger, is_comment
+from rparser import VirtualStatement
 
 
 class Detector:
@@ -71,7 +72,10 @@ class ParentDetector(Detector):
                     continue
 
                 for detector in self.subdetectors:
-                    detector.match(line_content, patch.name, hunk.lines[i].lineno[1])
+                    method = None
+                    if isinstance(hunk.lines[i], VirtualStatement):
+                        method = hunk.lines[i].get_exact_lineno
+                    detector.match(line_content, patch.name, hunk.lines[i].lineno[1], method)
 
         # collect bug instances
         for detector in self.subdetectors:
@@ -84,9 +88,10 @@ class SubDetector:
     def __init__(self):
         self.bug_accumulator = []
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         '''
         Match single line and generate bug instance using regex pattern
+        :param get_exact_lineno:
         :param linecontent: line string to be search
         :param filename: file name
         :param lineno: line number in the file

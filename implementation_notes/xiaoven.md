@@ -2,7 +2,7 @@
 
 ##### Regex
 ```regexp
-(?:(?:String\.format)|printf)\([\w\.\s\(\)]*,{0,1}\s*\"([^\"]*)\"\s*
+(?:(?:String\.format)|printf)\([\w\.\s\(\)]*,?\s*"([^"]*)"\s*
 ```
 ##### Examples
 ```java
@@ -13,6 +13,15 @@ String.format("Payload:\n%s" , new Object[1]);
 ```
 
 ##### 实现思路
+
+[SpotBugs](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FormatStringChecker.java#L107-L113)
+- java.util.Formatter.format()
+- java.lang.String.format()
+- *Writer.format()
+- java.io.PrintStream.format()
+- java.io.PrintStream.printf()
+- *Writer.printf()
+- *Logger.fmt()
 
 1. 提取 `String.format(Locale l, String format, Object... args)`  和 `String.format(String format, Object... args)` 调用中的 format 部分
 

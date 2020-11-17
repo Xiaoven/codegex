@@ -1,4 +1,4 @@
-from rparser import Patch
+from rparser import parse
 from patterns.detect.dumb_methods import DumbMethods
 
 import pytest
@@ -28,15 +28,15 @@ params = [
      "         // Initialize internal variables", 1, 625),
     # From other repository: https://github.com/jenkinsci/android-emulator-plugin/commit/0e104f3f0fc18505c13932fccd3b2297e78db694#diff-238b9af87181bb379670392cdb1dcd6bL173
     ('DMI_RANDOM_USED_ONLY_ONCE', 'MonkeyBuilder.java',
-    "@@ -166,11 +167,10 @@ private static void addArguments(String parameters, String flag, StringBuilder a\n"
-    "        }\n"
-    "    }\n\n"
-    "-    @SuppressFBWarnings(\"DMI_RANDOM_USED_ONLY_ONCE\")\n"
-    "    private static long parseSeed(String seed) {\n"
-    "        long seedValue;\n"
-    "        if (\"random\".equals(seed)) {\n"
-    "            seedValue = new Random().nextLong();\n"
-    "        } else if (\"timestamp\".equals(seed)) {\n", 1, 173),
+     "@@ -166,11 +167,10 @@ private static void addArguments(String parameters, String flag, StringBuilder a\n"
+     "        }\n"
+     "    }\n\n"
+     "-    @SuppressFBWarnings(\"DMI_RANDOM_USED_ONLY_ONCE\")\n"
+     "    private static long parseSeed(String seed) {\n"
+     "        long seedValue;\n"
+     "        if (\"random\".equals(seed)) {\n"
+     "            seedValue = new Random().nextLong();\n"
+     "        } else if (\"timestamp\".equals(seed)) {\n", 1, 173),
     # From other repository: https://github.com/adaptris/interlok/commit/8dd32e9b89a4b17662faa7ca986756f3cc348cc7#diff-1e0469ce35c1d148418525088df452a2L405
     ('DMI_RANDOM_USED_ONLY_ONCE', 'MonkeyBuilder.java',
      '''@@ -393,15 +396,13 @@ protected synchronized void sendMessageLifecycleEvent(AdaptrisMessage msg) {
@@ -116,11 +116,11 @@ params = [
              final String[] original = new String[]{new String("hallo"), new String("hallo")};''', 1, 34)
 ]
 
+
 @pytest.mark.parametrize('pattern_type,file_name,patch_str,expected_length,line_no', params)
 def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
-    patch = Patch()
+    patch = parse(patch_str)
     patch.name = file_name
-    patch.parse(patch_str)
     detector = DumbMethods()
     detector.visit([patch])
     if expected_length > 0:
@@ -129,4 +129,3 @@ def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int
         assert detector.bug_accumulator[0].type == pattern_type
     else:
         assert len(detector.bug_accumulator) == 0
-

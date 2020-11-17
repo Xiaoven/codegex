@@ -24,7 +24,7 @@ class SimpleNameSubDetector1(SubDetector):
         self.pattern = regex.compile(r'class\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?:(?!implements)(?&name))+)')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
         if m:
             g = m.groups()
@@ -44,7 +44,7 @@ class SimpleNameSubDetector2(SubDetector):
         self.pattern2 = regex.compile(r'interface\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?&name)+)')
         SubDetector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int):
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern1.search(linecontent)
         if not m:
             m = self.pattern2.search(linecontent)

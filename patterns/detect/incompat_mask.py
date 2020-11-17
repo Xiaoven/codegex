@@ -7,9 +7,9 @@ import regex
 
 class BitSignedCheckAndBitAndZZ(Detector):
     def __init__(self):
-        self.regexpSign = regex.compile('\(\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.])++)\s*&\s*((?:(?&aux1)|[\w.])+)\s*\)\s*>\s*0')
+        self.regexpSign = regex.compile(r'\(\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.])++)\s*&\s*((?:(?&aux1)|[\w.])+)\s*\)\s*>\s*0')
         self.regexpZZ = regex.compile(
-            '\(\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.])++)\s*&\s*0\s*\)\s*==\s*0')
+            r'\(\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.])++)\s*&\s*0\s*\)\s*==\s*0')
 
     def _visit_patch(self, patch):
         file_name = patch.name
