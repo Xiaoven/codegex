@@ -4,7 +4,7 @@ from patterns.detect.format_string_checker import FormatStringChecker
 from rparser import parse
 
 params = [
-    # From other repositories: https://github.com/usgs/warc-iridium-sbd-decoder/commit/505f5832c975be601acf9ccdfcd729e0134d79f7
+    #From other repositories: https://github.com/usgs/warc-iridium-sbd-decoder/commit/505f5832c975be601acf9ccdfcd729e0134d79f7
     (True, FormatStringChecker(), 'VA_FORMAT_STRING_USES_NEWLINE', 'PseudobinaryBPayloadDecoder.java',
              "@@ -278,7 +278,7 @@ Status processLine(final List<String> p_Line,\n \t\tif (!findFirst.isPresent())\n \t\t{\n \t\t\tlog.warn(String.format(\n+\t\t\t\t\t\"No matching data type for (name: %s, units: %s) among:\\n - %s\",\n-\t\t\t\t\t\"No matching data type for (name: %s, units: %s) among:%n - %s\",\n \t\t\t\t\tname, units,\n \t\t\t\t\tp_DataTypes.stream()\n \t\t\t\t\t\t\t.map(type -> String.format(",
      1, 281),
@@ -20,6 +20,29 @@ params = [
     (True, FormatStringChecker(), 'VA_FORMAT_STRING_USES_NEWLINE', 'Fake.java',
      "@@ -280,7 +280,7 @@ private void setIntegerValue(final String projectAttributeValue,\n			value.setIntegerValue(Long.valueOf(projectAttributeValue));\n		} catch (NumberFormatException e) {\n			logWriter.printf(\"[WARN] Failed to set an integer value\\n\");",
      1, 282),
+    (False, FormatStringChecker(),'VA_FORMAT_STRING_USES_NEWLINE','Fake.java','''public static void main(String[] args) throws IOException {
+                        Formatter formatter = new Formatter();
+                        File file = new File(\"test.txt\");
+                        File file2 = new File(\"test2.txt\");
+                        PrintStream printStream = new PrintStream(new FileOutputStream(file,true),true,\"UTF-8\");
+                        PrintWriter printWriter = new PrintWriter(file2,\"UTF-8\");
+                        System.out.printf(\"|%-6s|%-12s|%-12s|\\n\", \"№ з/п\", \"Вхідний бал\", \"Результат округлення\");
+                        printWriter.printf(\"This is the %s bug\\n\",\"first\");
+                        printWriter.format(\"This is not a bug\\\n");
+                        try{
+                            int c = 4/0;
+                            System.out.println(\"c=\" + c);
+                        }catch(Exception e){
+                            printStream.printf(\"This is the %d bug\\n\",2);
+                            printStream.format(\"This is the %d bug\\n\",3);
+                            e.printStackTrace(printStream);
+                        }
+                        formatter.format(\"This is the %d bug\\n\",4);
+                        String str = formatter.toString();
+                        System.out.println(str);
+                        printStream.close();
+                        printWriter.close();
+                }''',4,8)
   ]
 
 @pytest.mark.parametrize('is_patch,detector,pattern_type,file_name,patch_str,expected_length,line_no', params)
