@@ -59,5 +59,5 @@ class NewLineSubDetector(SubDetector):
                         BugInstance('VA_FORMAT_STRING_USES_NEWLINE', Priorities.EXP_PRIORITY,
                                     filename, final_lineno,
                                     'If java.io.PrintStream/java.util.Formatter/java.io.Writer are used,'
-                                    'format string should use %n rather than \\n')
+                                    'format string should use %n rather than \\n. Otherwise ignore this bug.')
                     )
