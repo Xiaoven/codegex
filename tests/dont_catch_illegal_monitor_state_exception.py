@@ -1,7 +1,7 @@
 import pytest
 
 from rparser import parse
-from patterns.detect.imse_dont_catch_imse import DontCatchIllegalMonitorStateException
+from patterns.detect.dont_catch_illegal_monitor_state_exception import DontCatchIllegalMonitorStateException
 
 params = [(True, DontCatchIllegalMonitorStateException(), 'IMSE_DONT_CATCH_IMSE', 'Fake.java',
            "@@ -146,11 +147,7 @@ public void serviceAdded(ServiceEvent se) {\n             log.debug(\"Service added: {}\", se.getInfo().toString());\n             // notify the client when a service is added.\n             synchronized (client) {\n+                try {\n+                    client.notifyAll();\n+                } catch (java.lang.IllegalMonitorStateException imse) {\n+                    log.error(\"Error notifying waiting listeners: {}\", imse.getCause());\n+                }\n-                client.notifyAll();\n             }\n         }\n",

@@ -1,12 +1,12 @@
 import json
 import glob
 
-from patterns.detect.cnt_rough_constant_value import FindRoughConstants
+from patterns.detect.find_rough_constants import FindRoughConstants
 from patterns.detect.find_finalize_invocations import FindFinalizeInvocations
 from patterns.detect.find_ref_comparison import FindRefComparison
 from patterns.detect.find_unrelated_types_in_generic_container import FindUnrelatedTypesInGenericContainer
 from patterns.detect.format_string_checker import FormatStringChecker
-from patterns.detect.imse_dont_catch_imse import DontCatchIllegalMonitorStateException
+from patterns.detect.dont_catch_illegal_monitor_state_exception import DontCatchIllegalMonitorStateException
 from patterns.detect.infinite_recursive_loop import InfiniteRecursiveLoop
 from patterns.detect.inheritance_unsafe_get_resource import InheritanceUnsafeGetResource
 from patterns.detect.naming import Naming
