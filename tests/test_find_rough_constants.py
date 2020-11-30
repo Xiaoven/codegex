@@ -1,5 +1,5 @@
 from rparser import parse
-from patterns.detect.cnt_rough_constant_value import FindRoughConstants
+from patterns.detect.find_rough_constants import FindRoughConstants
 
 class TestCntRoughConstantValue:
     def test_01(self):
