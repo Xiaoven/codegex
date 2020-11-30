@@ -91,14 +91,14 @@ params = [
      "+     line = new String(loppedLine + nextLine);\n"
      "   }\n"
      " // Find start of key\n"
-     " int len = line.length();", 1, 194),
+     " int len = line.length();", 0, 194),
     # From other repository: https://github.com/HighTechRedneck42/JMRI/commit/e0f5ae298a1bad0b7abca627d7ab15e2b6d2fd69
     ('DM_STRING_CTOR', 'DCCppSimulatorAdapter.java',
      '''@@ -467,7 +467,7 @@ private void generateRandomSensorReply() {
      Random valueGenerator = new Random();
      int value = valueGenerator.nextInt(2); // Generate state value betweeon 0 and 1
 
-     String reply = new String((value == 1 ? "Q " : "q ")+ Integer.toString(sensorNum));''', 1, 470),
+     String reply = new String((value == 1 ? "Q " : "q ")+ Integer.toString(sensorNum));''', 0, 470),
     # From other repository: https://github.com/exedio/persistence/commit/cb142171ce28704f463dfb2b95307ac203d3fd39
     ('DM_STRING_CTOR', 'ReserializeTest.java',
      '''@@ -23,10 +23,12 @@
@@ -113,7 +113,37 @@ params = [
          @SuppressFBWarnings("DM_STRING_CTOR")
          @Test public void testIt()
          {
-             final String[] original = new String[]{new String("hallo"), new String("hallo")};''', 1, 34)
+             final String[] original = new String[]{new String("hallo"), new String("hallo")};''', 1, 34),
+    # From other repository: https://github.com/nus-cs2103-AY1920S1/duke/pull/307/files?file-filters%5B%5D=.java
+    ('DM_STRING_CTOR', 'ReserializeTest.java',
+     '''@@ -23,10 +23,12 @@
+     import static org.junit.Assert.assertNotSame;
+     import static org.junit.Assert.assertSame;
+
+     import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+     import org.junit.Test;
+
+     public class ReserializeTest
+     {
+         @SuppressFBWarnings("DM_STRING_CTOR")
+         @Test public void testIt()
+         {
+            String content = new String(Files.readAllBytes(Paths.get(filePath)), "UTF-8");''', 0, 34),
+    # https://github.com/code-differently/Assessment-PAIN/pull/15/files#diff-478b2349e8da512b9f501d8ece255e9445998876e9bac0eeb9fd8e5f69af77c2R11
+    ('DM_STRING_CTOR', 'ReserializeTest.java',
+     '''@@ -23,10 +23,12 @@
+     import static org.junit.Assert.assertNotSame;
+     import static org.junit.Assert.assertSame;
+
+     import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+     import org.junit.Test;
+
+     public class ReserializeTest
+     {
+         @SuppressFBWarnings("DM_STRING_CTOR")
+         @Test public void testIt()
+         {
+            data = new String(Files.readAllBytes(Paths.get("RawData.txt")));''', 0, 34),
 ]
 
 
