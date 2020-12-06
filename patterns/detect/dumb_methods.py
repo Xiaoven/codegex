@@ -79,8 +79,7 @@ class StringCtorSubDetector(SubDetector):
                                                         filename, lineno,
                                                         'Method invokes inefficient new String() constructor'))
             else:
-                if '"' in groups[1] or '+' in groups[1]:
-                    # new String(var1 + var2) means that both var1 and var2 are of String type
+                if groups[1].strip().startswith('"'):
                     self.bug_accumulator.append(BugInstance('DM_STRING_CTOR', Priorities.NORMAL_PRIORITY,
                                                             filename, lineno,
                                                             'Method invokes inefficient new String(String) constructor'))
