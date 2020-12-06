@@ -79,7 +79,7 @@ class StringCtorSubDetector(SubDetector):
                                                         filename, lineno,
                                                         'Method invokes inefficient new String() constructor'))
             else:
-                if '"' == groups[1].strip()[0] and '"' == groups[1].strip()[-1]:
+                if groups[1].strip().startswith('"'):
                     self.bug_accumulator.append(BugInstance('DM_STRING_CTOR', Priorities.NORMAL_PRIORITY,
                                                             filename, lineno,
                                                             'Method invokes inefficient new String(String) constructor'))
