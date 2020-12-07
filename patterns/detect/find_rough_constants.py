@@ -73,16 +73,21 @@ class FindRoughConstants(Detector):
                 if is_comment(line_content):
                     continue
 
-                match = self.regexp.findall(line_content)
+                line_split = line_content.split('"')
 
-                for m in match:
-                    float_const = float(m)
-                    p, bad_const = check_const(float_const)
-                    if p < Priorities.IGNORE_PRIORITY:
-                        bug_ins = RoughConstantValueBugInstance("CNT_ROUGH_CONSTANT_VALUE", p, file_name, hunk.lines[i].lineno[1])
-                        bug_ins.gen_description(float_const, bad_const)
-                        self.bug_accumulator.append(bug_ins)
+                j = 0
+                while j < len(line_split):
+                    match = self.regexp.findall(line_split[i])
 
+                    for m in match:
+                        float_const = float(m)
+                        p, bad_const = check_const(float_const)
+                        if p < Priorities.IGNORE_PRIORITY:
+                            bug_ins = RoughConstantValueBugInstance("CNT_ROUGH_CONSTANT_VALUE", p, file_name,
+                                                                    hunk.lines[i].lineno[1])
+                            bug_ins.gen_description(float_const, bad_const)
+                            self.bug_accumulator.append(bug_ins)
+                    j += 2
 
 
 class RoughConstantValueBugInstance(BugInstance):
