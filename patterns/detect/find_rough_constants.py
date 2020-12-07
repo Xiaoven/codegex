@@ -77,7 +77,7 @@ class FindRoughConstants(Detector):
 
                 j = 0
                 while j < len(line_split):
-                    match = self.regexp.findall(line_split[i])
+                    match = self.regexp.findall(line_split[j])
 
                     for m in match:
                         float_const = float(m)

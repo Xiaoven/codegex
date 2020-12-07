@@ -13,7 +13,7 @@ class TestCntRoughConstantValue:
     def test_02(self):
         # succeed to find file when run `python -m pytest tests/ ` from command line
         # but fail when run from pycharm
-        with open('tests/data/cnt_rough_constant_value.java', 'r') as f:
+        with open('data/cnt_rough_constant_value.java', 'r') as f:
             content = f.read()
         if content:
             patch = parse(content)
@@ -25,7 +25,7 @@ class TestCntRoughConstantValue:
     def test_03(self):
         patch = parse(
             '''@@ -78,3 +78,3 @@ protected VariationFunc getRandom3DShape() {\n         
-            private String[] jstrUnionOfRightArray = { ' [ ]", "[\"Today\"]", "[1234]", "[-0]", "[1.2333]", " [3.14e+0]",
+            private String[] jstrUnionOfRightArray = { "[ ]", "[\"Today\"]", "[1234]", "[-0]", "[1.2333]", " [3.14e+0]",
 			    " [-3.14E-0]", "[0e0]", "[true]", "[false]", "[null]", "[\"\\u1234\"]", " [{\"name\":\"test\"}]",
 			    "[{}, [{}, []]]   " , "    "};"
 			''')
