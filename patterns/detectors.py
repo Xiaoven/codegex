@@ -1,5 +1,6 @@
 from patterns.utils import logger, is_comment
 from rparser import VirtualStatement
+from timer import Timer
 
 
 class BaseEngine:
@@ -36,7 +37,7 @@ class DefaultEngine(BaseEngine):
         Init the parent detector
         :param detectors: SubDetectors
         """
-        self.subdetectors = detectors
+        self.detectors = detectors
 
     def _visit_patch(self, patch):
         """
@@ -71,14 +72,20 @@ class DefaultEngine(BaseEngine):
                         in_multiline_comments = False
                     continue
 
-                for detector in self.subdetectors:
+                tt = Timer(name="Itr Detectors", logger=None)
+                tt.start()
+                for detector in self.detectors:
+                    t = Timer(name=detector.__class__.__name__, logger=None)
+                    t.start()
                     method = None
                     if isinstance(hunk.lines[i], VirtualStatement):
                         method = hunk.lines[i].get_exact_lineno
                     detector.match(line_content, patch.name, hunk.lines[i].lineno[1], method)
+                    t.stop()
+                tt.stop()
 
         # collect bug instances
-        for detector in self.subdetectors:
+        for detector in self.detectors:
             if detector.bug_accumulator:
                 self.bug_accumulator += detector.bug_accumulator
                 detector.reset()
@@ -100,4 +107,4 @@ class Detector:
         pass
 
     def reset(self):
-        self.bug_accumulator = []
+        self.bug_accumulator = list()

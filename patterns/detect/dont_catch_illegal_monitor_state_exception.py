@@ -19,8 +19,7 @@ class DontCatchIllegalMonitorStateException(Detector):
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         match = self.p_catch.search(linecontent)
-        if lineno == 4:
-            print(lineno)
+
         if match:
             params = match.groups()[0]
             defs = params.split(',')

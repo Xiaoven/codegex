@@ -7,7 +7,7 @@ def snake_to_camel(word):
 
 
 if __name__ == '__main__':
-    p_detector = re.compile(r'class\s*([^\s()]+)\((?:Parent)?Detector\)')
+    p_detector = re.compile(r'class\s*([^\s()]+)\(Detector\)')
     p = re.compile(r'[\'"]([A-Z_0-9]+)[\'"]')
     detector_path = os.path.join(os.getcwd(), 'patterns/detect')
     all_pattern_set = set()
@@ -27,11 +27,12 @@ if __name__ == '__main__':
             if pattern_list:
                 all_pattern_set.update(pattern_list)
 
-            m = p_detector.search(content)
-            if m:
-                detector_names.append(m.groups()[0] + '()')
+            detectors = p_detector.findall(content)
+            for d in detectors:
+                detector_names.append(d + '()')
 
-    print('[Class names]', ','.join(file_names))
+    print('[Length of file names]', len(file_names))
+    print('[File names]', ','.join(file_names))
     print('[Number of patterns]', len(all_pattern_set))
     print('[Pattern names]', ','.join(all_pattern_set))
     print('[Number of Detectors]', len(detector_names))
