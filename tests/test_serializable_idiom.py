@@ -1,6 +1,7 @@
 import pytest
 
-from patterns.detect.serializable_idiom import SerializableIdiom
+from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod
+from patterns.detectors import DefaultEngine
 from rparser import parse
 
 params = [
@@ -55,11 +56,11 @@ params = [
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    detector = SerializableIdiom()
-    detector.visit([patch])
+    engine = DefaultEngine([DefSerialVersionID(), DefReadResolveMethod() ])
+    engine.visit([patch])
     if expected_length > 0:
-        assert len(detector.bug_accumulator) == expected_length
-        assert detector.bug_accumulator[0].line_no == line_no
-        assert detector.bug_accumulator[0].type == pattern_type
+        assert len(engine.bug_accumulator) == expected_length
+        assert engine.bug_accumulator[0].line_no == line_no
+        assert engine.bug_accumulator[0].type == pattern_type
     else:
-        assert len(detector.bug_accumulator) == 0
+        assert len(engine.bug_accumulator) == 0

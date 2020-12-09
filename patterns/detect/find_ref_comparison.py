@@ -1,6 +1,6 @@
 import regex
 
-from patterns.detectors import ParentDetector, SubDetector
+from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
 
@@ -11,20 +11,13 @@ def is_str_with_quotes(s:str):
         return True
     return False
 
-class FindRefComparison(ParentDetector):
-    def __init__(self):
-        ParentDetector.__init__(self, [
-            EqualitySubDetector(),
-            CalToNullSubDetector()
-        ])
 
-
-class EqualitySubDetector(SubDetector):
+class EqualityDetector(Detector):
     def __init__(self):
         self.p = regex.compile(
             r'((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w."])++)\s*[!=]=\s*((?:(?&aux1)|[\w."])+)')
         self.bool_objs = ('Boolean.TRUE', 'Boolean.FALSE')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.p.search(linecontent)
@@ -55,11 +48,11 @@ class EqualitySubDetector(SubDetector):
                     )
 
 
-class CalToNullSubDetector(SubDetector):
+class CalToNullDetector(Detector):
     def __init__(self):
         self.p = regex.compile(
             r'(.*)\.equals\s*\(\s*null\s*\)')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.p.search(linecontent)

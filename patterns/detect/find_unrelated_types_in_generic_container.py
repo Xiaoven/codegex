@@ -1,24 +1,15 @@
 import regex as re
 
-from patterns.detectors import ParentDetector, SubDetector
+from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
 
 
-class FindUnrelatedTypesInGenericContainer(ParentDetector):
-    def __init__(self):
-        ParentDetector.__init__(self, [
-            RemoveAllSubDetector(),
-            VacuousSelfCallSubDetector(),
-            NotContainThemselvesSubDetector()
-        ])
-
-
-class RemoveAllSubDetector(SubDetector):
+class RemoveAllDetector(Detector):
     def __init__(self):
         self.pattern = re.compile(
             r'([\w_\.]+(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))*+)\s*\.\s*removeAll\s*\(\s*\1\s*\)')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
@@ -29,11 +20,11 @@ class RemoveAllSubDetector(SubDetector):
             )
 
 
-class VacuousSelfCallSubDetector(SubDetector):
+class VacuousSelfCallDetector(Detector):
     def __init__(self):
         self.pattern = re.compile(
             r'([\w_\.]+(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))*+)\s*\.\s*(?:contains|retain)All\s*\(\s*\1\s*\)')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
@@ -44,11 +35,11 @@ class VacuousSelfCallSubDetector(SubDetector):
             )
 
 
-class NotContainThemselvesSubDetector(SubDetector):
+class NotContainThemselvesDetector(Detector):
     def __init__(self):
         self.pattern = re.compile(
             r'([\w_\.]+(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))*+)\s*\.\s*(?:contains|remove)\s*\(\s*\1\s*\)')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)

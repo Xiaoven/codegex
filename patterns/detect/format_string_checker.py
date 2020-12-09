@@ -1,16 +1,11 @@
 import re
 
-from patterns.detectors import ParentDetector, SubDetector
+from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
 
 
-class FormatStringChecker(ParentDetector):
-    def __init__(self):
-        ParentDetector.__init__(self, [NewLineSubDetector()])
-
-
-class NewLineSubDetector(SubDetector):
+class NewLineDetector(Detector):
     def __init__(self):
         super().__init__()
         self.p = re.compile(r'(?:(?:String\.format)|printf)\([\w\.\s\(\)]*,?\s*"([^"]*)"\s*')

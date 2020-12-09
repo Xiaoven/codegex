@@ -1,18 +1,11 @@
 import regex
 
-from patterns.detectors import ParentDetector, SubDetector
+from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
 
 
-class MethodReturnCheck(ParentDetector):
-    def __init__(self):
-        ParentDetector.__init__(self, [
-            NotThrowSubDetector()
-        ])
-
-
-class NotThrowSubDetector(SubDetector):
+class NotThrowDetector(Detector):
     def __init__(self):
         super().__init__()
         self.pattern = regex.compile(r'^\s*new\s+(\w+)(?:Exception|Error)\s*\(')

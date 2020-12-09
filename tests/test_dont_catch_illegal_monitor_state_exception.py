@@ -1,6 +1,6 @@
 import pytest
 
-from patterns.detectors import ParentDetector
+from patterns.detectors import DefaultEngine
 from rparser import parse
 from patterns.detect.dont_catch_illegal_monitor_state_exception import DontCatchIllegalMonitorStateException
 
@@ -34,7 +34,7 @@ def test(is_patch: bool, detector, pattern_type: str, file_name: str, patch_str:
          line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = ParentDetector([detector])
+    engine = DefaultEngine([detector])
     engine.visit([patch])
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

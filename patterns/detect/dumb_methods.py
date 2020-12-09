@@ -1,24 +1,14 @@
 import regex
 
-from patterns.detectors import ParentDetector, SubDetector
+from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
 
 
-class DumbMethods(ParentDetector):
-    def __init__(self):
-        ParentDetector.__init__(self, [
-            FinalizerOnExitSubDetector(),
-            RandomOnceSubDetector(),
-            StringCtorSubDetector(),
-            RandomD2ISubDetector()
-        ])
-
-
-class FinalizerOnExitSubDetector(SubDetector):
+class FinalizerOnExitDetector(Detector):
     def __init__(self):
         self.pattern = regex.compile(r'(\w*)\.*runFinalizersOnExit\(')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
@@ -34,10 +24,10 @@ class FinalizerOnExitSubDetector(SubDetector):
             )
 
 
-class RandomOnceSubDetector(SubDetector):
+class RandomOnceDetector(Detector):
     def __init__(self):
         self.pattern = regex.compile(r'new\s+[\w\.]*Random(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))++\.next\w*\(\s*\)')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
@@ -48,10 +38,10 @@ class RandomOnceSubDetector(SubDetector):
             )
 
 
-class RandomD2ISubDetector(SubDetector):
+class RandomD2IDetector(Detector):
     def __init__(self):
         self.pattern = regex.compile(r'\(\s*int\s*\)\s*(\w+)\.(?:random|nextDouble|nextFloat)\(\s*\)')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
@@ -64,10 +54,10 @@ class RandomD2ISubDetector(SubDetector):
                 )
 
 
-class StringCtorSubDetector(SubDetector):
+class StringCtorDetector(Detector):
     def __init__(self):
         self.pattern = regex.compile(r'new\s+String\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)

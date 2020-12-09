@@ -2,7 +2,7 @@ from patterns.utils import logger, is_comment
 from rparser import VirtualStatement
 
 
-class Detector:
+class BaseEngine:
     '''
     The interface which all bug pattern detectors must implement.
     '''
@@ -27,7 +27,7 @@ class Detector:
             logger.warning(str(bug_ins))
 
 
-class ParentDetector(Detector):
+class DefaultEngine(BaseEngine):
     """
     ParentDetector and SubDetector are for multiple single-line patterns in the same file
     """
@@ -84,7 +84,7 @@ class ParentDetector(Detector):
                 detector.reset()
 
 
-class SubDetector:
+class Detector:
     def __init__(self):
         self.bug_accumulator = []
 

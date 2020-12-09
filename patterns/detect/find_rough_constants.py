@@ -53,36 +53,24 @@ def check_const(const_val: float):
     return best_p, best_const
 
 
-class FindRoughConstants(Detector):
+class FindRoughConstantsDetector(Detector):
     def __init__(self):
         self.regexp = re.compile(r'(\d*\.\d+)')
+        Detector.__init__(self)
 
-    def _visit_patch(self, patch):
-        file_name = patch.name
-
-        for hunk in patch:
-            for i in range(len(hunk.lines)):
-                # detect all lines in the patch rather than the addition
-                if i in hunk.dellines:
-                    continue
-
-                line_content = hunk.lines[i].content
-                if i in hunk.addlines:
-                    line_content = line_content[1:]  # remove "+"
-
-                if is_comment(line_content):
-                    continue
-
-                match = self.regexp.findall(line_content)
-
-                for m in match:
-                    float_const = float(m)
-                    p, bad_const = check_const(float_const)
-                    if p < Priorities.IGNORE_PRIORITY:
-                        bug_ins = RoughConstantValueBugInstance("CNT_ROUGH_CONSTANT_VALUE", p, file_name, hunk.lines[i].lineno[1])
-                        bug_ins.gen_description(float_const, bad_const)
-                        self.bug_accumulator.append(bug_ins)
-
+    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+            match = self.regexp.findall(linecontent)
+            for m in match:
+                float_const = float(m)
+                p, bad_const = check_const(float_const)
+                if p < Priorities.IGNORE_PRIORITY:
+                    if get_exact_lineno:
+                        tmp = get_exact_lineno(m)
+                        if tmp:
+                            lineno = tmp[1]
+                    bug_ins = RoughConstantValueBugInstance("CNT_ROUGH_CONSTANT_VALUE", p, filename, lineno)
+                    bug_ins.gen_description(float_const, bad_const)
+                    self.bug_accumulator.append(bug_ins)
 
 
 class RoughConstantValueBugInstance(BugInstance):

@@ -1,11 +1,11 @@
 import re
 
-from patterns.detectors import SubDetector
+from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
 
 
-class DontCatchIllegalMonitorStateException(SubDetector):
+class DontCatchIllegalMonitorStateException(Detector):
     '''
     匹配 catch (xxException e1, ..., xxException e2), 并分离出 Exception 类型
     检查到 catch 关键词, 开启多行模式
@@ -15,7 +15,7 @@ class DontCatchIllegalMonitorStateException(SubDetector):
     def __init__(self):
         # 匹配形如 "catch (IOException e)"
         self.p_catch = re.compile(r'catch\s*\(([^()]+)\)')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         match = self.p_catch.search(linecontent)

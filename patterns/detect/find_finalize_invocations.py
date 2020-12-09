@@ -1,22 +1,14 @@
 import re
 
-from patterns.detectors import ParentDetector, SubDetector
+from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
 
 
-class FindFinalizeInvocations(ParentDetector):
-    def __init__(self):
-        ParentDetector.__init__(self, [
-            ExplicitInvSubDetector(),
-            PublicAccessSubDetector()
-        ])
-
-
-class ExplicitInvSubDetector(SubDetector):
+class ExplicitInvDetector(Detector):
     def __init__(self):
         self.pattern = re.compile(r'([\w_]*)\.finalize\s*\(\s*\)\s*;')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
@@ -27,10 +19,10 @@ class ExplicitInvSubDetector(SubDetector):
             )
 
 
-class PublicAccessSubDetector(SubDetector):
+class PublicAccessDetector(Detector):
     def __init__(self):
         self.pattern = re.compile(r'public\s+void\s+finalize\s*\(\s*\)')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)

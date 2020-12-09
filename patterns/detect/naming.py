@@ -1,6 +1,6 @@
 import regex
 
-from patterns.detectors import ParentDetector, SubDetector
+from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
 
@@ -11,18 +11,10 @@ def clearName(dotted_name: str):
     return name.strip()
 
 
-class Naming(ParentDetector):
-    def __init__(self):
-        ParentDetector.__init__(self, [
-            SimpleNameSubDetector1(),
-            SimpleNameSubDetector2()
-        ])
-
-
-class SimpleNameSubDetector1(SubDetector):
+class SimpleNameDetector1(Detector):
     def __init__(self):
         self.pattern = regex.compile(r'class\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?:(?!implements)(?&name))+)')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)
@@ -38,11 +30,11 @@ class SimpleNameSubDetector1(SubDetector):
                 )
 
 
-class SimpleNameSubDetector2(SubDetector):
+class SimpleNameDetector2(Detector):
     def __init__(self):
         self.pattern1 = regex.compile(r'class\s+((?:(?!extends)(?P<name>[\w\.\s<>,]))+)\s+(?&name)*implements\s+((?&name)+)')
         self.pattern2 = regex.compile(r'interface\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?&name)+)')
-        SubDetector.__init__(self)
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern1.search(linecontent)
