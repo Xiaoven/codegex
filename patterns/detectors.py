@@ -8,7 +8,7 @@ class Detector:
     '''
 
     def visit(self, patchSet):
-        self.bug_accumulator = []
+        self.bug_accumulator = list()  # every patch set should own a new bug_accumulator
         for patch in patchSet:
             self._visit_patch(patch)
 

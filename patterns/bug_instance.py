@@ -16,4 +16,4 @@ class BugInstance:
         self.line_no = line_no
 
     def __str__(self):
-        return '%s:%s:%s:%s' % (self.file_name, self.line_no, confidence_map[self.priority], self.description)
+        return '%s:%s:%s:%s' % (self.file_name, self.line_no, confidence_map[self.priority], self.type)
