@@ -32,7 +32,8 @@ class SimpleNameDetector1(Detector):
 
 class SimpleNameDetector2(Detector):
     def __init__(self):
-        self.pattern1 = regex.compile(r'class\s+((?:(?!extends)(?P<name>[\w\.\s<>,]))+)\s+(?&name)*implements\s+((?&name)+)')
+        self.pattern1 = regex.compile(
+            r'class\s+((?:(?!extends)(?P<name>[\w\.\s<>,]))+)\s+(?&name)*implements\s+((?&name)+)')
         self.pattern2 = regex.compile(r'interface\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?&name)+)')
         Detector.__init__(self)
 

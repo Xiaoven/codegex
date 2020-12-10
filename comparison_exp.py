@@ -40,30 +40,21 @@ JAVA_FILE_PATTERN = re.compile(r'(.+?)/src/(main|test)/java/')
 #              RandomOnceDetector(), RandomD2IDetector(), StringCtorDetector(), NewLineDetector()
 #              ]
 
-DETECTORS = [SuspiciousCollectionMethodDetector()]
+DETECTORS = [SuspiciousCollectionMethodDetector(), SimpleNameDetector1()]
 
 
 def empty_file(file_path: str):
-    t = Timer(name='io', logger=None)
-    t.start()
     open(file_path, 'w').close()
-    t.stop()
 
 
 def append_file(file_path: str, content: str):
-    t = Timer(name='io', logger=None)
-    t.start()
     with open(file_path, 'a') as f:
         f.write(content)
-    t.stop()
 
 
 def write_file(file_path: str, content: str):
-    t = Timer(name='io', logger=None)
-    t.start()
     with open(file_path, 'w') as f:
         f.write(content)
-    t.stop()
 
 
 def exec_task(file_dict: dict):
@@ -71,8 +62,6 @@ def exec_task(file_dict: dict):
     engine = DefaultEngine(DETECTORS)
 
     for subproject, file_list in file_dict.items():
-        t = Timer(name='parsing', logger=None)
-        t.start()
         # generate patch set
         patchset = []
         for file_path in file_list:
@@ -80,7 +69,6 @@ def exec_task(file_dict: dict):
                 patch = parse(f.read(), is_patch=False)
                 patch.name = file_path
                 patchset.append(patch)
-        t.stop()
 
         # run detectors
         if not patchset:
@@ -126,6 +114,9 @@ def detect_project(project_name: str, tasks=(TASK_MAIN, TASK_TEST)):
             else:
                 other_paths.append(file_path)
 
+            # if cnt_source + cnt_test >= 100:
+            #     break
+
     log_dir = path.join(LOG_PATH, project_name)
     os.makedirs(log_dir, exist_ok=True)
     logfile = path.join(log_dir, 'detect.log')
@@ -170,7 +161,8 @@ def detect_project(project_name: str, tasks=(TASK_MAIN, TASK_TEST)):
 
 
 if __name__ == '__main__':
-    for project_name in os.listdir(BASE_PATH):
+    # for project_name in os.listdir(BASE_PATH):
+    for project_name in ['elasticsearch']:
         tt = Timer(name=project_name, logger=None)
         tt.start()
         detect_project(project_name)
@@ -200,26 +192,27 @@ TODO: count java files for each project
     detecting	    Elapsed time: 155.1335 seconds
     Itr Detectors	Elapsed time: 153.3072 seconds
     =============================== Time for Each Detector ===============================
-    BitSignedCheck	Elapsed time: 2.8541 seconds                            \(\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.])++)\s*&\s*((?:(?&aux1)|[\w.])+)\s*\)\s*>\s*0
+    BitSignedCheck	                    Elapsed time: 2.8541 seconds        \(\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.])++)\s*&\s*((?:(?&aux1)|[\w.])+)\s*\)\s*>\s*0
     BitSignedCheckAndBitAndZZDetector	Elapsed time: 2.5732 seconds        \(\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.])++)\s*&\s*0\s*\)\s*==\s*0
-    GetResourceDetector	Elapsed time: 5.5114 seconds
-    StaticDateFormatDetector	Elapsed time: 1.9757 seconds
-    NotThrowDetector	Elapsed time: 1.6360 seconds
-    CollectionAddItselfDetector	Elapsed time: 12.5186 seconds
-    FindRoughConstantsDetector	Elapsed time: 1.9394 seconds
-    EqualityDetector	Elapsed time: 6.2776 seconds
-    CalToNullDetector	Elapsed time: 1.7546 seconds
-    SimpleNameDetector1	Elapsed time: 1.9138 seconds                        class\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?:(?!implements)(?&name))+)
-    SimpleNameDetector2	Elapsed time: 3.3018 seconds
+    GetResourceDetector	                Elapsed time: 5.5114 seconds
+    StaticDateFormatDetector	        Elapsed time: 1.9757 seconds
+    NotThrowDetector	                Elapsed time: 1.6360 seconds
+    CollectionAddItselfDetector	        Elapsed time: 12.5186 seconds
+    FindRoughConstantsDetector	        Elapsed time: 1.9394 seconds
+    EqualityDetector	                Elapsed time: 6.2776 seconds
+    CalToNullDetector	                Elapsed time: 1.7546 seconds
+    SimpleNameDetector1	                Elapsed time: 1.9138 seconds        class\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?:(?!implements)(?&name))+)
+    SimpleNameDetector2	                Elapsed time: 3.3018 seconds        class\s+((?:(?!extends)(?P<name>[\w\.\s<>,]))+)\s+(?&name)*implements\s+((?&name)+)
+                                                                            interface\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?&name)+)
     DontCatchIllegalMonitorStateException	Elapsed time: 0.9246 seconds
-    ExplicitInvDetector	Elapsed time: 4.7506 seconds
-    PublicAccessDetector	Elapsed time: 0.8796 seconds
-    DefSerialVersionID	Elapsed time: 7.1743 seconds
-    DefReadResolveMethod	Elapsed time: 15.4059 seconds
+    ExplicitInvDetector	                Elapsed time: 4.7506 seconds
+    PublicAccessDetector	            Elapsed time: 0.8796 seconds
+    DefSerialVersionID	                Elapsed time: 7.1743 seconds
+    DefReadResolveMethod	            Elapsed time: 15.4059 seconds
 *** SuspiciousCollectionMethodDetector	Elapsed time: 50.6662 seconds
-    FinalizerOnExitDetector	Elapsed time: 1.7634 seconds
-    RandomOnceDetector	Elapsed time: 1.6661 seconds
-    RandomD2IDetector	Elapsed time: 1.6886 seconds
-    StringCtorDetector	Elapsed time: 1.6286 seconds
-    NewLineDetector	Elapsed time: 1.2494 seconds
+FinalizerOnExitDetector	                Elapsed time: 1.7634 seconds
+    RandomOnceDetector	                Elapsed time: 1.6661 seconds        new\s+[\w\.]*Random(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))++\.next\w*\(\s*\)
+    RandomD2IDetector	                Elapsed time: 1.6886 seconds
+    StringCtorDetector	                Elapsed time: 1.6286 seconds        new\s+String\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))
+    NewLineDetector	                    Elapsed time: 1.2494 seconds        
 """

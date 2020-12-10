@@ -72,8 +72,6 @@ class DefaultEngine(BaseEngine):
                         in_multiline_comments = False
                     continue
 
-                tt = Timer(name="Itr Detectors", logger=None)
-                tt.start()
                 for detector in self.detectors:
                     t = Timer(name=detector.__class__.__name__, logger=None)
                     t.start()
@@ -82,7 +80,6 @@ class DefaultEngine(BaseEngine):
                         method = hunk.lines[i].get_exact_lineno
                     detector.match(line_content, patch.name, hunk.lines[i].lineno[1], method)
                     t.stop()
-                tt.stop()
 
         # collect bug instances
         for detector in self.detectors:

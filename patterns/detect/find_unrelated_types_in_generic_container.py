@@ -1,18 +1,22 @@
-import regex as re
+import regex
 
 from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
+from timer import Timer
 
 
 class SuspiciousCollectionMethodDetector(Detector):
     def __init__(self):
-        self.pattern = re.compile(
-            r'([\w_\.]+(?P<aux1>\((?:[^()]++|(?&aux1))*\))*+)\s*\.\s*((?:remove|contains|retain)(?:All)?)\s*\(\s*\1\s*\)')
+        self.pattern = regex.compile(
+            r'(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*+)\s*\.\s*((?:remove|contains|retain)(?:All)?)\s*\(\s*\1\s*\)')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+        t = Timer(name='matching', logger=None)
+        t.start()
         m = self.pattern.search(linecontent)
+        t.stop()
         if m:
             g = m.groups()
             pattern_type, description, priority = None, None, None
