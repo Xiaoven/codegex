@@ -8,7 +8,7 @@ import patterns.priorities as Priorities
 class NotThrowDetector(Detector):
     def __init__(self):
         super().__init__()
-        self.pattern = regex.compile(r'^\s*new\s+(\w+)(?:Exception|Error)\s*\(')
+        self.pattern = regex.compile(r'^\s*new\s+(\w+?)(?:Exception|Error)\s*\(')
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.pattern.search(linecontent)

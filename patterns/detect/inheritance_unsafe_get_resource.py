@@ -7,10 +7,13 @@ import patterns.priorities as Priorities
 
 class GetResourceDetector(Detector):
     def __init__(self):
-        self.pattern = re.compile(r'(\w*)\.*getClass\(\s*\)\.getResource(?:AsStream){0,1}\(')
+        self.pattern = re.compile(r'(?:(\b\w+)\.)?getClass\(\s*\)\.getResource(?:AsStream)?\(')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+        if not all(method in linecontent for method in ['getClass', 'getResource']):
+            return
+
         m = self.pattern.search(linecontent)
         if m:
             obj_name = m.groups()[0]

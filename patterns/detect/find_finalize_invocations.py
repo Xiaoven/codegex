@@ -7,7 +7,7 @@ import patterns.priorities as Priorities
 
 class ExplicitInvDetector(Detector):
     def __init__(self):
-        self.pattern = re.compile(r'([\w_]*)\.finalize\s*\(\s*\)\s*;')
+        self.pattern = re.compile(r'(\b\w+)\.finalize\s*\(\s*\)\s*;')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):

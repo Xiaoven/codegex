@@ -34,10 +34,10 @@ params = [
             "rootPane == null)}", 1, 54),
 
     # DIY   two errors in one line
-    (True, 'BIT_SIGNED_CHECK', "Fake.java",
+    (True, 'BIT_AND_ZZ', "Fake.java",
             "@@ -51,7 +51,7 @@ public void hierarchyChanged(HierarchyEvent e)\n         {\n           JRootPane "
-            "rootPane;\n \n+          if ((e.getChangeFlags() & 0) == 0 &&(e.getChangeFlags() & e.PARENT_CHANGED)> 0)\n              {\n             rootPane = getRootPane("
-            ");\n             if (rootPane == null)}", 2, 54),
+            "rootPane;\n \n+          if ((e.getChangeFlags() & 0) == 0 && (e.getChangeFlags() & e.PARENT_CHANGED)> 0)\n              {\n             rootPane = getRootPane("
+            ");\n             if (rootPane == null)}", 1, 54),
     ]
 
 
@@ -46,7 +46,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
          line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine([BitSignedCheck(), BitSignedCheckAndBitAndZZDetector()])
+    engine = DefaultEngine([IncompatMaskDetector()])
     engine.visit([patch])
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

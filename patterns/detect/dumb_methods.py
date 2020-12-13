@@ -7,7 +7,7 @@ import patterns.priorities as Priorities
 
 class FinalizerOnExitDetector(Detector):
     def __init__(self):
-        self.pattern = regex.compile(r'(\w*)\.*runFinalizersOnExit\(')
+        self.pattern = regex.compile(r'\b(\w+)\.runFinalizersOnExit\(')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
@@ -26,7 +26,7 @@ class FinalizerOnExitDetector(Detector):
 
 class RandomOnceDetector(Detector):
     def __init__(self):
-        self.pattern = regex.compile(r'new\s+[\w\.]*Random(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))++\.next\w*\(\s*\)')
+        self.pattern = regex.compile(r'new\s+[\w.]*Random(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))++\.next\w*\(\s*\)')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):

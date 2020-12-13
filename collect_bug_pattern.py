@@ -36,5 +36,5 @@ if __name__ == '__main__':
     print('[Number of patterns]', len(all_pattern_set))
     print('[Pattern names]', ','.join(all_pattern_set))
     print('[Number of Detectors]', len(detector_names))
-    print('[Detectors]\n', ','.join(detector_names))
+    print('[Detectors]\n', ', '.join(detector_names))
 

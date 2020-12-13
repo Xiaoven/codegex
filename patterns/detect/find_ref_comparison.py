@@ -20,6 +20,12 @@ class EqualityDetector(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+        # Leading [\w."] may cause to catastrophic backtracking,
+        # and it is a little complicate to rewrite regex with word boundary `\b`
+        # therefore, use the following condition to speed up.
+        if not any(op in linecontent for op in ['==', '!=']):
+            return
+
         m = self.p.search(linecontent)
         if m:
             op_1 = m.groups()[0]  # m.groups()[1] is the result of named pattern
@@ -51,7 +57,7 @@ class EqualityDetector(Detector):
 class CalToNullDetector(Detector):
     def __init__(self):
         self.p = regex.compile(
-            r'(.*)\.equals\s*\(\s*null\s*\)')
+            r'\.equals\s*\(\s*null\s*\)')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):

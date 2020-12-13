@@ -8,7 +8,7 @@ import patterns.priorities as Priorities
 class NewLineDetector(Detector):
     def __init__(self):
         super().__init__()
-        self.p = re.compile(r'(?:(?:String\.format)|printf)\([\w\.\s\(\)]*,?\s*"([^"]*)"\s*')
+        self.p = re.compile(r'(?:(?:String\.format)|printf)\([\w.\s()]*,?\s*"([^"]*)"\s*')
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         m = self.p.search(linecontent)

@@ -12,7 +12,7 @@ from patterns.detect.find_ref_comparison import EqualityDetector, CalToNullDetec
 from patterns.detect.find_rough_constants import FindRoughConstantsDetector
 from patterns.detect.find_unrelated_types_in_generic_container import SuspiciousCollectionMethodDetector
 from patterns.detect.format_string_checker import NewLineDetector
-from patterns.detect.incompat_mask import BitSignedCheck, BitSignedCheckAndBitAndZZDetector
+from patterns.detect.incompat_mask import IncompatMaskDetector
 from patterns.detect.infinite_recursive_loop import CollectionAddItselfDetector
 from patterns.detect.inheritance_unsafe_get_resource import GetResourceDetector
 from patterns.detect.method_return_check import NotThrowDetector
@@ -29,18 +29,16 @@ LOG_PATH = 'comparison_exp'
 TASK_MAIN = 'task_main'
 TASK_TEST = 'task_test'
 
-JAVA_FILE_PATTERN = re.compile(r'(.+?)/src/(main|test)/java/')
+JAVA_FILE_PATTERN = re.compile(r'^(.+?)/src/(main|test)/java/')
 
 # Run collect_bug_pattern.py and copy the "[Detectors]" string
-# DETECTORS = [BitSignedCheck(), BitSignedCheckAndBitAndZZDetector(), GetResourceDetector(), StaticDateFormatDetector(),
-#              NotThrowDetector(), CollectionAddItselfDetector(), FindRoughConstantsDetector(), EqualityDetector(),
-#              CalToNullDetector(), SimpleNameDetector1(), SimpleNameDetector2(), DontCatchIllegalMonitorStateException(),
-#              ExplicitInvDetector(), PublicAccessDetector(), DefSerialVersionID(), DefReadResolveMethod(),
-#              SuspiciousCollectionMethodDetector(), FinalizerOnExitDetector(),
-#              RandomOnceDetector(), RandomD2IDetector(), StringCtorDetector(), NewLineDetector()
-#              ]
-
-DETECTORS = [SuspiciousCollectionMethodDetector(), SimpleNameDetector1()]
+DETECTORS = [IncompatMaskDetector(), GetResourceDetector(), StaticDateFormatDetector(), NotThrowDetector(),
+             CollectionAddItselfDetector(), FindRoughConstantsDetector(), EqualityDetector(), CalToNullDetector(),
+             SimpleNameDetector1(), SimpleNameDetector2(), DontCatchIllegalMonitorStateException(),
+             ExplicitInvDetector(), PublicAccessDetector(), DefSerialVersionID(), DefReadResolveMethod(),
+             SuspiciousCollectionMethodDetector(), FinalizerOnExitDetector(), RandomOnceDetector(),
+             RandomD2IDetector(), StringCtorDetector(), NewLineDetector()
+             ]
 
 
 def empty_file(file_path: str):
@@ -161,8 +159,8 @@ def detect_project(project_name: str, tasks=(TASK_MAIN, TASK_TEST)):
 
 
 if __name__ == '__main__':
-    # for project_name in os.listdir(BASE_PATH):
-    for project_name in ['elasticsearch']:
+    for project_name in os.listdir(BASE_PATH):
+    # for project_name in ['elasticsearch']:
         tt = Timer(name=project_name, logger=None)
         tt.start()
         detect_project(project_name)
@@ -176,43 +174,41 @@ if __name__ == '__main__':
 TODO: count java files for each project
 
     =============================== Time for Each Project ===============================    
-    rocketmq	                Elapsed time: 9.8217 seconds     --> 31.389 s       731 + 246         
-    RxJava	                    Elapsed time: 8.7811 seconds     --> 23s            845 + 960
-    fastjson	                Elapsed time: 4.0155 seconds     --> 6.439 s        190 + 2784
-    BungeeCord	                Elapsed time: 1.9693 seconds     --> 28.522 s       253 + 18 files
-    animated-gif-lib-for-java	Elapsed time: 0.0927 seconds     --> 2.507 s        4 + 2 files
-    elasticsearch	            Elapsed time: 135.1377 seconds   --> 1m 39s         9012 + 4712
-    HikariCP	                Elapsed time: 0.5329 seconds     --> 4.556 s        43 + 55
-    FizzBuzzEnterpriseEdition	Elapsed time: 0.4199 seconds     --> 4s             87+2
-    nanohttpd	                Elapsed time: 0.5527 seconds     --> 21s            47 + 40
-    CS416	                    Elapsed time: 0.1705 seconds     --> 2.836 s        29+0
+    rocketmq	                Elapsed time: 9.8217 seconds     --> 3.7853 seconds         731 + 246         
+    RxJava	                    Elapsed time: 8.7811 seconds     --> 4.9294 seconds         845 + 960
+    fastjson	                Elapsed time: 4.0155 seconds     --> 1.9170 seconds         190 + 2784
+    BungeeCord	                Elapsed time: 1.9693 seconds     --> 0.8737 seconds         253 + 18 files
+    animated-gif-lib-for-java	Elapsed time: 0.0927 seconds     --> 0.0618 seconds         4 + 2 files
+    elasticsearch	            Elapsed time: 135.1377 seconds   --> 46.9781 seconds        9012 + 4712
+    HikariCP	                Elapsed time: 0.5329 seconds     --> 0.2415 seconds         43 + 55
+    FizzBuzzEnterpriseEdition	Elapsed time: 0.4199 seconds     --> 0.0855 seconds         87+2
+    nanohttpd	                Elapsed time: 0.5527 seconds     --> 0.2848 seconds         47 + 40
+    CS416	                    Elapsed time: 0.1705 seconds     --> 0.0823 seconds         29+0
     =============================== Other Time =============================== 
     io	            Elapsed time: 0.0091 seconds
     parsing	        Elapsed time: 5.9415 seconds
-    detecting	    Elapsed time: 155.1335 seconds
+    detecting	    Elapsed time: 155.1335 seconds              --> 53.1979 seconds
     Itr Detectors	Elapsed time: 153.3072 seconds
     =============================== Time for Each Detector ===============================
-    BitSignedCheck	                    Elapsed time: 2.8541 seconds        \(\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.])++)\s*&\s*((?:(?&aux1)|[\w.])+)\s*\)\s*>\s*0
-    BitSignedCheckAndBitAndZZDetector	Elapsed time: 2.5732 seconds        \(\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.])++)\s*&\s*0\s*\)\s*==\s*0
-    GetResourceDetector	                Elapsed time: 5.5114 seconds
-    StaticDateFormatDetector	        Elapsed time: 1.9757 seconds
-    NotThrowDetector	                Elapsed time: 1.6360 seconds
-    CollectionAddItselfDetector	        Elapsed time: 12.5186 seconds
-    FindRoughConstantsDetector	        Elapsed time: 1.9394 seconds
-    EqualityDetector	                Elapsed time: 6.2776 seconds
-    CalToNullDetector	                Elapsed time: 1.7546 seconds
-    SimpleNameDetector1	                Elapsed time: 1.9138 seconds        class\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?:(?!implements)(?&name))+)
-    SimpleNameDetector2	                Elapsed time: 3.3018 seconds        class\s+((?:(?!extends)(?P<name>[\w\.\s<>,]))+)\s+(?&name)*implements\s+((?&name)+)
-                                                                            interface\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?&name)+)
-    DontCatchIllegalMonitorStateException	Elapsed time: 0.9246 seconds
-    ExplicitInvDetector	                Elapsed time: 4.7506 seconds
-    PublicAccessDetector	            Elapsed time: 0.8796 seconds
-    DefSerialVersionID	                Elapsed time: 7.1743 seconds
-    DefReadResolveMethod	            Elapsed time: 15.4059 seconds
-*** SuspiciousCollectionMethodDetector	Elapsed time: 50.6662 seconds
-FinalizerOnExitDetector	                Elapsed time: 1.7634 seconds
-    RandomOnceDetector	                Elapsed time: 1.6661 seconds        new\s+[\w\.]*Random(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))++\.next\w*\(\s*\)
-    RandomD2IDetector	                Elapsed time: 1.6886 seconds
-    StringCtorDetector	                Elapsed time: 1.6286 seconds        new\s+String\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))
-    NewLineDetector	                    Elapsed time: 1.2494 seconds        
+    IncompatMaskDetector	            Elapsed time: 2.8 seconds           --> 1.9117 seconds
+    GetResourceDetector	                Elapsed time: 5.5114 seconds        --> 1.0294 seconds
+    StaticDateFormatDetector	        Elapsed time: 1.9757 seconds        --> 1.0286 seconds
+    NotThrowDetector	                Elapsed time: 1.6360 seconds        --> 1.7447 seconds
+    CollectionAddItselfDetector	        Elapsed time: 12.5186 seconds       --> 0.9762 seconds
+    FindRoughConstantsDetector	        Elapsed time: 1.9394 seconds        --> 1.8507 seconds
+    EqualityDetector	                Elapsed time: 6.2776 seconds        --> 1.9845 seconds
+    CalToNullDetector	                Elapsed time: 1.7546 seconds        --> 1.7158 seconds
+    SimpleNameDetector1	                Elapsed time: 1.9138 seconds        --> 1.8350 seconds
+    SimpleNameDetector2	                Elapsed time: 3.3018 seconds        --> 2.8226 seconds    
+    DontCatchIllegalMonitorStateException	Elapsed time: 0.9246 seconds    --> 0.8572 seconds
+    ExplicitInvDetector	                Elapsed time: 4.7506 seconds        --> 2.0062 seconds
+    PublicAccessDetector	            Elapsed time: 0.8796 seconds        --> 0.7880 seconds
+    DefSerialVersionID	                Elapsed time: 7.1743 seconds        --> 0.6491 seconds
+    DefReadResolveMethod	            Elapsed time: 15.4059 seconds       --> 1.1025 seconds
+*** SuspiciousCollectionMethodDetector	Elapsed time: 50.6662 seconds       --> 1.2148 seconds
+    FinalizerOnExitDetector	            Elapsed time: 1.7634 seconds        --> 1.7043 seconds
+    RandomOnceDetector	                Elapsed time: 1.6661 seconds        --> 1.6619 seconds    
+    RandomD2IDetector	                Elapsed time: 1.6886 seconds        --> 1.6360 seconds
+    StringCtorDetector	                Elapsed time: 1.6286 seconds        --> 1.5899 seconds
+    NewLineDetector	                    Elapsed time: 1.2494 seconds        --> 1.1458 seconds  
 """
