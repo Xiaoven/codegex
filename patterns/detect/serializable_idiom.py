@@ -1,25 +1,19 @@
 import re
 
-from patterns.detectors import ParentDetector, SubDetector
+from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
-from patterns.utils import is_comment
 
 
-class SerializableIdiom(ParentDetector):
+class DefSerialVersionID(Detector):
     def __init__(self):
-        ParentDetector.__init__(self, [
-            DefSerialVersionID(),
-            DefReadResolveMethod(),
-        ])
-
-
-class DefSerialVersionID(SubDetector):
-    def __init__(self):
-        self.pattern = re.compile(r'((?:static|final|\s)*)\s+(long|int)\s+serialVersionUID(?!\w\()')
-        SubDetector.__init__(self)
+        self.pattern = re.compile(r'((?:static|final|\s)*)\b(long|int)\s+serialVersionUID\b')
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+        if 'serialVersionUID' not in linecontent:
+            return
+
         m = self.pattern.search(linecontent)
         if m:
             g = m.groups()
@@ -51,13 +45,16 @@ class DefSerialVersionID(SubDetector):
                     BugInstance(pattern_name, priority, filename, lineno, message))
 
 
-class DefReadResolveMethod(SubDetector):
+class DefReadResolveMethod(Detector):
     def __init__(self):
         self.pattern = re.compile(
-            r'((?:static|final|\s)*)\s+([^\s]+)\s+readResolve\s*\(\s*\)\s+throws\s+ObjectStreamException')
-        SubDetector.__init__(self)
+            r'((?:static|final|\s)*)\b([^\s]+)\s+readResolve\s*\(\s*\)\s+throws\s+ObjectStreamException')
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+        if any(const not in linecontent for const in ['readResolve', 'throws', 'ObjectStreamException']):
+            return
+
         m = self.pattern.search(linecontent)
         if m:
             g = m.groups()

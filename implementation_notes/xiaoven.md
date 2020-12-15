@@ -2,7 +2,7 @@
 
 ### Regex
 ```regexp
-(?:(?:String\.format)|printf)\([\w\.\s\(\)]*,?\s*"([^"]*)"\s*
+(?:(?:String\.format)|printf)\([\w.\s()]*,?\s*"([^"]*)"\s*
 ```
 ### Examples
 ```java

@@ -1,23 +1,20 @@
 import regex
 
-from patterns.detectors import ParentDetector, SubDetector
+from patterns.detectors import Detector
 from patterns.bug_instance import BugInstance
 import patterns.priorities as Priorities
 
 
-class StaticCalendarDetector(ParentDetector):
+class StaticDateFormatDetector(Detector):
     def __init__(self):
-        ParentDetector.__init__(self, [
-            StaticDateFormatSubDetector()
-        ])
-
-
-class StaticDateFormatSubDetector(SubDetector):
-    def __init__(self):
-        self.p = regex.compile(r'(\w*\s*)static\s*(?:final)?\s+(DateFormat|SimpleDateFormat|Calendar|GregorianCalendar)\s+(\w*)\s*[;=]')
-        SubDetector.__init__(self)
+        self.p = regex.compile(
+            r'^([\w\s]*?)\bstatic\s*(?:final)?\s+(DateFormat|SimpleDateFormat|Calendar|GregorianCalendar)\s+(\w+)\s*[;=]')
+        Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+        if not any(key in linecontent for key in ('DateFormat', 'Calendar')):
+            return
+
         m = self.p.search(linecontent)
 
         if m:
