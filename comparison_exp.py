@@ -2,26 +2,11 @@ import os
 from os import path
 from subprocess import check_output
 import re
-from datetime import datetime
 
-from patterns.detect.dont_catch_illegal_monitor_state_exception import DontCatchIllegalMonitorStateException
-from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDetector, RandomD2IDetector, \
-    StringCtorDetector
-from patterns.detect.find_finalize_invocations import ExplicitInvDetector, PublicAccessDetector
-from patterns.detect.find_ref_comparison import EqualityDetector, CalToNullDetector
-from patterns.detect.find_rough_constants import FindRoughConstantsDetector
-from patterns.detect.find_unrelated_types_in_generic_container import SuspiciousCollectionMethodDetector
-from patterns.detect.format_string_checker import NewLineDetector
-from patterns.detect.incompat_mask import IncompatMaskDetector
-from patterns.detect.infinite_recursive_loop import CollectionAddItselfDetector
-from patterns.detect.inheritance_unsafe_get_resource import GetResourceDetector
-from patterns.detect.method_return_check import NotThrowDetector
-from patterns.detect.naming import SimpleNameDetector1, SimpleNameDetector2
-from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod
-from patterns.detect.static_calendar_detector import StaticDateFormatDetector
 from patterns.detectors import DefaultEngine
 from rparser import parse
 from timer import Timer
+from gen_detectors import DETECTORS
 
 BASE_PATH = '/home/xiaowen/Project/rbugs_experiments/github-repos'
 LOG_PATH = 'comparison_exp'
@@ -30,15 +15,6 @@ TASK_MAIN = 'task_main'
 TASK_TEST = 'task_test'
 
 JAVA_FILE_PATTERN = re.compile(r'^(.+?)/src/(main|test)/java/')
-
-# Run collect_bug_pattern.py and copy the "[Detectors]" string
-DETECTORS = [IncompatMaskDetector(), GetResourceDetector(), StaticDateFormatDetector(), NotThrowDetector(),
-             CollectionAddItselfDetector(), FindRoughConstantsDetector(), EqualityDetector(), CalToNullDetector(),
-             SimpleNameDetector1(), SimpleNameDetector2(), DontCatchIllegalMonitorStateException(),
-             ExplicitInvDetector(), PublicAccessDetector(), DefSerialVersionID(), DefReadResolveMethod(),
-             SuspiciousCollectionMethodDetector(), FinalizerOnExitDetector(), RandomOnceDetector(),
-             RandomD2IDetector(), StringCtorDetector(), NewLineDetector()
-             ]
 
 
 def empty_file(file_path: str):
@@ -72,10 +48,7 @@ def exec_task(file_dict: dict):
         if not patchset:
             continue
 
-        t = Timer(name='detecting', logger=None)
-        t.start()
         engine.visit(patchset)
-        t.stop()
 
         if engine.bug_accumulator:
             bug_instance_dict[subproject] = engine.bug_accumulator
@@ -159,56 +132,26 @@ def detect_project(project_name: str, tasks=(TASK_MAIN, TASK_TEST)):
 
 
 if __name__ == '__main__':
-    for project_name in os.listdir(BASE_PATH):
-    # for project_name in ['elasticsearch']:
-        tt = Timer(name=project_name, logger=None)
-        tt.start()
+    total_timer = Timer(name='Total', logger=None)
+    total_timer.start()
+
+    project_name_list = os.listdir(BASE_PATH)
+    for project_name in project_name_list:
+        project_timer = Timer(name=project_name, logger=None)
+        project_timer.start()
+
         detect_project(project_name)
-        tt.stop()
 
-    for n, time_s in Timer.timers.items():
-        print('{}\tElapsed time: {:0.4f} seconds'.format(n, time_s))
+        project_timer.stop()
 
+    total_timer.stop()
 
-"""
-TODO: count java files for each project
-
-    =============================== Time for Each Project ===============================    
-    rocketmq	                Elapsed time: 9.8217 seconds     --> 3.7853 seconds         731 + 246         
-    RxJava	                    Elapsed time: 8.7811 seconds     --> 4.9294 seconds         845 + 960
-    fastjson	                Elapsed time: 4.0155 seconds     --> 1.9170 seconds         190 + 2784
-    BungeeCord	                Elapsed time: 1.9693 seconds     --> 0.8737 seconds         253 + 18 files
-    animated-gif-lib-for-java	Elapsed time: 0.0927 seconds     --> 0.0618 seconds         4 + 2 files
-    elasticsearch	            Elapsed time: 135.1377 seconds   --> 46.9781 seconds        9012 + 4712
-    HikariCP	                Elapsed time: 0.5329 seconds     --> 0.2415 seconds         43 + 55
-    FizzBuzzEnterpriseEdition	Elapsed time: 0.4199 seconds     --> 0.0855 seconds         87+2
-    nanohttpd	                Elapsed time: 0.5527 seconds     --> 0.2848 seconds         47 + 40
-    CS416	                    Elapsed time: 0.1705 seconds     --> 0.0823 seconds         29+0
-    =============================== Other Time =============================== 
-    io	            Elapsed time: 0.0091 seconds
-    parsing	        Elapsed time: 5.9415 seconds
-    detecting	    Elapsed time: 155.1335 seconds              --> 53.1979 seconds
-    Itr Detectors	Elapsed time: 153.3072 seconds
-    =============================== Time for Each Detector ===============================
-    IncompatMaskDetector	            Elapsed time: 2.8 seconds           --> 1.9117 seconds
-    GetResourceDetector	                Elapsed time: 5.5114 seconds        --> 1.0294 seconds
-    StaticDateFormatDetector	        Elapsed time: 1.9757 seconds        --> 1.0286 seconds
-    NotThrowDetector	                Elapsed time: 1.6360 seconds        --> 1.7447 seconds
-    CollectionAddItselfDetector	        Elapsed time: 12.5186 seconds       --> 0.9762 seconds
-    FindRoughConstantsDetector	        Elapsed time: 1.9394 seconds        --> 1.8507 seconds
-    EqualityDetector	                Elapsed time: 6.2776 seconds        --> 1.9845 seconds
-    CalToNullDetector	                Elapsed time: 1.7546 seconds        --> 1.7158 seconds
-    SimpleNameDetector1	                Elapsed time: 1.9138 seconds        --> 1.8350 seconds
-    SimpleNameDetector2	                Elapsed time: 3.3018 seconds        --> 2.8226 seconds    
-    DontCatchIllegalMonitorStateException	Elapsed time: 0.9246 seconds    --> 0.8572 seconds
-    ExplicitInvDetector	                Elapsed time: 4.7506 seconds        --> 2.0062 seconds
-    PublicAccessDetector	            Elapsed time: 0.8796 seconds        --> 0.7880 seconds
-    DefSerialVersionID	                Elapsed time: 7.1743 seconds        --> 0.6491 seconds
-    DefReadResolveMethod	            Elapsed time: 15.4059 seconds       --> 1.1025 seconds
-*** SuspiciousCollectionMethodDetector	Elapsed time: 50.6662 seconds       --> 1.2148 seconds
-    FinalizerOnExitDetector	            Elapsed time: 1.7634 seconds        --> 1.7043 seconds
-    RandomOnceDetector	                Elapsed time: 1.6661 seconds        --> 1.6619 seconds    
-    RandomD2IDetector	                Elapsed time: 1.6886 seconds        --> 1.6360 seconds
-    StringCtorDetector	                Elapsed time: 1.6286 seconds        --> 1.5899 seconds
-    NewLineDetector	                    Elapsed time: 1.2494 seconds        --> 1.1458 seconds  
-"""
+    time_log = path.join(LOG_PATH, 'time.log')
+    with open(time_log, 'w') as f:
+        f.write('\n'.rjust(41, '=') + f'Total Time: {Timer.timers["Total"]}\n' + '\n'.rjust(41, '=') + '\n')
+        for project_name in project_name_list:
+            f.write('{:<30s} {:<10f} seconds\n'.format(project_name, Timer.timers[project_name]))
+        f.write(format('', '->40s') + '\n')
+        for key, time_s in Timer.timers.items():
+            if key != 'total' or key not in project_name_list:
+                f.write('{:<30s} {:<10f} seconds\n'.format(key, time_s))

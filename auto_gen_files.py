@@ -32,9 +32,15 @@ if __name__ == '__main__':
                 detector_names.append(d + '()')
 
     print('[Length of file names]', len(file_names))
-    print('[File names]', ','.join(file_names))
     print('[Number of patterns]', len(all_pattern_set))
-    print('[Pattern names]', ','.join(all_pattern_set))
     print('[Number of Detectors]', len(detector_names))
-    print('[Detectors]\n', ', '.join(detector_names))
+
+    with open('gen_detectors.py', 'w') as f:
+        f.write('DETECTORS = [' + ', '.join(detector_names) + ']')
+
+    with open('spotbugs-includeFilter.xml', 'w') as f:
+        f.write('<FindBugsFilter>\n')
+        for pattern in all_pattern_set:
+            f.write(f'\t<Match>\n\t\t<Bug pattern="{pattern}"/>\n\t</Match>\n')
+        f.write('</FindBugsFilter>')
 
