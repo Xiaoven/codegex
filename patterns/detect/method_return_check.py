@@ -14,7 +14,7 @@ class NotThrowDetector(Detector):
         m = self.pattern.search(linecontent)
         if m:
             self.bug_accumulator.append(
-                BugInstance('RV_EXCEPTION_NOT_THROWN', Priorities.NORMAL_PRIORITY,
+                BugInstance('RV_EXCEPTION_NOT_THROWN', Priorities.MEDIUM_PRIORITY,
                             filename, lineno,
                             "Exception created and dropped rather than thrown")
             )

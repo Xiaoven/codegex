@@ -16,7 +16,7 @@ class FinalizerOnExitDetector(Detector):
             pkg_name = m.groups()[0]
             confidence = Priorities.HIGH_PRIORITY
             if pkg_name == 'System' or 'Runtime':
-                confidence = Priorities.NORMAL_PRIORITY
+                confidence = Priorities.MEDIUM_PRIORITY
 
             self.bug_accumulator.append(
                 BugInstance('DM_RUN_FINALIZERS_ON_EXIT', confidence, filename, lineno,
@@ -65,11 +65,11 @@ class StringCtorDetector(Detector):
             groups = m.groups()
             assert len(groups) == 2
             if not groups[1] or not groups[1].strip():
-                self.bug_accumulator.append(BugInstance('DM_STRING_VOID_CTOR', Priorities.NORMAL_PRIORITY,
+                self.bug_accumulator.append(BugInstance('DM_STRING_VOID_CTOR', Priorities.MEDIUM_PRIORITY,
                                                         filename, lineno,
                                                         'Method invokes inefficient new String() constructor'))
             else:
                 if groups[1].strip().startswith('"'):
-                    self.bug_accumulator.append(BugInstance('DM_STRING_CTOR', Priorities.NORMAL_PRIORITY,
+                    self.bug_accumulator.append(BugInstance('DM_STRING_CTOR', Priorities.MEDIUM_PRIORITY,
                                                             filename, lineno,
                                                             'Method invokes inefficient new String(String) constructor'))

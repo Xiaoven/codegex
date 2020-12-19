@@ -35,12 +35,14 @@ if __name__ == '__main__':
     print('[Number of patterns]', len(all_pattern_set))
     print('[Number of Detectors]', len(detector_names))
 
-    with open('gen_detectors.py', 'w') as f:
-        f.write('DETECTORS = [' + ', '.join(detector_names) + ']')
+    print(all_pattern_set)
 
-    with open('spotbugs-includeFilter.xml', 'w') as f:
-        f.write('<FindBugsFilter>\n')
-        for pattern in all_pattern_set:
-            f.write(f'\t<Match>\n\t\t<Bug pattern="{pattern}"/>\n\t</Match>\n')
-        f.write('</FindBugsFilter>')
+    # with open('gen_detectors.py', 'w') as f:
+    #     f.write('DETECTORS = [' + ', '.join(detector_names) + ']')
+
+    # with open('spotbugs-includeFilter.xml', 'w') as f:
+    #     f.write('<FindBugsFilter>\n')
+    #     for pattern in all_pattern_set:
+    #         f.write(f'\t<Match>\n\t\t<Bug pattern="{pattern}"/>\n\t</Match>\n')
+    #     f.write('</FindBugsFilter>')
 

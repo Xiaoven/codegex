@@ -21,10 +21,10 @@ class BadConstant:
 
 BAD_CONSTANTS = [
     BadConstant(math.pi, 1, "Math.PI", Priorities.HIGH_PRIORITY),
-    BadConstant(math.pi, 1 / 2.0, "Math.PI/2", Priorities.NORMAL_PRIORITY),
+    BadConstant(math.pi, 1 / 2.0, "Math.PI/2", Priorities.MEDIUM_PRIORITY),
     BadConstant(math.pi, 1 / 3.0, "Math.PI/3", Priorities.LOW_PRIORITY),
     BadConstant(math.pi, 1 / 4.0, "Math.PI/4", Priorities.LOW_PRIORITY),
-    BadConstant(math.pi, 2, "2*Math.PI", Priorities.NORMAL_PRIORITY),
+    BadConstant(math.pi, 2, "2*Math.PI", Priorities.MEDIUM_PRIORITY),
     BadConstant(math.e, 1, "Math.E", Priorities.LOW_PRIORITY)
 ]
 

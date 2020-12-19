@@ -30,11 +30,11 @@ class DefSerialVersionID(Detector):
                 if 'static' not in prefix:
                     pattern_name = 'SE_NONSTATIC_SERIALVERSIONID'
                     message = "serialVersionUID isn't static."
-                    priority = Priorities.NORMAL_PRIORITY
+                    priority = Priorities.MEDIUM_PRIORITY
                 elif 'final' not in prefix:
                     pattern_name = 'SE_NONFINAL_SERIALVERSIONID'
                     message = "serialVersionUID isn't final."
-                    priority = Priorities.NORMAL_PRIORITY
+                    priority = Priorities.MEDIUM_PRIORITY
 
             if not pattern_name and 'int' == g[1]:
                 pattern_name = 'SE_NONLONG_SERIALVERSIONID'
@@ -71,7 +71,7 @@ class DefReadResolveMethod(Detector):
 
             if pattern_name:
                 self.bug_accumulator.append(
-                    BugInstance(pattern_name, Priorities.NORMAL_PRIORITY, filename, lineno, message))
+                    BugInstance(pattern_name, Priorities.MEDIUM_PRIORITY, filename, lineno, message))
 
 
 

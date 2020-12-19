@@ -5,6 +5,6 @@ EXP_PRIORITY = 4
 # Low priority for bug instances.
 LOW_PRIORITY = 3
 # Normal priority for bug instances
-NORMAL_PRIORITY = 2
+MEDIUM_PRIORITY = 2
 # High priority for bug instances.
 HIGH_PRIORITY = 1

@@ -28,6 +28,6 @@ class PublicAccessDetector(Detector):
         m = self.pattern.search(linecontent)
         if m:
             self.bug_accumulator.append(
-                BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', Priorities.NORMAL_PRIORITY, filename, lineno,
+                BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', Priorities.MEDIUM_PRIORITY, filename, lineno,
                             'Finalizer should be protected, not public')
             )

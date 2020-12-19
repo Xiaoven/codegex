@@ -51,6 +51,6 @@ class SimpleNameDetector2(Detector):
 
             if class_name in interface_names:
                 self.bug_accumulator.append(
-                    BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', Priorities.NORMAL_PRIORITY, filename, lineno,
+                    BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', Priorities.MEDIUM_PRIORITY, filename, lineno,
                                 "Class or interface names shouldn’t shadow simple name of implemented interface")
                 )
