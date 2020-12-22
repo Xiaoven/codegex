@@ -23,11 +23,11 @@ class SuspiciousCollectionMethodDetector(Detector):
             if g[-1] == 'removeAll':
                 pattern_type = 'DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION'
                 description = 'removeAll used to clear a collection'
-                priority = Priorities.NORMAL_PRIORITY
+                priority = Priorities.MEDIUM_PRIORITY
             elif g[-1] in ['containsAll', 'retainAll']:
                 pattern_type = 'DMI_VACUOUS_SELF_COLLECTION_CALL'
                 description = 'Vacuous call to collections'
-                priority = Priorities.NORMAL_PRIORITY
+                priority = Priorities.MEDIUM_PRIORITY
             elif g[-1] in ['contains', 'remove']:
                 pattern_type = 'DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES'
                 description = 'Collections should not contain themselves'

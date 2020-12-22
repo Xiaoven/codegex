@@ -33,7 +33,7 @@ class EqualityDetector(Detector):
 
             if op_1 in self.bool_objs or op_2 in self.bool_objs:
                 self.bug_accumulator.append(
-                    BugInstance('RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN', Priorities.NORMAL_PRIORITY,
+                    BugInstance('RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN', Priorities.MEDIUM_PRIORITY,
                                 filename, lineno,
                                 "Suspicious reference comparison of Boolean values")
                 )
@@ -48,7 +48,7 @@ class EqualityDetector(Detector):
                     return
                 else:
                     self.bug_accumulator.append(
-                        BugInstance('ES_COMPARING_STRINGS_WITH_EQ', Priorities.NORMAL_PRIORITY,
+                        BugInstance('ES_COMPARING_STRINGS_WITH_EQ', Priorities.MEDIUM_PRIORITY,
                                     filename, lineno,
                                     "Suspicious reference comparison of String objects")
                     )
@@ -64,7 +64,7 @@ class CalToNullDetector(Detector):
         m = self.p.search(linecontent)
         if m:
             self.bug_accumulator.append(
-                BugInstance('EC_NULL_ARG', Priorities.NORMAL_PRIORITY,
+                BugInstance('EC_NULL_ARG', Priorities.MEDIUM_PRIORITY,
                             filename, lineno,
                             "Call to equals(null)")
             )

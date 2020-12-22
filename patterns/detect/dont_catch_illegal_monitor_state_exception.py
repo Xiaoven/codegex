@@ -27,7 +27,9 @@ class DontCatchIllegalMonitorStateException(Detector):
                 exception_class = d.split()[0]
 
                 if get_exact_lineno:
-                    lineno = get_exact_lineno(exception_class)[0]
+                    tmp = get_exact_lineno(exception_class)
+                    if tmp:
+                        lineno = tmp[1]
 
                 if exception_class.endswith('IllegalMonitorStateException'):
                     self.bug_accumulator.append(

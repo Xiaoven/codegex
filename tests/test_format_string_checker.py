@@ -7,8 +7,14 @@ from rparser import parse
 params = [
     # From other repositories: https://github.com/usgs/warc-iridium-sbd-decoder/commit/505f5832c975be601acf9ccdfcd729e0134d79f7
     (True, 'VA_FORMAT_STRING_USES_NEWLINE', 'PseudobinaryBPayloadDecoder.java',
-             "@@ -278,7 +278,7 @@ Status processLine(final List<String> p_Line,\n \t\tif (!findFirst.isPresent())\n \t\t{\n \t\t\tlog.warn(String.format(\n+\t\t\t\t\t\"No matching data type for (name: %s, units: %s) among:\\n - %s\",\n-\t\t\t\t\t\"No matching data type for (name: %s, units: %s) among:%n - %s\",\n \t\t\t\t\tname, units,\n \t\t\t\t\tp_DataTypes.stream()\n \t\t\t\t\t\t\t.map(type -> String.format(",
-     1, 281),
+             '''@@ -278,7 +278,7 @@ Status processLine(final List<String> p_Line,
+ 		if (!findFirst.isPresent())
+ 		{
+ 			log.warn(String.format(
+					"No matching data type for (name: %s, units: %s) among:\\n - %s",
+ 					name, units,
+ 					p_DataTypes.stream()
+ 							.map(type -> String.format(''', 1, 281),
     # From other repositories: https://github.com/jenkinsci/fortify-plugin/commit/c455799062f84d2d79a1c3f198816f73916d157d    (False, FindFinalizeInvocations(), 'VA_FORMAT_STRING_USES_NEWLINE', 'SutronStandardCsvPayloadDecoder.java',
     (True, 'VA_FORMAT_STRING_USES_NEWLINE', 'ProjectCreationService.java',
      "@@ -181,10 +181,10 @@ public Long createProject(ProjectDataEntry projectData) throws IOException, ApiE\n \t\t\t}\n \n \t\t\tif (issueTemplate != null) {\n+\t\t\t\tlogWriter.printf(\"Selected Issue Template is '%s'\\n\", issueTemplate.getName()); // Issue template found\n \t\t\t} else {\n \t\t\t\tissueTemplate = defaultIssueTemplate; // selected issue template is not valid so use default template\n+\t\t\t\tlogWriter.printf(\"Specified Issue Template ='%s' doesn't exist, template '%s' is used instead!\\n\",\n \t\t\t\t\t\tselectedIssueTemplateName, issueTemplate.getName());\n \t\t\t}\n \t\t}\n",

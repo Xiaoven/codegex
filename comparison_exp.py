@@ -122,7 +122,7 @@ def detect_project(project_name: str, tasks=(TASK_MAIN, TASK_TEST)):
                 report_path = path.join(report_path, log_file_name)
                 content = str()
                 for ins in bug_instances:
-                    content += f'{ins.file_name},{ins.type},{ins.line_no}\n'
+                    content += f'{ins.type},{ins.file_name},{ins.line_no}\n'
                 write_file(report_path, content)
                 append_file(logfile, f'Found {len(bug_instances)} violations: f{report_path}\n')
 

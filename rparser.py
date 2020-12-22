@@ -83,7 +83,7 @@ class Patch:
     """
 
     def __init__(self):
-        self.name = None
+        self.name = ''
         self.hunks = []
         self.type = None
 

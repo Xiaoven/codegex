@@ -19,6 +19,6 @@ class GetResourceDetector(Detector):
             obj_name = m.groups()[0]
             if not obj_name or obj_name == 'this':
                 self.bug_accumulator.append(
-                    BugInstance('UI_INHERITANCE_UNSAFE_GETRESOURCE', Priorities.NORMAL_PRIORITY, filename, lineno,
+                    BugInstance('UI_INHERITANCE_UNSAFE_GETRESOURCE', Priorities.MEDIUM_PRIORITY, filename, lineno,
                                 'Usage of GetResource may be unsafe if class is extended')
                 )

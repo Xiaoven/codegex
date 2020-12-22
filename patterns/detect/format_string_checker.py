@@ -16,12 +16,13 @@ class NewLineDetector(Detector):
             format_str = m.groups()[0]
 
             if '\\n' in format_str:
-                final_lineno = lineno
                 if get_exact_lineno:
-                    final_lineno = get_exact_lineno(format_str)[1]
+                    tmp = get_exact_lineno(format_str)
+                    if tmp:
+                        lineno = tmp[1]
 
                 self.bug_accumulator.append(
-                    BugInstance('VA_FORMAT_STRING_USES_NEWLINE', Priorities.NORMAL_PRIORITY,
-                                filename, final_lineno,
+                    BugInstance('VA_FORMAT_STRING_USES_NEWLINE', Priorities.MEDIUM_PRIORITY,
+                                filename, lineno,
                                 'Format string should use %n rather than \\n')
                 )
