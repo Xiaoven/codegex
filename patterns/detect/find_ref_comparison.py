@@ -26,7 +26,7 @@ class EqualityDetector(Detector):
         if not any(op in linecontent for op in ['==', '!=']):
             return
 
-        m = self.p.search(linecontent)
+        m = self.p.search(linecontent.strip())
         if m:
             op_1 = m.groups()[0]  # m.groups()[1] is the result of named pattern
             op_2 = m.groups()[2]
@@ -61,7 +61,7 @@ class CalToNullDetector(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        m = self.p.search(linecontent)
+        m = self.p.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(
                 BugInstance('EC_NULL_ARG', Priorities.MEDIUM_PRIORITY,

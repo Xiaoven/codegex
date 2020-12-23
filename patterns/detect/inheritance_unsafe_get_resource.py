@@ -14,7 +14,7 @@ class GetResourceDetector(Detector):
         if not all(method in linecontent for method in ['getClass', 'getResource']):
             return
 
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
         if m:
             obj_name = m.groups()[0]
             if not obj_name or obj_name == 'this':

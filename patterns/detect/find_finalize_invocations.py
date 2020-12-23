@@ -11,7 +11,7 @@ class ExplicitInvDetector(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
         if m and m.groups()[0] != 'super':
             self.bug_accumulator.append(
                 BugInstance('FI_EXPLICIT_INVOCATION', Priorities.HIGH_PRIORITY, filename, lineno,
@@ -25,7 +25,7 @@ class PublicAccessDetector(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(
                 BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', Priorities.MEDIUM_PRIORITY, filename, lineno,

@@ -13,7 +13,7 @@ class CollectionAddItselfDetector(Detector):
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
         if "add" not in linecontent:
             return
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(
                 BugInstance('IL_CONTAINER_ADDED_TO_ITSELF', Priorities.HIGH_PRIORITY, filename,

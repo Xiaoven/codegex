@@ -18,7 +18,7 @@ class DontCatchIllegalMonitorStateException(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        match = self.p_catch.search(linecontent)
+        match = self.p_catch.search(linecontent.strip())
 
         if match:
             params = match.groups()[0]

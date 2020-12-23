@@ -11,7 +11,7 @@ class NotThrowDetector(Detector):
         self.pattern = regex.compile(r'^\s*new\s+(\w+?)(?:Exception|Error)\s*\(')
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(
                 BugInstance('RV_EXCEPTION_NOT_THROWN', Priorities.MEDIUM_PRIORITY,
