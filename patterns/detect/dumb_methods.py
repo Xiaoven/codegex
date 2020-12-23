@@ -11,7 +11,7 @@ class FinalizerOnExitDetector(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
         if m:
             pkg_name = m.groups()[0]
             confidence = Priorities.HIGH_PRIORITY
@@ -30,7 +30,7 @@ class RandomOnceDetector(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(
                 BugInstance('DMI_RANDOM_USED_ONLY_ONCE', Priorities.HIGH_PRIORITY, filename, lineno,
@@ -44,7 +44,7 @@ class RandomD2IDetector(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
         if m:
             obj = m.groups()[0].strip().lower()
             if obj == 'math' or obj == 'r' or 'rand' in obj:
@@ -60,7 +60,7 @@ class StringCtorDetector(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
         if m:
             groups = m.groups()
             assert len(groups) == 2

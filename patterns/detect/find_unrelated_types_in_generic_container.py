@@ -15,7 +15,7 @@ class SuspiciousCollectionMethodDetector(Detector):
         if not any(method in linecontent for method in ['remove', 'contains', 'retain']):
             return
 
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
 
         if m:
             g = m.groups()

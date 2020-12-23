@@ -49,7 +49,7 @@ class IncompatMaskDetector(Detector):
         if '&' not in linecontent and not any(op in linecontent for op in ('>', '<', '>=', '<=', '==', '!=')):
             return
 
-        m = self.regexpSign.search(linecontent)
+        m = self.regexpSign.search(linecontent.strip())
         if m:
             g = m.groups()
             operand_1 = g[0]

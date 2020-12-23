@@ -15,7 +15,7 @@ class StaticDateFormatDetector(Detector):
         if not any(key in linecontent for key in ('DateFormat', 'Calendar')):
             return
 
-        m = self.p.search(linecontent)
+        m = self.p.search(linecontent.strip())
 
         if m:
             groups = m.groups()

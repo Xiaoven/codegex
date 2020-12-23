@@ -11,7 +11,7 @@ class NewLineDetector(Detector):
         self.p = re.compile(r'(?:(?:String\.format)|printf)\([\w.\s()]*,?\s*"([^"]*)"\s*')
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        m = self.p.search(linecontent)
+        m = self.p.search(linecontent.strip())
         if m:
             format_str = m.groups()[0]
 

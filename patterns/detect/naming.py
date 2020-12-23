@@ -17,17 +17,18 @@ class SimpleNameDetector1(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
         if m:
             g = m.groups()
             class_name = clearName(g[0])
             super_class_name = clearName(g[2])
 
             if class_name == super_class_name:
-                self.bug_accumulator.append(
-                    BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', Priorities.HIGH_PRIORITY, filename, lineno,
-                                "Class names shouldn’t shadow simple name of superclass")
-                )
+                if len(linecontent) == len(linecontent.lstrip()):
+                    self.bug_accumulator.append(
+                        BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', Priorities.HIGH_PRIORITY, filename, lineno,
+                                    "Class names shouldn’t shadow simple name of superclass")
+                    )
 
 
 class SimpleNameDetector2(Detector):
@@ -38,9 +39,9 @@ class SimpleNameDetector2(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        m = self.pattern1.search(linecontent)
+        m = self.pattern1.search(linecontent.strip())
         if not m:
-            m = self.pattern2.search(linecontent)
+            m = self.pattern2.search(linecontent.strip())
 
         if m:
             g = m.groups()
@@ -50,7 +51,8 @@ class SimpleNameDetector2(Detector):
                 interface_names.append(clearName(itf))
 
             if class_name in interface_names:
-                self.bug_accumulator.append(
-                    BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', Priorities.MEDIUM_PRIORITY, filename, lineno,
-                                "Class or interface names shouldn’t shadow simple name of implemented interface")
-                )
+                if len(linecontent) == len(linecontent.lstrip()):
+                    self.bug_accumulator.append(
+                        BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', Priorities.MEDIUM_PRIORITY, filename, lineno,
+                                    "Class or interface names shouldn’t shadow simple name of implemented interface")
+                    )

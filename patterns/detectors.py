@@ -54,23 +54,6 @@ class DefaultEngine(BaseEngine):
                     continue
 
                 line_content = hunk.lines[i].content
-                if i in hunk.addlines:
-                    line_content = line_content[1:]  # remove "+"
-
-                line_content = line_content.strip()
-                if not line_content or line_content.startswith('//'):
-                    continue
-
-                # skip multiline comments
-                if line_content.startswith('/*'):
-                    if not line_content.endswith('*/'):
-                        in_multiline_comments = True
-                    continue
-
-                if in_multiline_comments:
-                    if line_content.endswith('*/'):
-                        in_multiline_comments = False
-                    continue
 
                 for detector in self.detectors:
                     method = None

@@ -14,7 +14,7 @@ class DefSerialVersionID(Detector):
         if 'serialVersionUID' not in linecontent:
             return
 
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
         if m:
             g = m.groups()
             prefix = None
@@ -55,7 +55,7 @@ class DefReadResolveMethod(Detector):
         if any(const not in linecontent for const in ['readResolve', 'throws', 'ObjectStreamException']):
             return
 
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(linecontent.strip())
         if m:
             g = m.groups()
 
