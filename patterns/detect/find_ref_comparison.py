@@ -26,8 +26,8 @@ class EqualityDetector(Detector):
         if not any(op in linecontent for op in ['==', '!=']):
             return
 
-        m = self.p.search(linecontent.strip())
-        if m:
+        its = self.p.finditer(linecontent.strip())
+        for m in its:
             op_1 = m.groups()[0]  # m.groups()[1] is the result of named pattern
             op_2 = m.groups()[2]
 
@@ -37,22 +37,22 @@ class EqualityDetector(Detector):
                                 filename, lineno,
                                 "Suspicious reference comparison of Boolean values")
                 )
+                break
             else:
                 if is_str_with_quotes(op_2):
                     op_1, op_2 = op_2, op_1
                 elif not is_str_with_quotes(op_1):
-                    return  # both op_1 and op_2 are not a string
+                    continue  # both op_1 and op_2 are not a string
 
                 # now op_1 is a string with double quotes
                 if is_str_with_quotes(op_2) or op_2.startswith('String.intern'):
-                    return
+                    continue
                 else:
                     self.bug_accumulator.append(
                         BugInstance('ES_COMPARING_STRINGS_WITH_EQ', Priorities.MEDIUM_PRIORITY,
                                     filename, lineno,
-                                    "Suspicious reference comparison of String objects")
-                    )
-
+                                    "Suspicious reference comparison of String objects"))
+                    break
 
 class CalToNullDetector(Detector):
     def __init__(self):
