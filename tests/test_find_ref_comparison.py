@@ -11,7 +11,7 @@ params = [
     public void onReceive(final Context context, Intent intent) {
        /*  dbhelper = new DatabaseHandler(context, "RG", null, 1);
         mURL = dbhelper.Obt_url();
-        if (mURL == ""){  
+        if (mURL == ""){
             mURL = "http://186.96.89.66:9090/crccoding/f?p=2560:9999";
             Log.i("SQLL","Url vacio");
         }else{
@@ -63,6 +63,15 @@ params = [
      "             if (pr != null) {\n"
      "                 pr.addReport(PROBLEM_REPORT);\n"
      "             }", 1, 66),
+    # From other repository: https://github.com/elastic/elasticsearch/blob/master/server/src/main/java/org/elasticsearch/cluster/metadata/MetadataIndexTemplateService.java#L839
+    (EqualityDetector(), 'RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN', 'MetadataIndexTemplateService.java',
+     '''@@ -1,0 +1,0 @@
+     if (isHidden == null || isHidden == Boolean.FALSE) {
+                final boolean matched = template.patterns().stream().anyMatch(patternMatchPredicate);
+                if (matched) {
+                    matchedTemplates.add(template);
+                }
+            }''', 1, 1),
 ]
 
 
