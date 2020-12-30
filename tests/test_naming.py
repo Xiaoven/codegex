@@ -32,13 +32,9 @@ public class LocaleResolver implements org.springframework.web.servlet.LocaleRes
 @InterfaceStability.Evolving
 public interface Future<V> extends io.netty.util.concurrent.Future<V> {''', 1, 29),
     # DIY
-    (True, 'NM_SAME_SIMPLE_NAME_AS_INTERFACE', 'AirsonicLocaleResolver.java',
-     '''@@ -39,7 +39,7 @@
-* @author Sindre Mehus
-*/
-@Service
-public class LocaleResolver extends DIYClass implements DIYInterface, org.springframework.web.servlet.LocaleResolver {''',
-     1, 42),
+    (False, 'NM_SAME_SIMPLE_NAME_AS_INTERFACE', 'AirsonicLocaleResolver.java',
+     '''public class LocaleResolver extends DIYClass implements DIYInterface, org.springframework.web.servlet.LocaleResolver {''',
+     1, 1),
     # DIY
     (True, 'NM_SAME_SIMPLE_NAME_AS_INTERFACE', 'Future.java',
      '''@@ -26,6 +26,9 @@
@@ -46,14 +42,24 @@ public class LocaleResolver extends DIYClass implements DIYInterface, org.spring
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future<V> {''', 1, 29),
-    # From other repository: https://github.com/elastic/elasticsearch/blob/master/plugins/analysis-icu/src/main/java/org/elasticsearch/index/mapper/ICUCollationKeywordFieldMapper.java#L188
+    # https://github.com/elastic/elasticsearch/blob/master/plugins/analysis-icu/src/main/java/org/elasticsearch/index/mapper/ICUCollationKeywordFieldMapper.java#L188
     (False, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'ICUCollationKeywordFieldMapper.java',
      '''public class ICUCollationKeywordFieldMapper extends FieldMapper {
     public static final String CONTENT_TYPE = "icu_collation_keyword";
-    
+
     public static class Builder extends FieldMapper.Builder {
         final Parameter<Boolean> indexed = Parameter.indexParam(m -> toType(m).indexed, true);
         final Parameter<Boolean> hasDocValues = Parameter.docValuesParam(m -> toType(m).hasDocValues, true);''', 0, 4),
+    # elasticsearch/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/async/AsyncResponse.java
+    (False, 'NM_SAME_SIMPLE_NAME_AS_INTERFACE', 'AsyncResponse.java',
+     '''public interface AsyncResponse<T extends AsyncResponse<?>> extends Writeable {
+    /**
+     * When this response will expire as a timestamp in milliseconds since epoch.
+     */
+    long getExpirationTime();''', 0, 1),
+    # RxJava/src/main/java/io/reactivex/rxjava3/observers/BaseTestConsumer.java
+    (False, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'BaseTestConsumer.java',
+     '''public abstract class BaseTestConsumer<T, U extends BaseTestConsumer<T, U>> {''', 0, 1),
 ]
 
 

@@ -102,29 +102,41 @@ URL url = this.getClass().getResource(imagePath)
 我的思路：提取 `this.getClass().getResource(...)` 里 `this` 位置的内容，如果为 None 或 this， 则生成 warning
 
 ## Nm: Class names shouldn’t shadow simple name of superclass (NM_SAME_SIMPLE_NAME_AS_SUPERCLASS)
-注意： java只能继承一个父类，但可以实现多个接口
+Java 编译规则：
+
+1. class只能继承一个父类，但可以实现多个接口
+2. extends 在 implements 之前 
+
 ### Regex
 ```regexp
-class\s+(\w+)\s+extends\s+([\w\.]+)
+class\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)
 ```
 ### Examples
 ```java
 public class SpringLiquibase extends liquibase.integration.spring.SpringLiquibase
+public class Future<V> extends io.netty.util.concurrent.Future<V>
 ```
 ### 实现思路
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L308) 
 
-对于像 `public class HsqlDatabase extends liquibase.database.core.HsqlDatabase` 的 class 定义，会获取两个 class 去除 package 部分后的 simple name，比较是否相等
+1. 提取 class name 和 superclass name，默认 class name 是 simple name
+2. 假如 superclass name 是 qualified name，则从中提取 simple name
+3. 判断两者是否相等。
 
 ## Nm: Class names shouldn’t shadow simple name of implemented interface (NM_SAME_SIMPLE_NAME_AS_INTERFACE)
-注意： 
+Java 编译规则： 
+
 1. interface 可以 `extends` 多个 interfaces
-2. `extends` 和 `implements` 的顺序不能互换，IDE 会报错
+2. interface 定义不能有 implements 语句
 
 ### Regex
+有两种情况：
+1. class 定义里的 implements 部分
+2. interface 定义里的 extends 部分
+
 ```regexp
-class\s+((?:(?!extends)(?P<name>[\w\.\s<>,]))+)\s+(?&name)*implements\s+((?&name)+)
-interface\s+((?P<name>[\w\.\s<>,])+)\s+extends\s+((?&name)+)
+class\s+([\w$]+)\b.*\bimplements\s+([^{]+)
+interface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)
 ```
 第二个正则表达式参考了 `((?!m).)*`， 表示匹配 `.` 的时候不包含
 ### Examples
@@ -140,6 +152,10 @@ public class ALActivityImpl extends org.apache.shindig.social.core.model.Activit
 ```
 ### 实现思路
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L313) 类似 NM_SAME_SIMPLE_NAME_AS_SUPERCLASS
+
+1. 提取 class/interface name 和 implements/extends 后的字符串
+2. 将字符串 split 成 superclass/superinterface 的 simple name 列表
+3. 判断列表中是否包含 class/interface name
 
 
 ## IL: A collection is added to itself (IL_CONTAINER_ADDED_TO_ITSELF)
