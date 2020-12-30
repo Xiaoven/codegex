@@ -16,8 +16,10 @@ def clearName(dotted_name: str):
 
 class SimpleNameDetector1(Detector):
     def __init__(self):
+        # class cannot extend multiple classes
+        # extends clause must occur before implements clause
         self.pattern = regex.compile(
-            r'class\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+((?:(?!\bimplements\b|{).)+)')
+            r'class\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
@@ -40,7 +42,8 @@ class SimpleNameDetector2(Detector):
     def __init__(self):
         self.pattern1 = regex.compile(
             r'class\s+((?:(?!extends)(?P<name>[\w.\s<>,]))+?)\s+(?&name)*?\bimplements\s+((?&name)+)')
-        self.pattern2 = regex.compile(r'interface\s+((?P<name>[\w.\s<>,])+?)\s+extends\s+((?&name)+)')
+        # No implements clause allowed for interface
+        self.pattern2 = regex.compile(r'interface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
@@ -50,12 +53,15 @@ class SimpleNameDetector2(Detector):
 
         if m:
             g = m.groups()
-            class_name = clearName(g[0])  # skip g[1] that is matched by (?P<name>)
-            interface_names = []
-            for itf in g[2].split(','):
-                interface_names.append(clearName(itf))
+            class_name = g[0]
+            super_interfaces = GENERIC_REGEX.sub('', g[2])  # remove <...>
+            super_interface_list = [name.rsplit('.', 1)[-1].strip() for name in super_interfaces.split(',')]
 
-            if class_name in interface_names:
+            # interface_names = []
+            # for itf in g[2].split(','):
+            #     interface_names.append(clearName(itf))
+
+            if class_name in super_interface_list:
                 if len(linecontent) == len(linecontent.lstrip()):
                     self.bug_accumulator.append(
                         BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', Priorities.MEDIUM_PRIORITY, filename, lineno,

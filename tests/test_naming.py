@@ -12,9 +12,6 @@ import java.sql.Connection;
 import java.util.List;
 
 public class SpringLiquibase extends liquibase.integration.spring.SpringLiquibase''', 1, 18),
-    # DIY
-    (False, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', '',
-     '''public class SpringLiquibase extends Object, liquibase.integration.spring.SpringLiquibase''', 1, 1),
     # DIY from: https://github.com/makotoarakaki/aipo/commit/b4eae261c527a41af1ade5b1d1fa95548f9a36cc
     (True, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'ALActivityImpl.java',
      '''@@ -29,8 +29,9 @@
