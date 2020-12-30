@@ -16,13 +16,16 @@ def clearName(dotted_name: str):
 
 class SimpleNameDetector1(Detector):
     def __init__(self):
-        # class cannot extend multiple classes
+        # class can extend only one superclass, but implements multiple interfaces
         # extends clause must occur before implements clause
         self.pattern = regex.compile(
             r'class\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+        if not all(key in linecontent for key in ('class', 'extends')):
+            return
+
         m = self.pattern.search(linecontent.strip())
         if m:
             g = m.groups()
@@ -40,26 +43,28 @@ class SimpleNameDetector1(Detector):
 
 class SimpleNameDetector2(Detector):
     def __init__(self):
+        # Check interfaces implemented by a class
         self.pattern1 = regex.compile(
-            r'class\s+((?:(?!extends)(?P<name>[\w.\s<>,]))+?)\s+(?&name)*?\bimplements\s+((?&name)+)')
+            r'class\s+([\w$]+)\b.*\bimplements\s+([^{]+)')
+        # Check interfaces extended by a interface
         # No implements clause allowed for interface
+        # Interface can extend multiple super interfaces
         self.pattern2 = regex.compile(r'interface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
-        m = self.pattern1.search(linecontent.strip())
-        if not m:
+        if all(key in linecontent for key in ('class', 'implements')):
+            m = self.pattern1.search(linecontent.strip())
+        elif all(key in linecontent for key in ('interface', 'extends')):
             m = self.pattern2.search(linecontent.strip())
+        else:
+            return
 
         if m:
             g = m.groups()
             class_name = g[0]
-            super_interfaces = GENERIC_REGEX.sub('', g[2])  # remove <...>
+            super_interfaces = GENERIC_REGEX.sub('', g[-1])  # remove <...>
             super_interface_list = [name.rsplit('.', 1)[-1].strip() for name in super_interfaces.split(',')]
-
-            # interface_names = []
-            # for itf in g[2].split(','):
-            #     interface_names.append(clearName(itf))
 
             if class_name in super_interface_list:
                 if len(linecontent) == len(linecontent.lstrip()):
