@@ -2,7 +2,8 @@ import pytest
 
 from patterns.detect.inheritance_unsafe_get_resource import GetResourceDetector
 from patterns.detectors import DefaultEngine
-from rparser import Patch, parse
+from rparser import parse
+from config import CONFIG
 
 params = [
     # From other repository: https://github.com/jenkinsci/jenkins/pull/575/files/8006b61102a86b3d1600983a09edf31b4f6686f2#diff-cf9443fc2936d5d87f5f013dd6917bc4
@@ -43,3 +44,18 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
         assert engine.bug_accumulator[0].type == pattern_type
     else:
         assert len(engine.bug_accumulator) == 0
+
+
+def test_online_search():
+    patch_1 = parse('''File expectedFile = new File(getClass().getResource(name).getFile());''', False)
+    patch_1.name = 'animated-gif-lib-for-java/src/main/java/com/madgag/gif/fmsware/NanoHTTPD.java'
+    patch_2 = parse('''File expectedFile = new File(getClass().getResource(name).getFile());''', False)
+    patch_2.name = 'animated-gif-lib-for-java/src/test/java/com/madgag/gif/fmsware/TestAnimatedGifEncoder.java'
+    patch_set = [patch_1, patch_2]
+
+    CONFIG['enable_online_search'] = True
+    CONFIG['repo_name'] = 'NanoHttpd/nanohttpd'
+
+    engine = DefaultEngine([GetResourceDetector()])
+    engine.visit(patch_set)
+    assert len(engine.bug_accumulator) == 1
