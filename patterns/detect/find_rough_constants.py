@@ -1,7 +1,6 @@
-from patterns.utils import is_comment
 import patterns.priorities as Priorities
-from patterns.detectors import Detector
-from patterns.bug_instance import BugInstance
+from patterns.models.detectors import Detector
+from patterns.models.bug_instance import BugInstance
 import re
 
 import math

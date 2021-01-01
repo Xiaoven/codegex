@@ -1,8 +1,8 @@
 import re
 
 from config import CONFIG
-from patterns.bug_instance import BugInstance
-from patterns.detectors import Detector
+from patterns.models.bug_instance import BugInstance
+from patterns.models.detectors import Detector
 import patterns.priorities as Priorities
 from patterns.utils import send
 

@@ -1,6 +1,6 @@
 import pytest
 
-from patterns.detectors import DefaultEngine
+from patterns.models.engine import DefaultEngine
 from rparser import parse
 from patterns.detect.static_calendar_detector import StaticDateFormatDetector
 
@@ -36,7 +36,7 @@ params = [
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine([StaticDateFormatDetector()])
+    engine = DefaultEngine(included_filter=['StaticDateFormatDetector'])
     engine.visit([patch])
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

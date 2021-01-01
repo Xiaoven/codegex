@@ -1,7 +1,7 @@
 import re
 
-from patterns.detectors import Detector
-from patterns.bug_instance import BugInstance
+from patterns.models.detectors import Detector
+from patterns.models.bug_instance import BugInstance
 import patterns.priorities as Priorities
 
 

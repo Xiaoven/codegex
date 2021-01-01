@@ -1,8 +1,8 @@
 import pytest
 
 from patterns.detect.method_return_check import NotThrowDetector
-from patterns.detectors import DefaultEngine
-from rparser import Patch, parse
+from patterns.models.engine import DefaultEngine
+from rparser import parse
 
 params = [
     # https://github.com/spotbugs/spotbugs/blob/3883a7b750fb339577be073bc45e36b6f268777b/spotbugsTestCases/src/java/bugIdeas/Ideas_2011_11_02.java
@@ -27,7 +27,7 @@ params = [
 def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str)
     patch.name = file_name
-    engine = DefaultEngine([NotThrowDetector()])
+    engine = DefaultEngine(included_filter=['NotThrowDetector'])
     engine.visit([patch])
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

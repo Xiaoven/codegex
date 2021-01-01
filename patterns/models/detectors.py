@@ -13,5 +13,5 @@ class Detector:
         """
         pass
 
-    def reset(self):
+    def reset_bug_accumulator(self):
         self.bug_accumulator = list()
