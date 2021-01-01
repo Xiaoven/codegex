@@ -1,8 +1,15 @@
 CONFIG = {
-    # global variables for UI_INHERITANCE_UNSAFE_GETRESOURCE, only for Github project
     # Don't modify the default value here, or some tests will fail
     # You should assign values to them in your code
-    'enable_online_search': False,
-    'repo_name': None,
+    # ======================================
+    #     Configure GetResourceDetector
+    # ======================================
+    # 1. Online Search
+    # --------------------------------------
+    'enable_online_search': False,  # if True, should also set repo_name
+    'repo_name': None,  # github repo name, e.g., 'NanoHttpd/nanohttpd'
     'token': '',
+    # --------------------------------------
+    # 2. Local Search
+    # --------------------------------------
 }

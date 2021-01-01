@@ -2,6 +2,8 @@ from config import CONFIG
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 
+import time
+
 
 # params = [
 #     # From other repository: https://github.com/jenkinsci/jenkins/pull/575/files/8006b61102a86b3d1600983a09edf31b4f6686f2#diff-cf9443fc2936d5d87f5f013dd6917bc4
@@ -44,16 +46,34 @@ from rparser import parse
 #         assert len(engine.bug_accumulator) == 0
 
 
-# def test_online_search():
-#     patch_1 = parse('''File expectedFile = new File(getClass().getResource(name).getFile());''', False)
-#     patch_1.name = 'animated-gif-lib-for-java/src/main/java/com/madgag/gif/fmsware/NanoHTTPD.java'
-#     patch_2 = parse('''File expectedFile = new File(getClass().getResource(name).getFile());''', False)
-#     patch_2.name = 'animated-gif-lib-for-java/src/test/java/com/madgag/gif/fmsware/TestAnimatedGifEncoder.java'
-#     patch_set = [patch_1, patch_2]
-#
-#     CONFIG['enable_online_search'] = True
-#     CONFIG['repo_name'] = 'NanoHttpd/nanohttpd'
-#
-#     engine = DefaultEngine(included_filter=('GetResourceDetector',))
-#     engine.visit(patch_set)
-#     assert len(engine.bug_accumulator) == 1
+class ShareCacheEngine(DefaultEngine):
+    def visit(self, patch_set):
+        self.bug_accumulator = list()  # every patch set should own a new bug_accumulator
+        for patch in patch_set:
+            self._visit_patch(patch)
+
+
+def test_online_search():
+    patch_1 = parse('''File expectedFile = new File(getClass().getResource(name).getFile());''', False)
+    patch_1.name = 'animated-gif-lib-for-java/src/main/java/com/madgag/gif/fmsware/NanoHTTPD.java'
+    patch_2 = parse('''File expectedFile = new File(getClass().getResource(name).getFile());''', False)
+    patch_2.name = 'animated-gif-lib-for-java/src/test/java/com/madgag/gif/fmsware/TestAnimatedGifEncoder.java'
+    patch_set = [patch_1, patch_2]
+
+    CONFIG['enable_online_search'] = True
+    CONFIG['repo_name'] = 'NanoHttpd/nanohttpd'
+
+    engine = ShareCacheEngine(included_filter=('GetResourceDetector',))
+
+    start = time.time()
+    engine.visit(patch_set)
+    time_elapsed = time.time() - start
+    # print(time_elapsed)
+    assert len(engine.bug_accumulator) == 1
+
+    start = time.time()
+    engine.visit(patch_set)
+    time_elapsed_2 = time.time() - start
+    # print(time_elapsed_2)
+    assert time_elapsed > time_elapsed_2  # 9.663780927658081 seconds > 7.081031799316406e-05 seconds
+    assert len(engine.bug_accumulator) == 1

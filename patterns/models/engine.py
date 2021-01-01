@@ -1,6 +1,7 @@
-from patterns.utils import logger
+from utils import log_message
 from rparser import VirtualStatement
 from gen_detectors import DETECTOR_DICT
+from patterns.detect.inheritance_unsafe_get_resource import clear_cache
 
 
 class BaseEngine:
@@ -34,6 +35,11 @@ class BaseEngine:
         for patch in patch_set:
             self._visit_patch(patch)
 
+        # clean cache of GetResourceDetector for next patch_set which belongs to another project
+        detector_name = 'GetResourceDetector'
+        if detector_name in self._detectors:
+            clear_cache()
+
     def _visit_patch(self, patch):
         """
         :param patch: code from a single file to visit
@@ -46,7 +52,7 @@ class BaseEngine:
         This method is called after all patches to be visited.
         """
         for bug_ins in self.bug_accumulator:
-            logger.warning(str(bug_ins))
+            log_message(str(bug_ins), 'info')
 
 
 class DefaultEngine(BaseEngine):

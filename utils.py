@@ -20,9 +20,21 @@ def create_missing_dirs(path: str):
     os.makedirs(path, exist_ok=True)
 
 
-def logger_add(path: str, name:str):
+def logger_add(path: str, name: str):
     create_missing_dirs(path)
-    return logger.add(path+name)
+    return logger.add(os.path.join(path, name))
+
+
+def log_message(message: str, level='info'):
+    if level == 'info':
+        logger.info(message)
+    elif level == 'warning':
+        logger.warning(message)
+    elif level == 'error':
+        logger.error(message)
+    elif level == 'debug':
+        logger.debug(message)
+
 
 
 requests.adapters.DEFAULT_RETRIES = 5
