@@ -10,7 +10,7 @@ class FinalizerOnExitDetector(Detector):
         self.pattern = regex.compile(r'\b(\w+)\.runFinalizersOnExit\(')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         m = self.pattern.search(linecontent.strip())
         if m:
             pkg_name = m.groups()[0]
@@ -29,7 +29,7 @@ class RandomOnceDetector(Detector):
         self.pattern = regex.compile(r'new\s+[\w.]*Random(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))++\.next\w*\(\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         m = self.pattern.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(
@@ -43,7 +43,7 @@ class RandomD2IDetector(Detector):
         self.pattern = regex.compile(r'\(\s*int\s*\)\s*(\w+)\.(?:random|nextDouble|nextFloat)\(\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         m = self.pattern.search(linecontent.strip())
         if m:
             obj = m.groups()[0].strip().lower()
@@ -59,7 +59,7 @@ class StringCtorDetector(Detector):
         self.pattern = regex.compile(r'new\s+String\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         m = self.pattern.search(linecontent.strip())
         if m:
             groups = m.groups()

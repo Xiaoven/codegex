@@ -22,7 +22,7 @@ class SimpleNameDetector1(Detector):
             r'class\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         if not all(key in linecontent for key in ('class', 'extends')):
             return
 
@@ -52,7 +52,7 @@ class SimpleNameDetector2(Detector):
         self.pattern2 = regex.compile(r'interface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         if all(key in linecontent for key in ('class', 'implements')):
             m = self.pattern1.search(linecontent.strip())
         elif all(key in linecontent for key in ('interface', 'extends')):

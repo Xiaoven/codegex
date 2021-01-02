@@ -2,7 +2,7 @@ class Detector:
     def __init__(self):
         self.bug_accumulator = []
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         """
         Match single line and generate bug instance using regex pattern
         :param get_exact_lineno:

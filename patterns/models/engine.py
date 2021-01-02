@@ -77,10 +77,11 @@ class DefaultEngine(BaseEngine):
                 line_content = hunk.lines[i].content
 
                 for detector in list(self._detectors.values()):
-                    method = None
                     if isinstance(hunk.lines[i], VirtualStatement):
                         method = hunk.lines[i].get_exact_lineno
-                    detector.match(line_content, patch.name, hunk.lines[i].lineno[1], method)
+                        detector.match(line_content, patch.name, hunk.lines[i].lineno[1], get_exact_lineno=method)
+                    else:
+                        detector.match(line_content, patch.name, hunk.lines[i].lineno[1])
 
         # collect bug instances
         for detector in list(self._detectors.values()):

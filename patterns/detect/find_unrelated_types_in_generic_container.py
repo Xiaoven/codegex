@@ -11,7 +11,7 @@ class SuspiciousCollectionMethodDetector(Detector):
             r'(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*+)\s*\.\s*((?:remove|contains|retain)(?:All)?)\s*\(\s*\1\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         if not any(method in linecontent for method in ['remove', 'contains', 'retain']):
             return
 

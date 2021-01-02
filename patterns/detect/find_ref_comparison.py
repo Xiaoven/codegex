@@ -19,7 +19,7 @@ class EqualityDetector(Detector):
         self.bool_objs = ('Boolean.TRUE', 'Boolean.FALSE')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         # Leading [\w."] may cause to catastrophic backtracking,
         # and it is a little complicate to rewrite regex with word boundary `\b`
         # therefore, use the following condition to speed up.
@@ -60,7 +60,7 @@ class CalToNullDetector(Detector):
             r'\.equals\s*\(\s*null\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         m = self.p.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(

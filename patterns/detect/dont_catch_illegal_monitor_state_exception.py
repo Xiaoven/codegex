@@ -17,7 +17,7 @@ class DontCatchIllegalMonitorStateException(Detector):
         self.p_catch = re.compile(r'catch\s*\(([^()]+)\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         match = self.p_catch.search(linecontent.strip())
 
         if match:
@@ -26,6 +26,7 @@ class DontCatchIllegalMonitorStateException(Detector):
             for d in defs:
                 exception_class = d.split()[0]
 
+                get_exact_lineno = kwargs.get('get_exact_lineno', None)
                 if get_exact_lineno:
                     tmp = get_exact_lineno(exception_class)
                     if tmp:

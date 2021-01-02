@@ -10,7 +10,7 @@ class DefSerialVersionID(Detector):
         self.pattern = re.compile(r'((?:static|final|\s)*)\b(long|int)\s+serialVersionUID\b')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         if 'serialVersionUID' not in linecontent:
             return
 
@@ -51,7 +51,7 @@ class DefReadResolveMethod(Detector):
             r'((?:static|final|\s)*)\b([^\s]+)\s+readResolve\s*\(\s*\)\s+throws\s+ObjectStreamException')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         if any(const not in linecontent for const in ['readResolve', 'throws', 'ObjectStreamException']):
             return
 

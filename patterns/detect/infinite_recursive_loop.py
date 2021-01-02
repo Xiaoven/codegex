@@ -10,7 +10,7 @@ class CollectionAddItselfDetector(Detector):
         self.pattern = regex.compile(r'(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*+)\s*\.\s*add\s*\(\s*\1\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         if "add" not in linecontent:
             return
         m = self.pattern.search(linecontent.strip())

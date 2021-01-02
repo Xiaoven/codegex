@@ -57,12 +57,13 @@ class FindRoughConstantsDetector(Detector):
         self.regexp = re.compile(r'(\d*\.\d+)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
             match = self.regexp.findall(linecontent)
             for m in match:
                 float_const = float(m)
                 p, bad_const = check_const(float_const)
                 if p < Priorities.IGNORE_PRIORITY:
+                    get_exact_lineno = kwargs.get('get_exact_lineno', None)
                     if get_exact_lineno:
                         tmp = get_exact_lineno(m)
                         if tmp:

@@ -45,7 +45,7 @@ class IncompatMaskDetector(Detector):
             r'\(\s*([~-]?(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.-])++)\s*&\s*([~-]?(?:(?&aux1)|[\w.])++)\s*\)\s*([><=!]+)\s*0')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         if '&' not in linecontent and not any(op in linecontent for op in ('>', '<', '>=', '<=', '==', '!=')):
             return
 
@@ -100,6 +100,7 @@ class IncompatMaskDetector(Detector):
                     priority = Priorities.LOW_PRIORITY if only_low_bits else Priorities.MEDIUM_PRIORITY
 
             if p_type is not None:
+                get_exact_lineno = kwargs.get('get_exact_lineno', None)
                 if get_exact_lineno:
                     tmp = get_exact_lineno(const_str)
                     if tmp:

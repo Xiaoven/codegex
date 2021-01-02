@@ -49,7 +49,7 @@ class GetResourceDetector(Detector):
         self.pattern = re.compile(r'(?:(\b\w+)\.)?getClass\(\s*\)\.getResource(?:AsStream)?\(')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         if not all(method in linecontent for method in ['getClass', 'getResource']):
             return
 
