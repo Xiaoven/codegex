@@ -1,8 +1,8 @@
 import regex
 
-from patterns.detectors import Detector
-from patterns.bug_instance import BugInstance
-import patterns.priorities as Priorities
+from patterns.models.detectors import Detector
+from patterns.models.bug_instance import BugInstance
+from patterns.models import priorities
 
 
 class SuspiciousCollectionMethodDetector(Detector):
@@ -11,7 +11,7 @@ class SuspiciousCollectionMethodDetector(Detector):
             r'(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*+)\s*\.\s*((?:remove|contains|retain)(?:All)?)\s*\(\s*\1\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         if not any(method in linecontent for method in ['remove', 'contains', 'retain']):
             return
 
@@ -23,15 +23,15 @@ class SuspiciousCollectionMethodDetector(Detector):
             if g[-1] == 'removeAll':
                 pattern_type = 'DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION'
                 description = 'removeAll used to clear a collection'
-                priority = Priorities.MEDIUM_PRIORITY
+                priority = priorities.MEDIUM_PRIORITY
             elif g[-1] in ['containsAll', 'retainAll']:
                 pattern_type = 'DMI_VACUOUS_SELF_COLLECTION_CALL'
                 description = 'Vacuous call to collections'
-                priority = Priorities.MEDIUM_PRIORITY
+                priority = priorities.MEDIUM_PRIORITY
             elif g[-1] in ['contains', 'remove']:
                 pattern_type = 'DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES'
                 description = 'Collections should not contain themselves'
-                priority = Priorities.HIGH_PRIORITY
+                priority = priorities.HIGH_PRIORITY
 
             if pattern_type:
                 self.bug_accumulator.append(

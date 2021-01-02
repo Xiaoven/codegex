@@ -1,8 +1,8 @@
 import re
 
-from patterns.detectors import Detector
-from patterns.bug_instance import BugInstance
-import patterns.priorities as Priorities
+from patterns.models.detectors import Detector
+from patterns.models.bug_instance import BugInstance
+from patterns.models import priorities
 
 
 class DefSerialVersionID(Detector):
@@ -10,7 +10,7 @@ class DefSerialVersionID(Detector):
         self.pattern = re.compile(r'((?:static|final|\s)*)\b(long|int)\s+serialVersionUID\b')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         if 'serialVersionUID' not in linecontent:
             return
 
@@ -24,17 +24,17 @@ class DefSerialVersionID(Detector):
 
             pattern_name = None
             message = None
-            priority = Priorities.LOW_PRIORITY
+            priority = priorities.LOW_PRIORITY
 
             if prefix:
                 if 'static' not in prefix:
                     pattern_name = 'SE_NONSTATIC_SERIALVERSIONID'
                     message = "serialVersionUID isn't static."
-                    priority = Priorities.MEDIUM_PRIORITY
+                    priority = priorities.MEDIUM_PRIORITY
                 elif 'final' not in prefix:
                     pattern_name = 'SE_NONFINAL_SERIALVERSIONID'
                     message = "serialVersionUID isn't final."
-                    priority = Priorities.MEDIUM_PRIORITY
+                    priority = priorities.MEDIUM_PRIORITY
 
             if not pattern_name and 'int' == g[1]:
                 pattern_name = 'SE_NONLONG_SERIALVERSIONID'
@@ -51,7 +51,7 @@ class DefReadResolveMethod(Detector):
             r'((?:static|final|\s)*)\b([^\s]+)\s+readResolve\s*\(\s*\)\s+throws\s+ObjectStreamException')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         if any(const not in linecontent for const in ['readResolve', 'throws', 'ObjectStreamException']):
             return
 
@@ -71,7 +71,7 @@ class DefReadResolveMethod(Detector):
 
             if pattern_name:
                 self.bug_accumulator.append(
-                    BugInstance(pattern_name, Priorities.MEDIUM_PRIORITY, filename, lineno, message))
+                    BugInstance(pattern_name, priorities.MEDIUM_PRIORITY, filename, lineno, message))
 
 
 

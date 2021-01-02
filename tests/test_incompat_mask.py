@@ -1,9 +1,8 @@
 import pytest
 
-from patterns.detect.incompat_mask import *
-from patterns.detectors import DefaultEngine
+from patterns.models.engine import DefaultEngine
 from rparser import parse
-from patterns.priorities import *
+from patterns.models.priorities import *
 
 params = [
     # From other repository: https://github.com/albfan/jmeld/commit/bab5df4d96b511dd1e4be36fce3a2eab52c24c4e
@@ -43,7 +42,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
          line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine([IncompatMaskDetector()])
+    engine = DefaultEngine(included_filter=['IncompatMaskDetector'])
     engine.visit([patch])
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
@@ -131,7 +130,7 @@ testcases = [
 def test_spotbugs_cases(patch_str: str, expected_warning: str, expected_length: str, expected_line_no: int,
                   expected_priority: int):
     patch = parse(patch_str, is_patch=False)
-    engine = DefaultEngine([IncompatMaskDetector()])
+    engine = DefaultEngine(included_filter=['IncompatMaskDetector'])
     engine.visit([patch])
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

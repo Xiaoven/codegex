@@ -13,14 +13,20 @@ if __name__ == '__main__':
     all_pattern_set = set()
     file_names = list()
     detector_names = list()
+    import_list = list()
 
     for filename in os.listdir(detector_path):
-        camel_name = snake_to_camel(filename.rstrip('.py'))
-        file_names.append(camel_name)
-
         path = os.path.join(detector_path, filename)
         if not os.path.isfile(path):
             continue
+
+        strip_filename = filename[:-3]   # Remove '.py'
+
+        camel_name = snake_to_camel(strip_filename)
+        file_names.append(camel_name)
+
+        import_stmt = None
+
         with open(path, 'r') as f:
             content = f.read()
             pattern_list = p.findall(content)
@@ -28,21 +34,27 @@ if __name__ == '__main__':
                 all_pattern_set.update(pattern_list)
 
             detectors = p_detector.findall(content)
-            for d in detectors:
-                detector_names.append(d + '()')
+            if detectors:
+                tmp_str = ', '.join(detectors)
+                import_stmt = f'from patterns.detect.{strip_filename} import {tmp_str}\n'
+                for name in detectors:
+                    detector_names.append(f'"{name}": {name}')
+
+        if import_stmt:
+            import_list.append(import_stmt)
 
     print('[Length of file names]', len(file_names))
     print('[Number of patterns]', len(all_pattern_set))
     print('[Number of Detectors]', len(detector_names))
 
-    print(all_pattern_set)
-
-    # with open('gen_detectors.py', 'w') as f:
-    #     f.write('DETECTORS = [' + ', '.join(detector_names) + ']')
+    with open('gen_detectors.py', 'w') as f:
+        if import_list:
+            f.writelines(import_list)
+        if detector_names:
+            f.write('\nDETECTOR_DICT = {\n    ' + ',\n    '.join(detector_names) + '\n}')
 
     # with open('spotbugs-includeFilter.xml', 'w') as f:
     #     f.write('<FindBugsFilter>\n')
     #     for pattern in all_pattern_set:
     #         f.write(f'\t<Match>\n\t\t<Bug pattern="{pattern}"/>\n\t</Match>\n')
     #     f.write('</FindBugsFilter>')
-

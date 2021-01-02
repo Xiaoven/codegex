@@ -1,7 +1,7 @@
 import pytest
 
 from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod
-from patterns.detectors import DefaultEngine
+from patterns.models.engine import DefaultEngine
 from rparser import parse
 
 params = [
@@ -56,7 +56,7 @@ params = [
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine([DefSerialVersionID(), DefReadResolveMethod() ])
+    engine = DefaultEngine(included_filter=['DefSerialVersionID', 'DefReadResolveMethod'])
     engine.visit([patch])
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

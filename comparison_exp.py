@@ -3,7 +3,7 @@ from os import path
 from subprocess import check_output
 import re
 
-from patterns.detectors import DefaultEngine
+from patterns.models.engine import DefaultEngine
 from rparser import parse
 from timer import Timer
 from gen_detectors import DETECTORS

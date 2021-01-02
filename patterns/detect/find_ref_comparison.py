@@ -1,8 +1,8 @@
 import regex
 
-from patterns.detectors import Detector
-from patterns.bug_instance import BugInstance
-import patterns.priorities as Priorities
+from patterns.models.detectors import Detector
+from patterns.models.bug_instance import BugInstance
+from patterns.models import priorities
 
 
 def is_str_with_quotes(s:str):
@@ -19,7 +19,7 @@ class EqualityDetector(Detector):
         self.bool_objs = ('Boolean.TRUE', 'Boolean.FALSE')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         # Leading [\w."] may cause to catastrophic backtracking,
         # and it is a little complicate to rewrite regex with word boundary `\b`
         # therefore, use the following condition to speed up.
@@ -33,7 +33,7 @@ class EqualityDetector(Detector):
 
             if op_1 in self.bool_objs or op_2 in self.bool_objs:
                 self.bug_accumulator.append(
-                    BugInstance('RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN', Priorities.MEDIUM_PRIORITY,
+                    BugInstance('RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN', priorities.MEDIUM_PRIORITY,
                                 filename, lineno,
                                 "Suspicious reference comparison of Boolean values")
                 )
@@ -49,7 +49,7 @@ class EqualityDetector(Detector):
                     continue
                 else:
                     self.bug_accumulator.append(
-                        BugInstance('ES_COMPARING_STRINGS_WITH_EQ', Priorities.MEDIUM_PRIORITY,
+                        BugInstance('ES_COMPARING_STRINGS_WITH_EQ', priorities.MEDIUM_PRIORITY,
                                     filename, lineno,
                                     "Suspicious reference comparison of String objects"))
                     break
@@ -60,11 +60,11 @@ class CalToNullDetector(Detector):
             r'\.equals\s*\(\s*null\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, get_exact_lineno=None):
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         m = self.p.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(
-                BugInstance('EC_NULL_ARG', Priorities.MEDIUM_PRIORITY,
+                BugInstance('EC_NULL_ARG', priorities.MEDIUM_PRIORITY,
                             filename, lineno,
                             "Call to equals(null)")
             )
