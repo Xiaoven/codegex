@@ -2,7 +2,7 @@ import regex
 
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
-import patterns.priorities as Priorities
+from patterns.models import priorities
 
 
 class FinalizerOnExitDetector(Detector):
@@ -14,9 +14,9 @@ class FinalizerOnExitDetector(Detector):
         m = self.pattern.search(linecontent.strip())
         if m:
             pkg_name = m.groups()[0]
-            confidence = Priorities.HIGH_PRIORITY
+            confidence = priorities.HIGH_PRIORITY
             if pkg_name == 'System' or 'Runtime':
-                confidence = Priorities.MEDIUM_PRIORITY
+                confidence = priorities.MEDIUM_PRIORITY
 
             self.bug_accumulator.append(
                 BugInstance('DM_RUN_FINALIZERS_ON_EXIT', confidence, filename, lineno,
@@ -33,7 +33,7 @@ class RandomOnceDetector(Detector):
         m = self.pattern.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(
-                BugInstance('DMI_RANDOM_USED_ONLY_ONCE', Priorities.HIGH_PRIORITY, filename, lineno,
+                BugInstance('DMI_RANDOM_USED_ONLY_ONCE', priorities.HIGH_PRIORITY, filename, lineno,
                             'Random object created and used only once')
             )
 
@@ -49,7 +49,7 @@ class RandomD2IDetector(Detector):
             obj = m.groups()[0].strip().lower()
             if obj == 'math' or obj == 'r' or 'rand' in obj:
                 self.bug_accumulator.append(
-                    BugInstance('RV_01_TO_INT', Priorities.HIGH_PRIORITY, filename, lineno,
+                    BugInstance('RV_01_TO_INT', priorities.HIGH_PRIORITY, filename, lineno,
                                 'Random value from 0 to 1 is coerced to the integer 0')
                 )
 
@@ -65,11 +65,11 @@ class StringCtorDetector(Detector):
             groups = m.groups()
             assert len(groups) == 2
             if not groups[1] or not groups[1].strip():
-                self.bug_accumulator.append(BugInstance('DM_STRING_VOID_CTOR', Priorities.MEDIUM_PRIORITY,
+                self.bug_accumulator.append(BugInstance('DM_STRING_VOID_CTOR', priorities.MEDIUM_PRIORITY,
                                                         filename, lineno,
                                                         'Method invokes inefficient new String() constructor'))
             else:
                 if groups[1].strip().startswith('"'):
-                    self.bug_accumulator.append(BugInstance('DM_STRING_CTOR', Priorities.MEDIUM_PRIORITY,
+                    self.bug_accumulator.append(BugInstance('DM_STRING_CTOR', priorities.MEDIUM_PRIORITY,
                                                             filename, lineno,
                                                             'Method invokes inefficient new String(String) constructor'))

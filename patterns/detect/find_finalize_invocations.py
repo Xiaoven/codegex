@@ -2,7 +2,7 @@ import re
 
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
-import patterns.priorities as Priorities
+from patterns.models import priorities
 
 
 class ExplicitInvDetector(Detector):
@@ -14,7 +14,7 @@ class ExplicitInvDetector(Detector):
         m = self.pattern.search(linecontent.strip())
         if m and m.groups()[0] != 'super':
             self.bug_accumulator.append(
-                BugInstance('FI_EXPLICIT_INVOCATION', Priorities.HIGH_PRIORITY, filename, lineno,
+                BugInstance('FI_EXPLICIT_INVOCATION', priorities.HIGH_PRIORITY, filename, lineno,
                             'Explicit invocation of Object.finalize()')
             )
 
@@ -28,6 +28,6 @@ class PublicAccessDetector(Detector):
         m = self.pattern.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(
-                BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', Priorities.MEDIUM_PRIORITY, filename, lineno,
+                BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', priorities.MEDIUM_PRIORITY, filename, lineno,
                             'Finalizer should be protected, not public')
             )

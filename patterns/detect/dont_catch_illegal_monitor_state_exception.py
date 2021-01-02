@@ -2,7 +2,7 @@ import re
 
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
-import patterns.priorities as Priorities
+from patterns.models import priorities
 
 
 class DontCatchIllegalMonitorStateException(Detector):
@@ -34,7 +34,7 @@ class DontCatchIllegalMonitorStateException(Detector):
 
                 if exception_class.endswith('IllegalMonitorStateException'):
                     self.bug_accumulator.append(
-                        BugInstance('IMSE_DONT_CATCH_IMSE', Priorities.HIGH_PRIORITY,
+                        BugInstance('IMSE_DONT_CATCH_IMSE', priorities.HIGH_PRIORITY,
                                     filename, lineno,
                                     'Dubious catching of IllegalMonitorStateException')
                     )

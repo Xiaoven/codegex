@@ -2,24 +2,18 @@ import regex
 
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
-import patterns.priorities as Priorities
-
+from patterns.models import priorities
 
 GENERIC_REGEX = regex.compile(r'(?P<gen><(?:[^<>]++|(?&gen))*>)')
-
-
-def clearName(dotted_name: str):
-    name = dotted_name.rsplit('<', 1)[0]  # remove generics like '<T>'
-    name = name.rsplit('.', 1)[-1]  # remove package
-    return name.strip()
+CLASS_EXTENDS_REGEX = regex.compile(r'class\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)')
+INTERFACE_EXTENDS_REGEX = regex.compile(r'interface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)')
 
 
 class SimpleNameDetector1(Detector):
     def __init__(self):
         # class can extend only one superclass, but implements multiple interfaces
         # extends clause must occur before implements clause
-        self.pattern = regex.compile(
-            r'class\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)')
+        self.pattern = CLASS_EXTENDS_REGEX
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
@@ -36,7 +30,7 @@ class SimpleNameDetector1(Detector):
             if class_name in super_classes_list:
                 if len(linecontent) == len(linecontent.lstrip()):
                     self.bug_accumulator.append(
-                        BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', Priorities.HIGH_PRIORITY, filename, lineno,
+                        BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', priorities.HIGH_PRIORITY, filename, lineno,
                                     "Class names shouldn’t shadow simple name of superclass")
                     )
 
@@ -49,7 +43,7 @@ class SimpleNameDetector2(Detector):
         # Check interfaces extended by a interface
         # No implements clause allowed for interface
         # Interface can extend multiple super interfaces
-        self.pattern2 = regex.compile(r'interface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)')
+        self.pattern2 = INTERFACE_EXTENDS_REGEX
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
@@ -69,6 +63,6 @@ class SimpleNameDetector2(Detector):
             if class_name in super_interface_list:
                 if len(linecontent) == len(linecontent.lstrip()):
                     self.bug_accumulator.append(
-                        BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', Priorities.MEDIUM_PRIORITY, filename, lineno,
+                        BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', priorities.MEDIUM_PRIORITY, filename, lineno,
                                     "Class or interface names shouldn’t shadow simple name of implemented interface")
                     )

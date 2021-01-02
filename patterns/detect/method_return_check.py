@@ -2,7 +2,7 @@ import regex
 
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
-import patterns.priorities as Priorities
+from patterns.models import priorities
 
 
 class NotThrowDetector(Detector):
@@ -14,7 +14,7 @@ class NotThrowDetector(Detector):
         m = self.pattern.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(
-                BugInstance('RV_EXCEPTION_NOT_THROWN', Priorities.MEDIUM_PRIORITY,
+                BugInstance('RV_EXCEPTION_NOT_THROWN', priorities.MEDIUM_PRIORITY,
                             filename, lineno,
                             "Exception created and dropped rather than thrown")
             )

@@ -1,4 +1,4 @@
-import patterns.priorities as Priorities
+from patterns.models import priorities
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
 import re
@@ -19,12 +19,12 @@ class BadConstant:
 
 
 BAD_CONSTANTS = [
-    BadConstant(math.pi, 1, "Math.PI", Priorities.HIGH_PRIORITY),
-    BadConstant(math.pi, 1 / 2.0, "Math.PI/2", Priorities.MEDIUM_PRIORITY),
-    BadConstant(math.pi, 1 / 3.0, "Math.PI/3", Priorities.LOW_PRIORITY),
-    BadConstant(math.pi, 1 / 4.0, "Math.PI/4", Priorities.LOW_PRIORITY),
-    BadConstant(math.pi, 2, "2*Math.PI", Priorities.MEDIUM_PRIORITY),
-    BadConstant(math.e, 1, "Math.E", Priorities.LOW_PRIORITY)
+    BadConstant(math.pi, 1, "Math.PI", priorities.HIGH_PRIORITY),
+    BadConstant(math.pi, 1 / 2.0, "Math.PI/2", priorities.MEDIUM_PRIORITY),
+    BadConstant(math.pi, 1 / 3.0, "Math.PI/3", priorities.LOW_PRIORITY),
+    BadConstant(math.pi, 1 / 4.0, "Math.PI/4", priorities.LOW_PRIORITY),
+    BadConstant(math.pi, 2, "2*Math.PI", priorities.MEDIUM_PRIORITY),
+    BadConstant(math.e, 1, "Math.E", priorities.LOW_PRIORITY)
 ]
 
 
@@ -32,7 +32,7 @@ def get_priority(bad_constant: BadConstant, const_val):
     diff = bad_constant.diff(const_val)
 
     if diff > 1e-3:
-        return Priorities.IGNORE_PRIORITY  # 差值太大，不太可能是近似值
+        return priorities.IGNORE_PRIORITY  # 差值太大，不太可能是近似值
     elif diff > 1e-4:
         return bad_constant.base_priority + 1
     elif diff < 1e-6:
@@ -43,7 +43,7 @@ def get_priority(bad_constant: BadConstant, const_val):
 
 
 def check_const(const_val: float):
-    best_p, best_const = Priorities.IGNORE_PRIORITY, None
+    best_p, best_const = priorities.IGNORE_PRIORITY, None
     for bad_const in BAD_CONSTANTS:
         priority = get_priority(bad_const, const_val)
         if priority < best_p:
@@ -62,7 +62,7 @@ class FindRoughConstantsDetector(Detector):
             for m in match:
                 float_const = float(m)
                 p, bad_const = check_const(float_const)
-                if p < Priorities.IGNORE_PRIORITY:
+                if p < priorities.IGNORE_PRIORITY:
                     get_exact_lineno = kwargs.get('get_exact_lineno', None)
                     if get_exact_lineno:
                         tmp = get_exact_lineno(m)

@@ -2,7 +2,7 @@ import re
 
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
-import patterns.priorities as Priorities
+from patterns.models import priorities
 
 
 class NewLineDetector(Detector):
@@ -23,7 +23,7 @@ class NewLineDetector(Detector):
                         lineno = tmp[1]
 
                 self.bug_accumulator.append(
-                    BugInstance('VA_FORMAT_STRING_USES_NEWLINE', Priorities.MEDIUM_PRIORITY,
+                    BugInstance('VA_FORMAT_STRING_USES_NEWLINE', priorities.MEDIUM_PRIORITY,
                                 filename, lineno,
                                 'Format string should use %n rather than \\n')
                 )

@@ -12,5 +12,5 @@ CONFIG = {
     # --------------------------------------
     # 2. Local Search
     # --------------------------------------
-    'enable_online_search': False,
+    'enable_local_search': False,
 }

@@ -2,7 +2,7 @@ import regex
 
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
-import patterns.priorities as Priorities
+from patterns.models import priorities
 
 
 class CollectionAddItselfDetector(Detector):
@@ -16,7 +16,7 @@ class CollectionAddItselfDetector(Detector):
         m = self.pattern.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(
-                BugInstance('IL_CONTAINER_ADDED_TO_ITSELF', Priorities.HIGH_PRIORITY, filename,
+                BugInstance('IL_CONTAINER_ADDED_TO_ITSELF', priorities.HIGH_PRIORITY, filename,
                             lineno,
                             'A collection is added to itself')
             )

@@ -1,6 +1,7 @@
-import patterns.priorities as Priorities
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
+from patterns.models import priorities
+
 import regex
 
 
@@ -70,7 +71,7 @@ class IncompatMaskDetector(Detector):
                 const_str = operand_2
             is_long = True if const_str.endswith(('L', 'l')) else False
 
-            priority = Priorities.HIGH_PRIORITY
+            priority = priorities.HIGH_PRIORITY
             p_type, description = None, None
 
             if operator in ('==', '!='):
@@ -91,13 +92,13 @@ class IncompatMaskDetector(Detector):
                     p_type = 'BIT_SIGNED_CHECK_HIGH_BIT'
                     description = 'Check for sign of bitwise operation involving negative number.'
                     if operator in ('<', '>='):
-                        priority = Priorities.MEDIUM_PRIORITY
+                        priority = priorities.MEDIUM_PRIORITY
                 elif 0 <= const <= max_positive:
                     p_type = 'BIT_SIGNED_CHECK'
                     description = 'Check for sign of bitwise operation.'
                     # at most 12 bits: -4096 <= const <= -1 or 0 <= const <= 4095
                     only_low_bits = const <= 0xfff
-                    priority = Priorities.LOW_PRIORITY if only_low_bits else Priorities.MEDIUM_PRIORITY
+                    priority = priorities.LOW_PRIORITY if only_low_bits else priorities.MEDIUM_PRIORITY
 
             if p_type is not None:
                 get_exact_lineno = kwargs.get('get_exact_lineno', None)

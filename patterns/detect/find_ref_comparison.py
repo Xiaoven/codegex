@@ -2,7 +2,7 @@ import regex
 
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
-import patterns.priorities as Priorities
+from patterns.models import priorities
 
 
 def is_str_with_quotes(s:str):
@@ -33,7 +33,7 @@ class EqualityDetector(Detector):
 
             if op_1 in self.bool_objs or op_2 in self.bool_objs:
                 self.bug_accumulator.append(
-                    BugInstance('RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN', Priorities.MEDIUM_PRIORITY,
+                    BugInstance('RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN', priorities.MEDIUM_PRIORITY,
                                 filename, lineno,
                                 "Suspicious reference comparison of Boolean values")
                 )
@@ -49,7 +49,7 @@ class EqualityDetector(Detector):
                     continue
                 else:
                     self.bug_accumulator.append(
-                        BugInstance('ES_COMPARING_STRINGS_WITH_EQ', Priorities.MEDIUM_PRIORITY,
+                        BugInstance('ES_COMPARING_STRINGS_WITH_EQ', priorities.MEDIUM_PRIORITY,
                                     filename, lineno,
                                     "Suspicious reference comparison of String objects"))
                     break
@@ -64,7 +64,7 @@ class CalToNullDetector(Detector):
         m = self.p.search(linecontent.strip())
         if m:
             self.bug_accumulator.append(
-                BugInstance('EC_NULL_ARG', Priorities.MEDIUM_PRIORITY,
+                BugInstance('EC_NULL_ARG', priorities.MEDIUM_PRIORITY,
                             filename, lineno,
                             "Call to equals(null)")
             )
