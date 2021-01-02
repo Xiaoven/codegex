@@ -55,7 +55,7 @@ class ShareCacheEngine(DefaultEngine):
             self._visit_patch(patch)
 
 
-# @pytest.mark.skip(reason="Time consuming due to involving network requests")
+@pytest.mark.skip(reason="Time consuming due to involving network requests")
 def test_online_search():
     patch_1 = parse('''File expectedFile = new File(getClass().getResource(name).getFile());''', False)
     patch_1.name = 'animated-gif-lib-for-java/src/main/java/com/madgag/gif/fmsware/NanoHTTPD.java'
