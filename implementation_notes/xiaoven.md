@@ -278,7 +278,7 @@ if (callToInvoke(seen)) {
 3. 提速: 只对同时包含 `equals`, `getClass` 和 `getName` 的语句进行正则匹配
 
 ### 正则
-用来提取 equals 的比较对象
+用来提取 equals 的比较对象，equals 前的不一定提取得完整，但至少可以保证可以完整提取到 `getClass().getName()`
 ```regexp
-
+\b((?:[\w\.$"]|(?:\(\s*\)))+)\s*\.\s*equals(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))
 ```

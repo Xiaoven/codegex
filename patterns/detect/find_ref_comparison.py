@@ -5,7 +5,7 @@ from patterns.models.bug_instance import BugInstance
 from patterns.models import priorities
 
 
-def is_str_with_quotes(s:str):
+def is_str_with_quotes(s: str):
     s = s.strip()
     if s.startswith('"') and s.endswith('"'):
         return True
@@ -54,7 +54,8 @@ class EqualityDetector(Detector):
                                     "Suspicious reference comparison of String objects"))
                     break
 
-class CalToNullDetector(Detector):
+
+class CallToNullDetector(Detector):
     def __init__(self):
         self.p = regex.compile(
             r'\.equals\s*\(\s*null\s*\)')
