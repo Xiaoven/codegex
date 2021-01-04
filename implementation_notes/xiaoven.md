@@ -228,3 +228,57 @@ static String readResolve() throws ObjectStreamException // 优先报返回值�
 1. 我们无法获取 class 是否是 serializable，故将默认 priority 从 high 降为 normal，且假设程序员只在 serializable class 中重写 readResolve 方法
 
 2. 用 `([^\s]+)\s+readResolve` 提取返回值类型，判断是否为 `Object`
+
+## EQ_COMPARING_CLASS_NAMES
+错误原因：different classes with the same name if they are loaded by different class loader
+
+### 例子
+```java
+if (auth.getClass().getName().equals(
+    "complication.auth.DefaultAthenticationHandler")) {
+```
+
+```java
+if (x.getClass().getName().equals(y.getClass().getName() )) {
+```
+
+### Spotbugs 实现思路
+```java
+if (callToInvoke(seen)) {
+    equalsCalls++;
+    checkForComparingClasses();
+    if (AnalysisContext.currentAnalysisContext().isApplicationClass(getThisClass()) && dangerDanger) {
+        bugReporter.reportBug(new BugInstance(this, "EQ_COMPARING_CLASS_NAMES", Priorities.NORMAL_PRIORITY)
+                .addClassAndMethod(this).addSourceLine(this));
+    }
+}
+```
+没看懂，部分理解
+1. callToInvoke(seen) 大概干了什么：
+    - 检查是否是 equals 方法或类似 equals 的方法
+        - 方法名的LowerCase是否包含 equals
+        - 检查 signature, 即参数类型和返回值 (注意有两种用法)
+            - o1.equals(o2)
+            - Objects.equals(o1, o2)
+2. checkForComparingClasses() 大概干了什么:
+    - 好的 equals class 用法 (sawGoodEqualsClass = true):
+        - o1.getClass() == o2.getClass()
+        - xx.class == o2.getClass(), 且 xx.class 是 final class
+    - 不好的用法 (sawBadEqualsClass = true)
+        - xx.class == o2.getClass(), 但 xx.class 不是 final class: 报 EQ_GETCLASS_AND_CLASS_CONSTANT (Bad Practice)
+    - 总的来说就是检查 EQ_GETCLASS_AND_CLASS_CONSTANT，给它调整 priority，并且设置两个成员变量 `sawGoodEqualsClass` 和 `sawBadEqualsClass` 的值
+3. 要使得 dangerDanger 为 true，需要出现 `getName` 和 `getClass` 方法名
+4. report bug 如果该 class 是 application class 且 danger 为 true
+
+综上，首先检查是否调用了 equals 方法，然后检查 equals 方法要比较的两个对象是否调用了 `getClass().getName()`
+
+### 我的实现思路
+1. 当检查到 equals 方法时，提取它要比较的两个对象 (两种用法)
+2. 判断两个参数是否有一个以 `getClass().getName()` 结尾
+3. 提速: 只对同时包含 `equals`, `getClass` 和 `getName` 的语句进行正则匹配
+
+### 正则
+用来提取 equals 的比较对象，equals 前的不一定提取得完整，但至少可以保证可以完整提取到 `getClass().getName()`
+```regexp
+\b((?:[\w\.$"]|(?:\(\s*\)))+)\s*\.\s*equals(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))
+```

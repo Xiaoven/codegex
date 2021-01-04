@@ -1,6 +1,5 @@
 import pytest
 
-from patterns.detect.naming import SimpleNameDetector1, SimpleNameDetector2
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 
