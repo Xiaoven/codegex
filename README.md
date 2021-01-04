@@ -13,13 +13,17 @@ A light-weight tool like spotbugs
 
 [Spotbugs Pattern Descriptions](https://spotbugs.readthedocs.io/en/stable/bugDescriptions.html)
 
+## 开发流程
+1. 从 [单行多行分类](https://docs.google.com/spreadsheets/d/1aiYDHrQTci_ih8k-YIuSYZqYCnjTwvZHN3zOKpXv5zQ/edit?usp=sharing) 表格中选取要实现的 pattern， 阅读 [pattern description](https://spotbugs.readthedocs.io/en/stable/bugDescriptions.html) 和例子, 初步判断是否可以用正则实现
+2. 阅读并大概理解 spotbugs 实现代码，找出该 pattern 需要满足的条件，思考我们的实现中如何检查这些条件。如果条件信息不能直接获取，是否有替代方案
+3. 构思自己的实现流程，设计正则表达式， 并实现（包含测试用例）
+4. 在 `gen_detectors.py` 中添加新实现的 detector （不通过运行 `gen_detectors.py` 更新它的原因是顺序会乱，merge 的时候可能需要额外解决 conflicts）; 然后再运行你的测试用例
+
 ## 已有代码解释
 
-1.  `main.py` 
+1.  `comparison_exp.py` 
 
-    实现patterns后，会爬取状态为open的pull requests，用我们的detectors检测它，如果有触发warnings，则到对应的pull request下留言说：该pull request存在...问题。
-
-    这部分由张晓文负责，**其他人暂时不需要管**。
+    跑和 spotbugs 的对比实验的脚本，暂时不用管
 
 2.  `rparser.py`
 
@@ -38,15 +42,18 @@ A light-weight tool like spotbugs
 3.  在`implementation_notes`下新建你的 markdown 文件，以后每实现一个pattern，都在这个文件记录如下内容
 
     ```markdown
-    #### PATTERN_NAME
-    ##### Regex
-    正则表达式1
-    正则表达式2
-    ...
-    ##### Examples
-    正则表达式可以匹配的字符串的例子
-    ##### 实现思路
-    ...
+    ## PATTERN_NAME
+        pattern 简介（可选，如为什么这样做不好）
+    ### Examples
+        正则表达式可以匹配的字符串的例子
+    ### Spotbugs 如何实现
+        读代码的笔记，和思路总结等
+    ### 我的实现思路
+        大致思路，与 spotbugs 不同的点(如哪些条件我们获取不了)
+    ### Regex
+        ```regexp
+            用到的正则表达式
+        ```
     ```
 
 4.  测试
