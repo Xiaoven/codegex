@@ -3,6 +3,7 @@ import regex
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
 from patterns.models import priorities
+from utils import log_message
 
 
 class FinalizerOnExitDetector(Detector):
@@ -73,3 +74,64 @@ class StringCtorDetector(Detector):
                     self.bug_accumulator.append(BugInstance('DM_STRING_CTOR', priorities.MEDIUM_PRIORITY,
                                                             filename, lineno,
                                                             'Method invokes inefficient new String(String) constructor'))
+
+
+def str_to_float(num_str: str):
+    try:
+        return float(num_str)
+    except ValueError:
+        return None
+
+
+class InvalidMinMaxDetector(Detector):
+    def __init__(self):
+        self.pattern = regex.compile(r'Math\s*\.\s*(min|max)(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
+        self.whitespace = regex.compile(r'\s')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        if not all(key in linecontent for key in ('Math', 'min', 'max')):
+            return
+
+        m1 = self.pattern.search(linecontent)
+        if m1:
+            g1 = m1.groups()
+            outer_method = g1[0]
+            arg_str_1 = self.whitespace.sub('', g1[-1])
+
+            m2 = self.pattern.search(arg_str_1)
+            if m2:
+                g2 = m2.groups()
+                inner_method = g2[0]
+                arg_str_2 = g2[-1]
+
+                if any(method not in (outer_method, inner_method) for method in ('min', 'max')):
+                    return
+
+                if m2.start() == 0:
+                    const_1 = str_to_float(arg_str_1[m2.end()+1:])
+                else:
+                    const_1 = str_to_float(arg_str_1[:m2.start()-1])
+
+                inner_args = arg_str_2.split(',')
+                if len(inner_args) != 2:
+                    log_message(f'[InvalidMinMaxDetector] More than one commas for {linecontent}', 'error')
+                    return
+
+                for arg in inner_args:
+                    const_2 = str_to_float(arg)
+                    if const_2 is not None:
+                        break
+
+                if all(const is not None for const in (const_1, const_2)):
+                    if outer_method == 'min':  # Math.min(const_1, Math.max(const_2, variable))
+                        upper_bound = const_1
+                        lower_bound = const_2
+                    else:   # Math.max(const_1, Math.min(const_2, variable))
+                        upper_bound = const_2
+                        lower_bound = const_1
+
+                    if upper_bound < lower_bound:
+                        self.bug_accumulator.append(BugInstance('DM_INVALID_MIN_MAX', priorities.HIGH_PRIORITY,
+                                                                filename, lineno,
+                                                                'Incorrect combination of Math.max and Math.min'))

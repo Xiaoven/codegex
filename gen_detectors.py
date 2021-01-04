@@ -11,7 +11,8 @@ from patterns.detect.dont_catch_illegal_monitor_state_exception import DontCatch
 from patterns.detect.find_finalize_invocations import ExplicitInvDetector, PublicAccessDetector
 from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod
 from patterns.detect.find_unrelated_types_in_generic_container import SuspiciousCollectionMethodDetector
-from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDetector, RandomD2IDetector, StringCtorDetector
+from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDetector, RandomD2IDetector, \
+    StringCtorDetector, InvalidMinMaxDetector
 from patterns.detect.format_string_checker import NewLineDetector
 
 DETECTOR_DICT = {
@@ -36,5 +37,6 @@ DETECTOR_DICT = {
     "RandomOnceDetector": RandomOnceDetector,
     "RandomD2IDetector": RandomD2IDetector,
     "StringCtorDetector": StringCtorDetector,
-    "NewLineDetector": NewLineDetector
+    "NewLineDetector": NewLineDetector,
+    "InvalidMinMaxDetector":  InvalidMinMaxDetector,
 }
