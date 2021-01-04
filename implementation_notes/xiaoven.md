@@ -282,3 +282,42 @@ if (callToInvoke(seen)) {
 ```regexp
 \b((?:[\w\.$"]|(?:\(\s*\)))+)\s*\.\s*equals(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))
 ```
+
+## DM_INVALID_MIN_MAX
+
+Incorrect combination of Math.max and Math.min
+
+### 例子
+[spotbugs tests](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugsTestCases/src/java/sfBugsNew/Feature329.java)
+
+```java
+return Math.min(0, Math.max(100, rawInput));
+
+return Math.max(Math.min(0, rawInput), 100);
+
+int score = (totalCount == 0) ? 100 : (int) (100.0 * Math.max(1.0,
+                Math.min(0.0, 1.0 - (scaleFactor * failCount) / totalCount)));
+```
+
+### spotbugs 实现
+见 [InvalidMinMaxSubDetector](https://github.com/spotbugs/spotbugs/blob/d9557689c2a752a833eedf4eb5f37ee712a9c84f/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/DumbMethods.java#L94)
+
+初时，两成员变量 `upperBound = lowerBound = null`
+
+1. 检查是否调用了 `Math.max` 或者 `Math.min` 方法。是则到下一步
+2. 检查该方法的两个参数是否只有一个为 constant (数字)。 是则到下一步，否则两成员变量设为 null
+3. 如果该方法名为 `min` ，则将 constant 赋值给成员变量 `upperBound` ，否则赋值给 `lowerBound`
+
+接下来的部分不太理解，因为它似乎只对 `upperBound != null` 即外层是 `min` 成立。大概理解一下就好
+
+4. 检查外层 min/max 函数的两个参数，是否只有一个是 method 类型，且也是 `Math.min` 或 `Math.max` 函数，如是则下一步
+5. 如果 `lowerBound.compareTo(upperBound)` 结果大于 0, 则报该 bugs
+
+我估计这个 subDetector 的 sawOpcode 方法应该是被调用了两次，才能给两个成员变量都赋上值。而且它从 stack 中读取的内容原本顺序应该也和我之前想的不一样，即先读取的是内层的 min/max，然后才是外层的 min/max，但是我不确定。
+
+### 我的实现
+1. 用正则提取第一个 `Math.min(...)` 或 `Math.max(...)` 的传参字符串 A
+2. 再对传参字符串 A 应用上述正则，提取它的传参字符串 B
+3. 将两个传参字符串的 `\s` 替换为空，然后根据 `,` split
+4. 用强制转换成数字的办法，分别找出它们的参数中为 constant 的那个
+5. 比较它们的大小
