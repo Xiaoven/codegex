@@ -73,6 +73,33 @@ class DefReadResolveMethod(Detector):
                 self.bug_accumulator.append(
                     BugInstance(pattern_name, priorities.MEDIUM_PRIORITY, filename, lineno, message))
 
+class DefMethodPrivate(Detector):
+    def __init__(self):
+        self.pattern = re.compile(
+            r'(private)?\s*void\s*(?:writeObject|readObject)\((?:ObjectOutputStream|ObjectInputStream)\s*(?:oos|ois)\s*\)\s*throws\s*Exception')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+
+
+        m = self.pattern.search(linecontent.strip())
+        if m:
+            g = m.groups()
+
+            pattern_name = None
+            message = None
+
+            if g[0] != 'private':
+
+                pattern_name = 'SE_METHOD_MUST_BE_PRIVATE'
+                message = 'Method must be private in order for serialization to work.'
+
+
+            if pattern_name:
+
+                self.bug_accumulator.append(
+                    BugInstance(pattern_name, priorities.HIGH_PRIORITY, filename, lineno, message))
+
 
 
 

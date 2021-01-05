@@ -58,3 +58,28 @@ public static final Object readResolve() throws ObjectStreamException
 1. 我们无法获取 class 是否是 serializable，故将默认 priority 从 high 降为 normal，且假设程序员只在 serializable class 中重写 readResolve 方法
 
 2. 由于 `final` 和 `static` 出现顺序可变，故用提取 `((?:static|final|\s)*)` 后，对该字符串进行 split， 判断 static 是否在其中
+
+
+
+## Se: Method must be private in order for serialization to work
+简要描述：serialization: object -> byte stream 
+相关方法：
+private void writeObject(ObjectOutputStream oos) throws Exception
+private void readObject(ObjectInputStream ois) throws Exception
+这两个方法必须是private的, 否则会被 silently ignored by the serialization/deserialization API
+### Regex
+```regexp
+(private)?\s*void\s*(?:writeObject|readObject)\((?:ObjectOutputStream|ObjectInputStream)\s*(?:oos|ois)\s*\)\s*throws\s*Exception
+```
+### Examples
+```java
+public void writeObject(ObjectOutputStream oos) throws Exception
+public void readObject(ObjectInputStream ois) throws Exception
+private void readObject(ObjectInputStream ois) throws Exception
+private void writeObject(ObjectOutputStream oos) throws Exception
+```
+### 实现思路
+对这两个方法进行正则表达式匹配，同时对修饰词进行捕获判断，如果是private，则正确，其它情况为错误，触发pattern。
+
+
+

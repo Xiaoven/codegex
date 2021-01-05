@@ -1,6 +1,6 @@
 import pytest
 
-from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod
+from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod, DefMethodPrivate
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 
@@ -49,6 +49,19 @@ params = [
                 return null;
             }
         }''', 1, 2),
+# ---------------- SE_METHOD_MUST_BE_PRIVATE DIY Tests -----------------
+    (False, 'SE_METHOD_MUST_BE_PRIVATE', 'Fake.java',
+     '''public void writeObject(ObjectOutputStream oos) throws Exception
+        ''', 1, 1),
+    (False, 'SE_METHOD_MUST_BE_PRIVATE', 'Fake.java',
+     '''public void readObject(ObjectInputStream ois) throws Exception
+        ''', 1, 1),
+    (False, 'SE_METHOD_MUST_BE_PRIVATE', 'Fake.java',
+     '''private void readObject(ObjectInputStream ois) throws Exception
+        ''', 0, 1),
+    (False, 'SE_METHOD_MUST_BE_PRIVATE', 'Fake.java',
+     '''private void writeObject(ObjectOutputStream oos) throws Exception
+        ''', 0, 1)
 ]
 
 
@@ -56,7 +69,7 @@ params = [
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine(included_filter=['DefSerialVersionID', 'DefReadResolveMethod'])
+    engine = DefaultEngine(included_filter=['DefSerialVersionID', 'DefReadResolveMethod', 'DefMethodPrivate'])
     engine.visit([patch])
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
