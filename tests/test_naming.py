@@ -59,6 +59,27 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     # RxJava/src/main/java/io/reactivex/rxjava3/observers/BaseTestConsumer.java
     (False, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'BaseTestConsumer.java',
      '''public abstract class BaseTestConsumer<T, U extends BaseTestConsumer<T, U>> {''', 0, 1),
+    # DIY
+    (False, 'NM_LCASE_HASHCODE', 'Main.java',
+     '''public class Main {
+            int hashcode(){
+                return 1;
+            }
+        }''', 1, 2),
+    # DIY
+    (False, 'NM_LCASE_HASHCODE', 'Main.java',
+     '''public class Main {
+            public int hashcode(){
+                return 1;
+            }
+        }''', 1, 2),
+    # DIY
+    (False, 'NM_LCASE_HASHCODE', 'Main.java',
+     '''public class Main {
+            protected int hashcode(){
+                return 1;
+            }
+        }''', 1, 2)
 ]
 
 
@@ -66,7 +87,7 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine(included_filter=['SimpleNameDetector1', 'SimpleNameDetector2'])
+    engine = DefaultEngine(included_filter=['SimpleNameDetector1', 'SimpleNameDetector2', 'SimpleNameDetector3'])
     engine.visit([patch])
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

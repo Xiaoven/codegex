@@ -66,3 +66,16 @@ class SimpleNameDetector2(Detector):
                         BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', priorities.MEDIUM_PRIORITY, filename, lineno,
                                     "Class or interface names shouldn’t shadow simple name of implemented interface")
                     )
+
+
+class SimpleNameDetector3(Detector):
+    def __init__(self):
+        # Check hashcode method exists
+        self.pattern = regex.compile(r'((public|protected)\s+)*int\s+hashcode\(')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        m = self.pattern.search(linecontent.strip())
+        if m:
+            self.bug_accumulator.append(BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY, filename, lineno,
+                                                    "Class defines hashcode(); should it be hashCode()?"))
