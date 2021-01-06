@@ -8,7 +8,8 @@ from patterns.detect.overriding_equals_not_symmetrical import EqualsClassNameDet
 from patterns.detect.infinite_recursive_loop import CollectionAddItselfDetector
 from patterns.detect.find_rough_constants import FindRoughConstantsDetector
 from patterns.detect.find_ref_comparison import EqualityDetector, CallToNullDetector
-from patterns.detect.naming import SimpleSuperclassNameDetector, SimpleInterfaceNameDetector, HashCodeNameDetector
+from patterns.detect.naming import SimpleSuperclassNameDetector, SimpleInterfaceNameDetector, HashCodeNameDetector, \
+    ToStringNameDetector
 from patterns.detect.dont_catch_illegal_monitor_state_exception import DontCatchIllegalMonitorStateException
 from patterns.detect.find_finalize_invocations import ExplicitInvDetector, PublicAccessDetector
 from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod
@@ -30,6 +31,7 @@ DETECTOR_DICT = {
     "SimpleSuperclassNameDetector": SimpleSuperclassNameDetector,
     "SimpleInterfaceNameDetector": SimpleInterfaceNameDetector,
     "HashCodeNameDetector": HashCodeNameDetector,
+    "ToStringNameDetector": ToStringNameDetector,
     "DontCatchIllegalMonitorStateException": DontCatchIllegalMonitorStateException,
     "ExplicitInvDetector": ExplicitInvDetector,
     "PublicAccessDetector": PublicAccessDetector,

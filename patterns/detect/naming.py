@@ -81,7 +81,21 @@ class HashCodeNameDetector(Detector):
 
         m = self.pattern.match(strip_line)
         if m:
-            self.bug_accumulator.append(
-                BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY, filename, lineno,
-                            "Class defines hashcode(); should it be hashCode()?")
-            )
+            self.bug_accumulator.append(BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY, filename, lineno,
+                            "Class defines hashcode(); should it be hashCode()?"))
+
+
+class ToStringNameDetector(Detector):
+    def __init__(self):
+        # Check hashcode method exists
+        self.pattern = regex.compile(r'^[\w\s]*?\bString\s+tostring\s*\(\s*\)')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        strip_line = linecontent.strip()
+        if strip_line.startswith('private') or any(key not in linecontent for key in ('String', 'tostring')):
+            return
+        m = self.pattern.search(strip_line)
+        if m:
+            self.bug_accumulator.append(BugInstance('NM_LCASE_TOSTRING', priorities.HIGH_PRIORITY, filename, lineno,
+                                                    "Class defines tostring(); should it be toString()"))
