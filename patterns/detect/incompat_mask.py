@@ -43,19 +43,26 @@ def convert_str_to_int(num_str: str):
 class IncompatMaskDetector(Detector):
     def __init__(self):
         self.regexpSign = regex.compile(
-            r'\(\s*([~-]?(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.-])++)\s*&\s*([~-]?(?:(?&aux1)|[\w.])++)\s*\)\s*([><=!]+)\s*0')
+            r'\(\s*([~-]?(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.-])++)\s*([&|])\s*([~-]?(?:(?&aux1)|[\w.])++)\s*\)\s*([><=!]+)\s*([0-9a-zA-Z]+)')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if '&' not in linecontent and not any(op in linecontent for op in ('>', '<', '>=', '<=', '==', '!=')):
+        if not any(bitop in linecontent for bitop in ('&', '|')) and \
+                not any(op in linecontent for op in ('>', '<', '>=', '<=', '==', '!=')):
             return
 
-        m = self.regexpSign.search(linecontent.strip())
-        if m:
+        its = self.regexpSign.finditer(linecontent.strip())
+        for m in its:
             g = m.groups()
             operand_1 = g[0]
-            operand_2 = g[2]
-            operator = g[3]
+            bitop = g[2]
+            operand_2 = g[3]
+            relation_op = g[4]
+            tgt_const_str = g[5]
+
+            tgt_const = convert_str_to_int(tgt_const_str)
+            if tgt_const is None:
+                return
 
             op1 = convert_str_to_int(operand_1)
             op2 = convert_str_to_int(operand_2)
@@ -74,11 +81,7 @@ class IncompatMaskDetector(Detector):
             priority = priorities.HIGH_PRIORITY
             p_type, description = None, None
 
-            if operator in ('==', '!='):
-                if const == 0:
-                    p_type = 'BIT_AND_ZZ'
-                    description = 'The expression of the form (e & 0) to 0 will always compare equal.'
-            else:
+            if relation_op in ('>', '<', '>=', '<=') and tgt_const == 0:
                 if is_long:
                     max_positive = 0x7fffffffffffffff  # 9223372036854775807
                     min_negative = 0x8000000000000000  # -9223372036854775808
@@ -91,7 +94,7 @@ class IncompatMaskDetector(Detector):
                 if min_negative <= const <= max_negative:
                     p_type = 'BIT_SIGNED_CHECK_HIGH_BIT'
                     description = 'Check for sign of bitwise operation involving negative number.'
-                    if operator in ('<', '>='):
+                    if relation_op in ('<', '>='):
                         priority = priorities.MEDIUM_PRIORITY
                 elif 0 <= const <= max_positive:
                     p_type = 'BIT_SIGNED_CHECK'
@@ -100,11 +103,24 @@ class IncompatMaskDetector(Detector):
                     only_low_bits = const <= 0xfff
                     priority = priorities.LOW_PRIORITY if only_low_bits else priorities.MEDIUM_PRIORITY
 
+            elif relation_op in ('==', '!='):
+                priority = priorities.HIGH_PRIORITY
+                p_type, description = None, None
+                if const == 0:
+                    p_type = 'BIT_AND_ZZ'
+                    description = 'The expression of the form (e & 0) to 0 will always compare equal.'
+
             if p_type is not None:
+                # get exact lineno
                 get_exact_lineno = kwargs.get('get_exact_lineno', None)
                 if get_exact_lineno:
                     tmp = get_exact_lineno(const_str)
                     if tmp:
                         lineno = tmp[1]
-                bug_ins = BugInstance(p_type, priority, filename, lineno, description)
-                self.bug_accumulator.append(bug_ins)
+
+                self.bug_accumulator.append(BugInstance(p_type, priority, filename, lineno, description))
+
+
+
+
+# Incompatible bit masks in yields a constant result (BIT_AND, BIT_IOR)

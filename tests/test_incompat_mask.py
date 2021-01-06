@@ -10,7 +10,7 @@ params = [
      '''@@ -51,7 +51,7 @@ public void hierarchyChanged(HierarchyEvent e)
          {
            JRootPane rootPane;
- 
+
           if ((e.getChangeFlags() & 1) > 0)
            {
              rootPane = getRootPane();
@@ -20,7 +20,7 @@ params = [
      '''@@ -222,7 +222,7 @@ public void resourceChanged(IResourceChangeEvent event) {
          if (delta == null)
              return;
- 
+
 +        if ((delta.getKind() & 4) > 0 && (delta.getFlags() & MARKERS) > 0) {
              getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
                  public void run() {
@@ -34,6 +34,23 @@ params = [
             if ( ( paramInt & 0xF0000000 ) == 0 ) { return 4;}
             return 5;
         }''', 1, 4),
+
+    (False, 'BIT_SIGNED_CHECK_HIGH_BIT', 'TMP.java', '''if ((x | 0x80000000) < 0)''', 1, 1),
+
+    # # from https://github.com/betterlife/betterlifepsi/issues/158
+    # ('''if (e | 0x1 == 0x0) {''', 'BIT_IOR'),
+
+    # https://github.com/threerings/getdown/commit/f33527284f04db3daf4b916c74549d96008140f4
+    # ('''if ((e | 1) != 0) {''', 'BIT_IOR'),
+
+    # https://github.com/avrora-framework/avrora/issues/6
+    # ('''if ((e & 0x40) == 0x1){''', 'BIT_AND'),
+
+    # https://github.com/HighTechRedneck42/JMRI/commit/a6dbbcb302286dedf085dfc763d58726cfe31288
+    # ('''if (((e & 4) == 4)
+    #                 || ((e & 2) == 4)) {''', 'BIT_AND'),
+
+    # https://github.com/gavioto/findbugs/blob/master/findbugsTestCases/src/java/IncompatMaskTest.java
 ]
 
 
@@ -55,7 +72,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
 testcases = [
     # high long
     ('''public boolean bugHighGT(long x) {
-            if ((x & 0x8000000000000000L) > 0)
+            if (( 0x8000000000000000L & x) > 0)
                 return true;
             return false;
         }''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, HIGH_PRIORITY),
@@ -122,7 +139,6 @@ testcases = [
     ('''public boolean DIY(int x) {
             if ((x & -10) <= 0)
                 return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, HIGH_PRIORITY),
-
     ]
 
 
