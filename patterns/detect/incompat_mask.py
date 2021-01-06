@@ -106,7 +106,16 @@ class IncompatMaskDetector(Detector):
             elif relation_op in ('==', '!='):
                 priority = priorities.HIGH_PRIORITY
                 p_type, description = None, None
-                if const == 0:
+
+                if bitop == '|':
+                    if (const & ~tgt_const) != 0:
+                        p_type = 'BIT_IOR'
+                        description = 'Incompatible bit masks in yields a constant result.'
+                elif const != 0 or tgt_const != 0:
+                    if (tgt_const & ~const) != 0:
+                        p_type = 'BIT_AND'
+                        description = 'Incompatible bit masks in yields a constant result.'
+                else:
                     p_type = 'BIT_AND_ZZ'
                     description = 'The expression of the form (e & 0) to 0 will always compare equal.'
 
@@ -122,5 +131,3 @@ class IncompatMaskDetector(Detector):
 
 
 
-
-# Incompatible bit masks in yields a constant result (BIT_AND, BIT_IOR)
