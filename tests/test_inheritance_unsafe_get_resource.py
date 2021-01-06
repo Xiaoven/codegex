@@ -39,7 +39,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     patch = parse(patch_str, is_patch)
     patch.name = file_name
     engine = DefaultEngine(['GetResourceDetector'])
-    engine.visit([patch])
+    engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
         assert engine.bug_accumulator[0].line_no == line_no
@@ -49,7 +49,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
 
 
 class ShareCacheEngine(DefaultEngine):
-    def visit(self, patch_set):
+    def visit(self, *patch_set):
         self.bug_accumulator = list()  # every patch set should own a new bug_accumulator
         for patch in patch_set:
             self._visit_patch(patch)
@@ -69,13 +69,13 @@ def test_online_search():
     engine = ShareCacheEngine(included_filter=('GetResourceDetector',))
 
     start = time.time()
-    engine.visit(patch_set)
+    engine.visit(*patch_set)
     time_elapsed = time.time() - start
     # print(time_elapsed)
     assert len(engine.filter_bugs('low')) == 1
 
     start = time.time()
-    engine.visit(patch_set)
+    engine.visit(*patch_set)
     time_elapsed_2 = time.time() - start
     # print(time_elapsed_2)
     assert time_elapsed > time_elapsed_2 * 10**3  # 9.663780927658081 seconds > 7.081031799316406e-05 seconds
@@ -96,6 +96,6 @@ def test_local_search():
     CONFIG['enable_local_search'] = True
 
     engine = DefaultEngine(included_filter=('GetResourceDetector',))
-    engine.visit((patch_1, patch_2, patch_3))
+    engine.visit(patch_1, patch_2, patch_3)
     assert len(engine.filter_bugs()) == 2
     assert len(engine.filter_bugs('low')) == 1

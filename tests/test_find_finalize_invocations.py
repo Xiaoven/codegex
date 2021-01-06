@@ -42,7 +42,7 @@ def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int
     patch = parse(patch_str)
     patch.name = file_name
     engine = DefaultEngine(included_filter=('ExplicitInvDetector', 'PublicAccessDetector'))
-    engine.visit([patch])
+    engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
         assert engine.bug_accumulator[0].line_no == line_no

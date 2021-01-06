@@ -62,7 +62,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     patch = parse(patch_str, is_patch)
     patch.name = file_name
     engine = DefaultEngine(included_filter=['IncompatMaskDetector'])
-    engine.visit([patch])
+    engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
         assert engine.bug_accumulator[0].line_no == line_no
@@ -149,7 +149,7 @@ def test_spotbugs_cases(patch_str: str, expected_warning: str, expected_length: 
                         expected_priority: int):
     patch = parse(patch_str, is_patch=False)
     engine = DefaultEngine(included_filter=['IncompatMaskDetector'])
-    engine.visit([patch])
+    engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
         assert engine.bug_accumulator[0].type == expected_warning
@@ -192,7 +192,7 @@ def test_1():
          if ((i | 16L) != 2) System.out.println("warn");
     }''', is_patch=False)
     engine = DefaultEngine(included_filter=['IncompatMaskDetector'])
-    engine.visit([patch])
+    engine.visit(patch)
     assert len(engine.bug_accumulator) == 8
     assert engine.bug_accumulator[0].type == 'BIT_AND'
     assert engine.bug_accumulator[0].line_no == 2
@@ -254,7 +254,7 @@ def test_2():
         System.out.println("foo");
     }''', is_patch=False)
     engine = DefaultEngine(included_filter=['IncompatMaskDetector'])
-    engine.visit([patch])
+    engine.visit(patch)
     assert len(engine.bug_accumulator) == 18
 
 
@@ -269,7 +269,7 @@ def test_3():
         }
     }''', is_patch=False)
     engine = DefaultEngine(included_filter=['IncompatMaskDetector'])
-    engine.visit([patch])
+    engine.visit(patch)
     assert len(engine.bug_accumulator) == 2
     assert engine.bug_accumulator[0].type == 'BIT_IOR'
     assert engine.bug_accumulator[0].line_no == 2
