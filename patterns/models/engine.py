@@ -72,7 +72,7 @@ class BaseEngine:
                 return simple_name
         return None
 
-    def visit(self, patch_set):
+    def visit(self, *patch_set):
         detector_name = 'GetResourceDetector'
         if detector_name in self._detectors:
             # clean cache of GetResourceDetector for next patch_set which belongs to another project for online search

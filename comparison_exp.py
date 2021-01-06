@@ -48,7 +48,7 @@ def exec_task(file_dict: dict):
         if not patchset:
             continue
 
-        engine.visit(patchset)
+        engine.visit(*patchset)
 
         if engine.bug_accumulator:
             bug_instance_dict[subproject] = engine.bug_accumulator
