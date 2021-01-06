@@ -79,3 +79,16 @@ class SimpleNameDetector3(Detector):
         if m:
             self.bug_accumulator.append(BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY, filename, lineno,
                                                     "Class defines hashcode(); should it be hashCode()?"))
+
+
+class SimpleNameDetector4(Detector):
+    def __init__(self):
+        # Check hashcode method exists
+        self.pattern = regex.compile(r'((public|protected)\s+)*String\s+tostring\(')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        m = self.pattern.search(linecontent.strip())
+        if m:
+            self.bug_accumulator.append(BugInstance('NM_LCASE_TOSTRING', priorities.HIGH_PRIORITY, filename, lineno,
+                                                    "Class defines tostring(); should it be toString()"))
