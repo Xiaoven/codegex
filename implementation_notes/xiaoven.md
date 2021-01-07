@@ -428,9 +428,14 @@ static int populationCount(long i) {
 
 与上述两个 patterns 一起实现。当 constant 为 0, 操作符为 `!=` 或 `==` 时，为 BIT_AND_ZZ
 
-## BIT_AND
+## BIT_AND, BIT_IOR
 
 ### 例子
+```java
+if ((e & 0x40) == 0x1){
+
+if ((e | 1) != 0) {
+```
 
 ### SpotBugs 实现思路
 
@@ -467,3 +472,43 @@ if (equality) {
 发现：
 1. 位运算操作必须要用括号括起来，然后才能和别的数比较，否则编译报错。例如 `A & C == D` 是不合法的，应为 `(A & C) == D`
 2. 假如 `(A & C) == D` 会引发 warning，spotBugs 和 rbugs 都不会对 `D == (A & C)`。估计 spotBugs 从栈中读取顺序也有限制。
+
+
+## SA_SELF_COMPUTATION
+
+SA_FIELD_SELF_COMPUTATION 和 SA_LOCAL_SELF_COMPUTATION，因为我们无法区分 field 和 local variable
+
+### 例子
+```java
+x & x
+x - x
+boolean dieselXorManual = car.isDiesel() ^ car.isDiesel();
+```
+### SpotBugs 实现思路
+[field](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindSelfComparison.java#L316)
+
+
+1. 从以下代码可以看出包括的操作符有 `|`, `&`, `^` 和 `-`
+
+```java
+switch (seen) {
+	...
+    case Const.LOR:
+    case Const.LAND:
+    case Const.LXOR:
+    case Const.LSUB:
+    case Const.IOR:
+    case Const.IAND:
+    case Const.IXOR:
+    case Const.ISUB:
+        checkForSelfOperation(seen, "COMPUTATION");
+        break;
+```
+
+2. 从 stack 获取两个 operands，如果是 float 或者 double 类型则返回（后面看不懂）
+
+[local](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindSelfComparison2.java#L212)
+
+### 我的实现思路
+直接匹配
+
