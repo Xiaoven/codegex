@@ -512,3 +512,54 @@ switch (seen) {
 ### 我的实现思路
 直接匹配
 
+## SA_SELF_COMPARISON
+
+### SpotBugs 实现思路
+第一种触发的情况
+```java
+case LCMP:            // Compare long
+case IF_ACMPEQ:		  // Branch if reference comparison succeeds if and only if value1 = value2
+case IF_ACMPNE:
+case IF_ICMPNE:       // Branch if int comparison succeeds
+case IF_ICMPEQ:
+case IF_ICMPGT:
+case IF_ICMPLE:
+case IF_ICMPLT:
+case IF_ICMPGE:
+    checkForSelfOperation(classContext, location, valueNumberDataflow, "COMPARISON", method, methodGen, sourceFile);
+```
+
+第二种触发的情况：
+```java
+switch (ins.getOpcode()) {
+    case INVOKEVIRTUAL:
+    case INVOKEINTERFACE:
+    	// 如果 methodName, className, superClassName 的 lowercase 包含 “test” break
+
+		boolean booleanComparisonMethod = FindSelfComparison2.booleanComparisonMethod(name);
+		// 返回值： “Z" 代表 boolean 类型， ”I“ 代表 int 类型
+    	if ((numParameters == 1 || seen == Const.INVOKESTATIC && numParameters == 2) && (booleanComparisonMethod && sig.endsWith(";)Z") || FindSelfComparison2.comparatorMethod(name) && sig.endsWith(";)I"))) {
+                    checkForSelfOperation(seen, "COMPARISON");
+                }
+```
+包含的方法名如下，注意 static 用法
+
+```java
+static boolean booleanComparisonMethod(String methodName) {
+        return "equals".equals(methodName) || "endsWith".equals(methodName) || "startsWith".equals(methodName)
+                || "contains".equals(methodName) || "equalsIgnoreCase".equals(methodName);
+    }
+
+static boolean comparatorMethod(String methodName) {
+    return "compareTo".equals(methodName) || "compareToIgnoreCase".equals(methodName);
+}
+```
+
+### 我的实现思路
+spotbugs 只对 int 和 long 类型的变量发出该警报，但是我们没法知道变量类型。
+
+1. 先判断是否出现大小比较符号或者关键方法名字
+2. 分别套用不同的正则表达式提取信息
+	- 大小比较符号可以用 SELF COMPUTATION 的正则
+	- 方法名用提取 object 和括号内容的正则
+3. 假如是方法名，object 名和括号内容是否相等，如否，试着分割括号内容提取参数，参考 DM_INVALID_MIN_MAX

@@ -23,7 +23,40 @@ params = [
             if (y > y)
                 y = x - x;
             return x;
-        }''', 4, 3),
+        }''', 8, 3),
+    # ---------------- SA_SELF_COMPARISON ----------------------
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+     '''@NoWarning("SA_FIELD_SELF_COMPARISON")
+        public boolean test() {
+            boolean result = false;
+            result |= flags == (short) flags;
+            result |= flags == (char) flags;
+            result |= flags == (byte) flags;
+            return result;
+        }''', 0, 3),
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+     '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
+        public boolean testTP() {
+            boolean result = false;
+            result |= flags == flags;
+            return result;
+        }''', 1, 4),
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+     '''@ExpectWarning(value="SA_FIELD_SELF_COMPARISON", confidence = Confidence.LOW)
+    boolean volatileFalsePositive() {
+        return z == z;
+    }''', 1, 3),
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+     '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
+        boolean e() {
+            return a.equals(a);
+        }''', 1, 3),
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+     '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
+        int c() {
+            return a.compareTo(a);
+        }
+    ''', 1, 3),
 ]
 
 
