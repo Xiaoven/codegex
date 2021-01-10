@@ -567,3 +567,48 @@ spotbugs 只对 int 和 long 类型的变量发出该警报，但是我们没法
 由于我们无法判断 object 的类型，`DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES` 也会识别 "contains" 方法，然后发出 warning。
 也许可以通过 local search 来提高 `DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES` 的准确性？
 [对应 issue](https://github.com/Xiaoven/rbugs/issues/79)
+
+## DLS_DEAD_LOCAL_INCREMENT_IN_RETURN
+
+### 例子
+```java
+@ExpectWarning("DLS_DEAD_LOCAL_INCREMENT_IN_RETURN")
+public int getIntMinus1Bad(String intStr) {
+    int i = Integer.parseInt(intStr);
+    return i--;
+}
+```
+
+```java
+// 假设下面这些都是局部变量名
+return num123$++;  // DLS_DEAD_LOCAL_INCREMENT_IN_RETURN, high
+return num123++;  // DLS_DEAD_LOCAL_INCREMENT_IN_RETURN, high
+return $num123++;  // DLS_DEAD_LOCAL_INCREMENT_IN_RETURN, low
+
+return arr[i]++;  // no warning, no matter arr is a local var or field
+
+return 2*(i++);  // DLS_DEAD_LOCAL_STORE. No warning if i is a field
+return 2*(i++) + i;  // No warning
+return i + 2*(i++);  // DLS_DEAD_LOCAL_STORE
+```
+### SpotBugs 实现思路
+它判断 dead increment 的方法好长啊，不好理解
+初始为 NORMAL_PRIORITY
+```java
+...
+InstructionHandle next = location.getHandle().getNext();
+if (next != null && next.getInstruction() instanceof IRETURN) {
+propertySet.addProperty(DeadLocalStoreProperty.DEAD_INCREMENT_IN_RETURN);
+...
+```
+### 我的实现思路
+观察到 `++`, `--` 似乎只能用在variable 上，像 `arrayList.get(i)` 是 value，不能直接用自增/减符
+1. 只识别最简单的 patterns
+    - `return i++;`
+    - `return i--;`
+2. 难点在于如何判断是否是 local increment，而不是 field increment，可以通过 local search 加强？
+
+### Regex
+```regexp
+return\s+[\w$]+(?:\+\+|--)\s*;
+```
