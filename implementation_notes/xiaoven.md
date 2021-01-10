@@ -428,14 +428,9 @@ static int populationCount(long i) {
 
 与上述两个 patterns 一起实现。当 constant 为 0, 操作符为 `!=` 或 `==` 时，为 BIT_AND_ZZ
 
-## BIT_AND, BIT_IOR
+## BIT_AND
 
 ### 例子
-```java
-if ((e & 0x40) == 0x1){
-
-if ((e | 1) != 0) {
-```
 
 ### SpotBugs 实现思路
 
@@ -472,98 +467,3 @@ if (equality) {
 发现：
 1. 位运算操作必须要用括号括起来，然后才能和别的数比较，否则编译报错。例如 `A & C == D` 是不合法的，应为 `(A & C) == D`
 2. 假如 `(A & C) == D` 会引发 warning，spotBugs 和 rbugs 都不会对 `D == (A & C)`。估计 spotBugs 从栈中读取顺序也有限制。
-
-
-## SA_SELF_COMPUTATION
-
-SA_FIELD_SELF_COMPUTATION 和 SA_LOCAL_SELF_COMPUTATION，因为我们无法区分 field 和 local variable
-
-### 例子
-```java
-x & x
-x - x
-boolean dieselXorManual = car.isDiesel() ^ car.isDiesel();
-```
-### SpotBugs 实现思路
-[field](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindSelfComparison.java#L316)
-
-
-1. 从以下代码可以看出包括的操作符有 `|`, `&`, `^` 和 `-`
-
-```java
-switch (seen) {
-	...
-    case Const.LOR:
-    case Const.LAND:
-    case Const.LXOR:
-    case Const.LSUB:
-    case Const.IOR:
-    case Const.IAND:
-    case Const.IXOR:
-    case Const.ISUB:
-        checkForSelfOperation(seen, "COMPUTATION");
-        break;
-```
-
-2. 从 stack 获取两个 operands，如果是 float 或者 double 类型则返回（后面看不懂）
-
-[local](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindSelfComparison2.java#L212)
-
-### 我的实现思路
-直接匹配
-
-## SA_SELF_COMPARISON
-
-### SpotBugs 实现思路
-第一种触发的情况
-```java
-case LCMP:            // Compare long
-case IF_ACMPEQ:		  // Branch if reference comparison succeeds if and only if value1 = value2
-case IF_ACMPNE:
-case IF_ICMPNE:       // Branch if int comparison succeeds
-case IF_ICMPEQ:
-case IF_ICMPGT:
-case IF_ICMPLE:
-case IF_ICMPLT:
-case IF_ICMPGE:
-    checkForSelfOperation(classContext, location, valueNumberDataflow, "COMPARISON", method, methodGen, sourceFile);
-```
-
-第二种触发的情况：
-```java
-switch (ins.getOpcode()) {
-    case INVOKEVIRTUAL:
-    case INVOKEINTERFACE:
-    	// 如果 methodName, className, superClassName 的 lowercase 包含 “test” break
-
-		boolean booleanComparisonMethod = FindSelfComparison2.booleanComparisonMethod(name);
-		// 返回值： “Z" 代表 boolean 类型， ”I“ 代表 int 类型
-    	if ((numParameters == 1 || seen == Const.INVOKESTATIC && numParameters == 2) && (booleanComparisonMethod && sig.endsWith(";)Z") || FindSelfComparison2.comparatorMethod(name) && sig.endsWith(";)I"))) {
-                    checkForSelfOperation(seen, "COMPARISON");
-                }
-```
-包含的方法名如下，注意 static 用法
-
-```java
-static boolean booleanComparisonMethod(String methodName) {
-        return "equals".equals(methodName) || "endsWith".equals(methodName) || "startsWith".equals(methodName)
-                || "contains".equals(methodName) || "equalsIgnoreCase".equals(methodName);
-    }
-
-static boolean comparatorMethod(String methodName) {
-    return "compareTo".equals(methodName) || "compareToIgnoreCase".equals(methodName);
-}
-```
-
-### 我的实现思路
-spotbugs 只对 int 和 long 类型的变量发出该警报，但是我们没法知道变量类型。
-
-1. 先判断是否出现大小比较符号或者关键方法名字
-2. 分别套用不同的正则表达式提取信息
-	- 大小比较符号可以用 SELF COMPUTATION 的正则
-	- 方法名用提取 object 和括号内容的正则
-3. 假如是方法名，object 名和括号内容是否相等，如否，试着分割括号内容提取参数，参考 EQ_COMPARING_CLASS_NAMES
-
-由于我们无法判断 object 的类型，`DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES` 也会识别 "contains" 方法，然后发出 warning。
-也许可以通过 local search 来提高 `DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES` 的准确性？
-[对应 issue](https://github.com/Xiaoven/rbugs/issues/79)

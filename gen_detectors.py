@@ -1,4 +1,3 @@
-from patterns.detect.find_self_comparison import CheckForSelfComputation, CheckForSelfComparison
 from patterns.detect.incompat_mask import IncompatMaskDetector
 from patterns.detect.inheritance_unsafe_get_resource import GetResourceDetector
 from patterns.detect.static_calendar_detector import StaticDateFormatDetector
@@ -40,6 +39,4 @@ DETECTOR_DICT = {
     "StringCtorDetector": StringCtorDetector,
     "NewLineDetector": NewLineDetector,
     "InvalidMinMaxDetector":  InvalidMinMaxDetector,
-    'CheckForSelfComputation': CheckForSelfComputation,
-    'CheckForSelfComparison': CheckForSelfComparison,
 }

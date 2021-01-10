@@ -62,8 +62,8 @@ class CallToNullDetector(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        its = self.p.finditer(linecontent.strip())
-        for m in its:
+        m = self.p.search(linecontent.strip())
+        if m:
             self.bug_accumulator.append(
                 BugInstance('EC_NULL_ARG', priorities.MEDIUM_PRIORITY,
                             filename, lineno,

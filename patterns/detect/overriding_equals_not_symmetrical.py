@@ -14,8 +14,8 @@ class EqualsClassNameDetector(Detector):
         if not all(key in linecontent for key in ('equals', 'getClass', 'getName')):
             return
 
-        its = self.pattern.finditer(linecontent)
-        for m in its:
+        m = self.pattern.search(linecontent)
+        if m:
             g = m.groups()
             before_equals = g[0]
             after_equals = g[-1].strip()
