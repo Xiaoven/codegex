@@ -31,8 +31,8 @@ class RandomOnceDetector(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        m = self.pattern.search(linecontent.strip())
-        if m:
+        its = self.pattern.finditer(linecontent.strip())
+        for m in its:
             self.bug_accumulator.append(
                 BugInstance('DMI_RANDOM_USED_ONLY_ONCE', priorities.HIGH_PRIORITY, filename, lineno,
                             'Random object created and used only once')
@@ -45,8 +45,8 @@ class RandomD2IDetector(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        m = self.pattern.search(linecontent.strip())
-        if m:
+        its = self.pattern.finditer(linecontent.strip())
+        for m in its:
             obj = m.groups()[0].strip().lower()
             if obj == 'math' or obj == 'r' or 'rand' in obj:
                 self.bug_accumulator.append(
@@ -61,19 +61,26 @@ class StringCtorDetector(Detector):
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        m = self.pattern.search(linecontent.strip())
-        if m:
+        its = self.pattern.finditer(linecontent.strip())
+        for m in its:
             groups = m.groups()
             assert len(groups) == 2
+
+            p_type = None
+            description = None
+
             if not groups[1] or not groups[1].strip():
-                self.bug_accumulator.append(BugInstance('DM_STRING_VOID_CTOR', priorities.MEDIUM_PRIORITY,
-                                                        filename, lineno,
-                                                        'Method invokes inefficient new String() constructor'))
+                p_type = 'DM_STRING_VOID_CTOR'
+                description = 'Method invokes inefficient new String() constructor'
             else:
                 if groups[1].strip().startswith('"'):
-                    self.bug_accumulator.append(BugInstance('DM_STRING_CTOR', priorities.MEDIUM_PRIORITY,
-                                                            filename, lineno,
-                                                            'Method invokes inefficient new String(String) constructor'))
+                    p_type = 'DM_STRING_CTOR'
+                    description = 'Method invokes inefficient new String(String) constructor'
+
+            if p_type is not None:
+                self.bug_accumulator.append(BugInstance(p_type, priorities.MEDIUM_PRIORITY, filename, lineno,
+                                                        description))
+                return
 
 
 def str_to_float(num_str: str):
@@ -93,8 +100,8 @@ class InvalidMinMaxDetector(Detector):
         if not all(key in linecontent for key in ('Math', 'min', 'max')):
             return
 
-        m1 = self.pattern.search(linecontent)
-        if m1:
+        its = self.pattern.finditer(linecontent)
+        for m1 in its:
             g1 = m1.groups()
             outer_method = g1[0]
             arg_str_1 = self.whitespace.sub('', g1[-1])
@@ -109,9 +116,9 @@ class InvalidMinMaxDetector(Detector):
                     return
 
                 if m2.start() == 0:
-                    const_1 = str_to_float(arg_str_1[m2.end()+1:])
+                    const_1 = str_to_float(arg_str_1[m2.end() + 1:])
                 else:
-                    const_1 = str_to_float(arg_str_1[:m2.start()-1])
+                    const_1 = str_to_float(arg_str_1[:m2.start() - 1])
 
                 inner_args = arg_str_2.split(',')
                 if len(inner_args) != 2:
@@ -127,7 +134,7 @@ class InvalidMinMaxDetector(Detector):
                     if outer_method == 'min':  # Math.min(const_1, Math.max(const_2, variable))
                         upper_bound = const_1
                         lower_bound = const_2
-                    else:   # Math.max(const_1, Math.min(const_2, variable))
+                    else:  # Math.max(const_1, Math.min(const_2, variable))
                         upper_bound = const_2
                         lower_bound = const_1
 

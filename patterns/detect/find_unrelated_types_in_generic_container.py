@@ -15,9 +15,9 @@ class SuspiciousCollectionMethodDetector(Detector):
         if not any(method in linecontent for method in ['remove', 'contains', 'retain']):
             return
 
-        m = self.pattern.search(linecontent.strip())
+        its = self.pattern.finditer(linecontent.strip())
 
-        if m:
+        for m in its:
             g = m.groups()
             pattern_type, description, priority = None, None, None
             if g[-1] == 'removeAll':
