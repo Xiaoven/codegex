@@ -23,47 +23,47 @@ params = [
             if (y > y)
                 y = x - x;
             return x;
-        }''', 8, 3),
+        }''', 4, 3),
     # ---------------- SA_SELF_COMPARISON ----------------------
-    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
-     '''@NoWarning("SA_FIELD_SELF_COMPARISON")
-        public boolean test() {
-            boolean result = false;
-            result |= flags == (short) flags;
-            result |= flags == (char) flags;
-            result |= flags == (byte) flags;
-            return result;
-        }''', 0, 3),
-    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
-     '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
-        public boolean testTP() {
-            boolean result = false;
-            result |= flags == flags;
-            return result;
-        }''', 1, 4),
-    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
-     '''@ExpectWarning(value="SA_FIELD_SELF_COMPARISON", confidence = Confidence.LOW)
-    boolean volatileFalsePositive() {
-        return z == z;
-    }''', 1, 3),
-    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
-     '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
-        boolean e() {
-            return a.equals(a);
-        }''', 1, 3),
-    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
-     '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
-        int c() {
-            return a.compareTo(a);
-        }
-    ''', 1, 3),
+    # (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+    #  '''@NoWarning("SA_FIELD_SELF_COMPARISON")
+    #     public boolean test() {
+    #         boolean result = false;
+    #         result |= flags == (short) flags;
+    #         result |= flags == (char) flags;
+    #         result |= flags == (byte) flags;
+    #         return result;
+    #     }''', 0, 3),
+    # (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+    #  '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
+    #     public boolean testTP() {
+    #         boolean result = false;
+    #         result |= flags == flags;
+    #         return result;
+    #     }''', 1, 4),
+    # (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+    #  '''@ExpectWarning(value="SA_FIELD_SELF_COMPARISON", confidence = Confidence.LOW)
+    # boolean volatileFalsePositive() {
+    #     return z == z;
+    # }''', 1, 3),
+    # (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+    #  '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
+    #     boolean e() {
+    #         return a.equals(a);
+    #     }''', 1, 3),
+    # (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+    #  '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
+    #     int c() {
+    #         return a.compareTo(a);
+    #     }
+    # ''', 1, 3),
 ]
 
 
 @pytest.mark.parametrize('is_patch,pattern_type,file_name,patch_str,expected_length,line_no', params)
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
-    engine = DefaultEngine(included_filter=['CheckForSelfOperation'])
+    engine = DefaultEngine(included_filter=['CheckForSelfComputation'])
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

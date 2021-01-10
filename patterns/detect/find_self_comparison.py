@@ -5,7 +5,7 @@ from patterns.models.detectors import Detector
 import patterns.models.priorities as Priorities
 
 
-class CheckForSelfOperation(Detector):
+class CheckForSelfComputation(Detector):
     def __init__(self):
         self.pattern = regex.compile(r'(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*+)\s*([|^&-])\s*\1[^.\w$]')
         Detector.__init__(self)
