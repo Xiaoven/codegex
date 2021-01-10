@@ -562,4 +562,8 @@ spotbugs 只对 int 和 long 类型的变量发出该警报，但是我们没法
 2. 分别套用不同的正则表达式提取信息
 	- 大小比较符号可以用 SELF COMPUTATION 的正则
 	- 方法名用提取 object 和括号内容的正则
-3. 假如是方法名，object 名和括号内容是否相等，如否，试着分割括号内容提取参数，参考 DM_INVALID_MIN_MAX
+3. 假如是方法名，object 名和括号内容是否相等，如否，试着分割括号内容提取参数，参考 EQ_COMPARING_CLASS_NAMES
+
+由于我们无法判断 object 的类型，`DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES` 也会识别 "contains" 方法，然后发出 warning。
+也许可以通过 local search 来提高 `DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES` 的准确性？
+[对应 issue](https://github.com/Xiaoven/rbugs/issues/79)

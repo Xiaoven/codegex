@@ -46,17 +46,17 @@ params = [
     boolean volatileFalsePositive() {
         return z == z;
     }''', 1, 3),
-    # (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
-    #  '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
-    #     boolean e() {
-    #         return a.equals(a);
-    #     }''', 1, 3),
-    # (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
-    #  '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
-    #     int c() {
-    #         return a.compareTo(a);
-    #     }
-    # ''', 1, 3),
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+     '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
+        boolean e() {
+            return a.equals(a);
+        }''', 1, 3),
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+     '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
+        int c() {
+            return a.compareTo(a);
+        }
+    ''', 1, 3),
 ]
 
 
