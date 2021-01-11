@@ -60,26 +60,38 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     (False, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'BaseTestConsumer.java',
      '''public abstract class BaseTestConsumer<T, U extends BaseTestConsumer<T, U>> {''', 0, 1),
     # DIY
-    (False, 'NM_LCASE_HASHCODE', 'Main.java',
+    (False, 'NM_LCASE_HASHCODE', 'Main_01.java',
      '''public class Main {
             int hashcode(){
                 return 1;
             }
         }''', 1, 2),
     # DIY
-    (False, 'NM_LCASE_HASHCODE', 'Main.java',
+    (False, 'NM_LCASE_HASHCODE', 'Main_02.java',
      '''public class Main {
             public int hashcode(){
                 return 1;
             }
         }''', 1, 2),
     # DIY
-    (False, 'NM_LCASE_HASHCODE', 'Main.java',
+    (False, 'NM_LCASE_HASHCODE', 'Main_03.java',
      '''public class Main {
             protected int hashcode(){
                 return 1;
             }
-        }''', 1, 2)
+        }''', 1, 2),
+    (False, 'NM_LCASE_HASHCODE', 'Main_04.java',
+         '''public final int hashcode(){
+                    return 1;
+                }''', 1, 1),
+    (False, 'NM_LCASE_HASHCODE', 'Main_05.java',
+         '''public int hashcode(int i){
+                    return i;
+                }''', 0, 1),
+    (False, 'NM_LCASE_HASHCODE', 'Main_06.java',
+     '''    private int hashcode(){
+                return i;
+            }''', 0, 1),
 ]
 
 
@@ -87,7 +99,7 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine(included_filter=['SimpleNameDetector1', 'SimpleNameDetector2', 'SimpleNameDetector3'])
+    engine = DefaultEngine(included_filter=['SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector', 'HashCodeNameDetector'])
     engine.visit([patch])
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
