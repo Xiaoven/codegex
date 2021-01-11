@@ -12,7 +12,7 @@ from patterns.detect.naming import SimpleSuperclassNameDetector, SimpleInterface
     ToStringNameDetector
 from patterns.detect.dont_catch_illegal_monitor_state_exception import DontCatchIllegalMonitorStateException
 from patterns.detect.find_finalize_invocations import ExplicitInvDetector, PublicAccessDetector
-from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod
+from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod, DefPrivateMethod
 from patterns.detect.find_unrelated_types_in_generic_container import SuspiciousCollectionMethodDetector
 from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDetector, RandomD2IDetector, \
     StringCtorDetector, InvalidMinMaxDetector
@@ -47,4 +47,5 @@ DETECTOR_DICT = {
     'CheckForSelfComputation': CheckForSelfComputation,
     'CheckForSelfComparison': CheckForSelfComparison,
     'FindDeadLocalIncrementInReturn': FindDeadLocalIncrementInReturn,
+    "DefPrivateMethod": DefPrivateMethod,
 }

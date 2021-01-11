@@ -58,3 +58,88 @@ public static final Object readResolve() throws ObjectStreamException
 1. 我们无法获取 class 是否是 serializable，故将默认 priority 从 high 降为 normal，且假设程序员只在 serializable class 中重写 readResolve 方法
 
 2. 由于 `final` 和 `static` 出现顺序可变，故用提取 `((?:static|final|\s)*)` 后，对该字符串进行 split， 判断 static 是否在其中
+
+
+
+## Se: Method must be private in order for serialization to work
+简要描述：serialization: object -> byte stream 
+相关方法：
+private void writeObject(ObjectOutputStream oos) throws Exception
+private void readObject(ObjectInputStream ois) throws Exception
+这两个方法必须是private的, 否则会被 silently ignored by the serialization/deserialization API
+### Regex
+```regexp
+(private)?\s*void\s*(?:writeObject|readObject)\((?:ObjectOutputStream|ObjectInputStream)\s*(?:oos|ois)\s*\)\s*throws\s*Exception
+```
+### Examples
+```java
+public void writeObject(ObjectOutputStream oos) throws Exception
+public void readObject(ObjectInputStream ois) throws Exception
+private void readObject(ObjectInputStream ois) throws Exception
+private void writeObject(ObjectOutputStream oos) throws Exception
+```
+### Spotbugs 实现
+[link](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/SerializableIdiom.java#L486)
+
+```java
+        } else if ("readObject".equals(getMethodName()) && "(Ljava/io/ObjectInputStream;)V".equals(getMethodSig())
+                && isSerializable) {
+            sawReadObject = true;
+            if (!obj.isPrivate()) {
+                bugReporter.reportBug(new BugInstance(this, "SE_METHOD_MUST_BE_PRIVATE", isExternalizable ? NORMAL_PRIORITY : HIGH_PRIORITY)
+                        .addClassAndMethod(this));
+            }
+
+        } else if ("readObjectNoData".equals(getMethodName()) && "()V".equals(getMethodSig()) && isSerializable) {
+
+            if (!obj.isPrivate()) {
+                bugReporter.reportBug(new BugInstance(this, "SE_METHOD_MUST_BE_PRIVATE", isExternalizable ? NORMAL_PRIORITY : HIGH_PRIORITY)
+                        .addClassAndMethod(this));
+            }
+
+        } else if ("writeObject".equals(getMethodName()) && "(Ljava/io/ObjectOutputStream;)V".equals(getMethodSig())
+                && isSerializable) {
+            sawWriteObject = true;
+            if (!obj.isPrivate()) {
+                bugReporter.reportBug(new BugInstance(this, "SE_METHOD_MUST_BE_PRIVATE", isExternalizable ? NORMAL_PRIORITY : HIGH_PRIORITY)
+                        .addClassAndMethod(this));
+            }
+        }
+```
+
+涉及到的方法的官方定义
+```java
+ private void writeObject(java.io.ObjectOutputStream out) throws IOException  // throws Exception 也可以，否则会 build failed
+ private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException;
+ private void readObjectNoData() throws ObjectStreamException;
+```
+
+1. `isSerializable`
+2. `isExternalizable`
+
+```java
+// Does this class directly implement Serializable?
+    String[] interface_names = obj.getInterfaceNames();
+    for (String interface_name : interface_names) {
+        if ("java.io.Externalizable".equals(interface_name)) {
+            directlyImplementsExternalizable = true;
+            isExternalizable = true;
+        } else if ("java.io.Serializable".equals(interface_name)) {
+            implementsSerializableDirectly = true;
+            isSerializable = true;
+            break;}}
+
+    // Does this class indirectly implement Serializable?  这个我们做不到
+    if (!isSerializable) {
+        if (Subtypes2.instanceOf(obj, "java.io.Externalizable")) { isExternalizable = true; }
+        if (Subtypes2.instanceOf(obj, "java.io.Serializable")) { isSerializable = true; }}
+```
+
+
+### 实现思路
+1. 检查方法名是否为 `readObject`，返回值类型是否为 `void`，且参数列表是否只有一个 `ObjectInputStream` 类型的参数. 由于三个方法的参数类型都不一样，所以我们用正则提取方法名和参数列表的内容，再一一对应判断。
+2. TODO: 增加 local search 和 global search 来辅助判断该 class 是否直接实现了 Serializable 接口 (无法判断是否是间接实现)
+3. 检查是否是 private
+
+
+
