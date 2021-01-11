@@ -1,6 +1,5 @@
 import pytest
 
-from patterns.detect.find_finalize_invocations import *
 from rparser import parse
 from patterns.models.engine import DefaultEngine
 

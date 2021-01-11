@@ -610,5 +610,5 @@ propertySet.addProperty(DeadLocalStoreProperty.DEAD_INCREMENT_IN_RETURN);
 
 ### Regex
 ```regexp
-return\s+[\w$]+(?:\+\+|--)\s*;
+return\s+([\w$]+)(?:\+\+|--)\s*;
 ```
