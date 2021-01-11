@@ -99,8 +99,10 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
+
     engine = DefaultEngine(included_filter=['SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector', 'HashCodeNameDetector'])
     engine.visit([patch])
+    
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
         assert engine.bug_accumulator[0].line_no == line_no
