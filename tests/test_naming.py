@@ -80,6 +80,7 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
                 return 1;
             }
         }''', 1, 2),
+
     (False, 'NM_LCASE_HASHCODE', 'Main_04.java',
          '''public final int hashcode(){
                     return 1;
@@ -92,6 +93,30 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
      '''    private int hashcode(){
                 return i;
             }''', 0, 1),
+
+    # DIY
+    (False, 'NM_LCASE_TOSTRING', 'Main_07.java',
+     '''public class Main {
+            String tostring(){
+                return 1;
+            }
+        }''', 1, 2),
+    # DIY
+    (False, 'NM_LCASE_TOSTRING', 'Main_08.java',
+     '''public class Main {
+            public String tostring(){
+                return 1;
+            }
+        }''', 1, 2),
+    # DIY
+    (False, 'NM_LCASE_TOSTRING', 'Main_09.java',
+     '''public class Main {
+            protected String tostring(){
+                return 1;
+            }
+        }''', 1, 2),
+    (False, 'NM_LCASE_TOSTRING', 'Main_10.java',
+     '''     public static final String tostring(){''', 1, 1),
 ]
 
 
@@ -100,9 +125,10 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     patch = parse(patch_str, is_patch)
     patch.name = file_name
 
-    engine = DefaultEngine(included_filter=['SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector', 'HashCodeNameDetector'])
+    engine = DefaultEngine(included_filter=['SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector',
+                                            'HashCodeNameDetector', 'ToStringNameDetector'])
     engine.visit(patch)
-    
+
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
         assert engine.bug_accumulator[0].line_no == line_no
