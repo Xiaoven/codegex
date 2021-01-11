@@ -9,7 +9,7 @@ CLASS_EXTENDS_REGEX = regex.compile(r'class\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&
 INTERFACE_EXTENDS_REGEX = regex.compile(r'interface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)')
 
 
-class SimpleNameDetector1(Detector):
+class SimpleSuperclassNameDetector(Detector):
     def __init__(self):
         # class can extend only one superclass, but implements multiple interfaces
         # extends clause must occur before implements clause
@@ -35,7 +35,7 @@ class SimpleNameDetector1(Detector):
                     )
 
 
-class SimpleNameDetector2(Detector):
+class SimpleInterfaceNameDetector(Detector):
     def __init__(self):
         # Check interfaces implemented by a class
         self.pattern1 = regex.compile(
@@ -66,3 +66,36 @@ class SimpleNameDetector2(Detector):
                         BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', priorities.MEDIUM_PRIORITY, filename, lineno,
                                     "Class or interface names shouldn’t shadow simple name of implemented interface")
                     )
+
+
+class HashCodeNameDetector(Detector):
+    def __init__(self):
+        # Check hashcode method exists
+        self.pattern = regex.compile(r'^[\w\s]*?\bint\s+hashcode\s*\(\s*\)')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        strip_line = linecontent.strip()
+        if strip_line.startswith('private') or any(key not in linecontent for key in ('int', 'hashcode')):
+            return
+
+        m = self.pattern.match(strip_line)
+        if m:
+            self.bug_accumulator.append(BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY, filename, lineno,
+                            "Class defines hashcode(); should it be hashCode()?"))
+
+
+class ToStringNameDetector(Detector):
+    def __init__(self):
+        # Check hashcode method exists
+        self.pattern = regex.compile(r'^[\w\s]*?\bString\s+tostring\s*\(\s*\)')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        strip_line = linecontent.strip()
+        if strip_line.startswith('private') or any(key not in linecontent for key in ('String', 'tostring')):
+            return
+        m = self.pattern.search(strip_line)
+        if m:
+            self.bug_accumulator.append(BugInstance('NM_LCASE_TOSTRING', priorities.HIGH_PRIORITY, filename, lineno,
+                                                    "Class defines tostring(); should it be toString()"))

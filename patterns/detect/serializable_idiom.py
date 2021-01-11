@@ -73,33 +73,44 @@ class DefReadResolveMethod(Detector):
                 self.bug_accumulator.append(
                     BugInstance(pattern_name, priorities.MEDIUM_PRIORITY, filename, lineno, message))
 
-class DefMethodPrivate(Detector):
+
+class DefPrivateMethod(Detector):
     def __init__(self):
         self.pattern = re.compile(
-            r'(private)?\s*void\s*(?:writeObject|readObject)\((?:ObjectOutputStream|ObjectInputStream)\s*(?:oos|ois)\s*\)\s*throws\s*Exception')
+            r'void\s+(writeObject|readObject|readObjectNoData)\s*\(([\s\w.$]*)\)\s*throws\s+')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        if any(key not in linecontent for key in ('void', 'throws')) or all(
+                key not in linecontent for key in ('writeObject', 'readObject', 'readObjectNoData')):
+            return
 
-
-        m = self.pattern.search(linecontent.strip())
+        strip_line = linecontent.strip()
+        m = self.pattern.search(strip_line)
         if m:
             g = m.groups()
+            method_name = g[0]
+            param_str = g[1].strip()
 
-            pattern_name = None
-            message = None
+            # check method signature
+            if len(param_str) == 0:
+                if method_name != 'readObjectNoData':
+                    return
+            else:
+                param = param_str.split()[0]
+                if method_name == 'readObject':
+                    if not param.endswith('ObjectInputStream'):
+                        return
+                else:
+                    # method_name == 'writeObject'
+                    if not param.endswith('ObjectOutputStream'):
+                        return
 
-            if g[0] != 'private':
+            # TODO: local search and global search for "implements Serializable" and "implements Externalizable"
 
-                pattern_name = 'SE_METHOD_MUST_BE_PRIVATE'
-                message = 'Method must be private in order for serialization to work.'
-
-
-            if pattern_name:
-
+            # check bug pattern
+            if not strip_line.startswith('private'):
                 self.bug_accumulator.append(
-                    BugInstance(pattern_name, priorities.HIGH_PRIORITY, filename, lineno, message))
-
-
-
+                    BugInstance('SE_METHOD_MUST_BE_PRIVATE', priorities.MEDIUM_PRIORITY, filename, lineno,
+                                'Method must be private in order for serialization to work.'))
 

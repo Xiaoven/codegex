@@ -1,3 +1,5 @@
+from patterns.detect.find_dead_local_stores import FindDeadLocalIncrementInReturn
+from patterns.detect.find_self_comparison import CheckForSelfComputation, CheckForSelfComparison
 from patterns.detect.incompat_mask import IncompatMaskDetector
 from patterns.detect.inheritance_unsafe_get_resource import GetResourceDetector
 from patterns.detect.static_calendar_detector import StaticDateFormatDetector
@@ -6,10 +8,11 @@ from patterns.detect.overriding_equals_not_symmetrical import EqualsClassNameDet
 from patterns.detect.infinite_recursive_loop import CollectionAddItselfDetector
 from patterns.detect.find_rough_constants import FindRoughConstantsDetector
 from patterns.detect.find_ref_comparison import EqualityDetector, CallToNullDetector
-from patterns.detect.naming import SimpleNameDetector1, SimpleNameDetector2
+from patterns.detect.naming import SimpleSuperclassNameDetector, SimpleInterfaceNameDetector, HashCodeNameDetector, \
+    ToStringNameDetector
 from patterns.detect.dont_catch_illegal_monitor_state_exception import DontCatchIllegalMonitorStateException
 from patterns.detect.find_finalize_invocations import ExplicitInvDetector, PublicAccessDetector
-from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod, DefMethodPrivate
+from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod, DefPrivateMethod
 from patterns.detect.find_unrelated_types_in_generic_container import SuspiciousCollectionMethodDetector
 from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDetector, RandomD2IDetector, \
     StringCtorDetector, InvalidMinMaxDetector
@@ -25,8 +28,10 @@ DETECTOR_DICT = {
     "FindRoughConstantsDetector": FindRoughConstantsDetector,
     "EqualityDetector": EqualityDetector,
     "CallToNullDetector": CallToNullDetector,
-    "SimpleNameDetector1": SimpleNameDetector1,
-    "SimpleNameDetector2": SimpleNameDetector2,
+    "SimpleSuperclassNameDetector": SimpleSuperclassNameDetector,
+    "SimpleInterfaceNameDetector": SimpleInterfaceNameDetector,
+    "HashCodeNameDetector": HashCodeNameDetector,
+    "ToStringNameDetector": ToStringNameDetector,
     "DontCatchIllegalMonitorStateException": DontCatchIllegalMonitorStateException,
     "ExplicitInvDetector": ExplicitInvDetector,
     "PublicAccessDetector": PublicAccessDetector,
@@ -39,5 +44,8 @@ DETECTOR_DICT = {
     "StringCtorDetector": StringCtorDetector,
     "NewLineDetector": NewLineDetector,
     "InvalidMinMaxDetector":  InvalidMinMaxDetector,
-    "DefMethodPrivate": DefMethodPrivate
+    'CheckForSelfComputation': CheckForSelfComputation,
+    'CheckForSelfComparison': CheckForSelfComparison,
+    'FindDeadLocalIncrementInReturn': FindDeadLocalIncrementInReturn,
+    "DefPrivateMethod": DefPrivateMethod,
 }
