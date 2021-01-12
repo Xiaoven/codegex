@@ -2,6 +2,7 @@ from patterns.detect.find_dead_local_stores import FindDeadLocalIncrementInRetur
 from patterns.detect.find_self_comparison import CheckForSelfComputation, CheckForSelfComparison
 from patterns.detect.incompat_mask import IncompatMaskDetector
 from patterns.detect.inheritance_unsafe_get_resource import GetResourceDetector
+from patterns.detect.questionable_boolean_assignment import BooleanAssignmentDetector
 from patterns.detect.static_calendar_detector import StaticDateFormatDetector
 from patterns.detect.method_return_check import NotThrowDetector
 from patterns.detect.overriding_equals_not_symmetrical import EqualsClassNameDetector
@@ -49,4 +50,5 @@ DETECTOR_DICT = {
     'FindDeadLocalIncrementInReturn': FindDeadLocalIncrementInReturn,
     "DefPrivateMethod": DefPrivateMethod,
     'EqualNameDetector': EqualNameDetector,
+    'BooleanAssignmentDetector': BooleanAssignmentDetector,
 }
