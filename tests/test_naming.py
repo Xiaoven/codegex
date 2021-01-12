@@ -59,6 +59,7 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     # RxJava/src/main/java/io/reactivex/rxjava3/observers/BaseTestConsumer.java
     (False, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'BaseTestConsumer.java',
      '''public abstract class BaseTestConsumer<T, U extends BaseTestConsumer<T, U>> {''', 0, 1),
+    # ------------------------ NM_LCASE_HASHCODE ------------------------
     # DIY
     (False, 'NM_LCASE_HASHCODE', 'Main_01.java',
      '''public class Main {
@@ -93,7 +94,7 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
      '''    private int hashcode(){
                 return i;
             }''', 0, 1),
-
+    # ------------------------ NM_LCASE_TOSTRING ------------------------
     # DIY
     (False, 'NM_LCASE_TOSTRING', 'Main_07.java',
      '''public class Main {
@@ -117,6 +118,11 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
         }''', 1, 2),
     (False, 'NM_LCASE_TOSTRING', 'Main_10.java',
      '''     public static final String tostring(){''', 1, 1),
+    # ------------------------ NM_BAD_EQUAL ------------------------
+    (False, 'NM_BAD_EQUAL', 'Main_11.java', '''private boolean equal(Obejct o){''', 0, 1),
+    (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal(String s){''', 0, 1),
+    (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal( Object o ){''', 1, 1),
+    (False, 'NM_BAD_EQUAL', 'Main_12.java', '''static boolean equal(Object o )''', 1, 1),
 ]
 
 
@@ -126,7 +132,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     patch.name = file_name
 
     engine = DefaultEngine(included_filter=['SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector',
-                                            'HashCodeNameDetector', 'ToStringNameDetector'])
+                                            'HashCodeNameDetector', 'ToStringNameDetector', 'EqualNameDetector'])
     engine.visit(patch)
 
     if expected_length > 0:

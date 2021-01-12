@@ -98,4 +98,21 @@ class ToStringNameDetector(Detector):
         m = self.pattern.search(strip_line)
         if m:
             self.bug_accumulator.append(BugInstance('NM_LCASE_TOSTRING', priorities.HIGH_PRIORITY, filename, lineno,
-                                                    "Class defines tostring(); should it be toString()"))
+                                                    "Class defines tostring(); should it be toString()?"))
+
+
+class EqualNameDetector(Detector):
+    def __init__(self):
+        # Check hashcode method exists
+        self.pattern = regex.compile(r'^[\w\s]*?\bboolean\s+equal\s*\(\s*Object\s+[\w$]+\s*\)')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        strip_line = linecontent.strip()
+        if strip_line.startswith('private') or 'equals' in linecontent \
+                or any(key not in linecontent for key in ('boolean', 'equal')):
+            return
+        m = self.pattern.search(strip_line)
+        if m:
+            self.bug_accumulator.append(BugInstance('NM_BAD_EQUAL', priorities.HIGH_PRIORITY, filename, lineno,
+                                                    "Class defines equal(Object); should it be equals(Object)?"))
