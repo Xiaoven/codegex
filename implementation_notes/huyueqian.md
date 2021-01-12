@@ -97,6 +97,8 @@ SpotBugs 是通过 class name 是否以 “Exception” 或 “Error” 结尾�
 
 ### DMI: Vacuous call to collections (DMI_VACUOUS_SELF_COLLECTION_CALL)
 
+This call doesn't make sense. For any collection c, calling `c.containsAll(c)` should always be true, and `c.retainAll(c)` should have no effect.
+
 ##### Regex
 
 ```regexp
@@ -129,6 +131,35 @@ SpotBugs 是通过 class name 是否以 “Exception” 或 “Error” 结尾�
 ##### 实现思路
 
 [spotbugs 实现](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindUnrelatedTypesInGenericContainer.java#L512)
+
+
+```java
+if (objectVN.equals(argVN)) {
+    String bugPattern = "DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES";
+    int priority = HIGH_PRIORITY;
+    if ("removeAll".equals(invokedMethodName)) {
+        bugPattern = "DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION";
+        priority = NORMAL_PRIORITY;
+    } else if (invokedMethodName.endsWith("All")) {
+        bugPattern = "DMI_VACUOUS_SELF_COLLECTION_CALL";
+        priority = NORMAL_PRIORITY;
+    }
+    if (invokedMethodName.startsWith("contains")) {
+        InstructionHandle next = handle.getNext();
+        if (next != null) {
+            Instruction nextIns = next.getInstruction();
+            if (nextIns instanceof INVOKEDYNAMIC) {
+                continue;
+            }
+            if (nextIns instanceof InvokeInstruction) {
+                XMethod nextMethod = XFactory.createXMethod((InvokeInstruction) nextIns, cpg);
+                if ("assertFalse".equals(nextMethod.getName())) {
+                    continue;
+                }
+            }
+        }
+    }
+```
 
 spotbugs对于collection实例，先判断调用方法里的参数是否为实例本身，若是则再进一步判断方法类型以分类错误。用regex实现时，参照学姐的 DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION，暂时不判断是否为collection。可以先用named capture group捕获调用方法的collection，然后通过`/1`判断前后collection是否相同。通过查阅collection的所有方法发现，此pattern只需实现`c.containsAll(c)`和`c.retainAll(c)`。
 

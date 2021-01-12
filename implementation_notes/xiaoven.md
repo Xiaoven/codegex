@@ -636,3 +636,64 @@ if ("equal".equals(mName) && "(Ljava/lang/Object;)Z".equals(sig)) {
 ```regexp
 ^[\w\s]*?\bboolean\s+equal\s*\(\s*Object\s+[\w$]+\s*\)
 ```
+
+## QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT
+This method assigns a literal boolean value (true or false) to a boolean variable inside an **if** or **while** expression. Most probably this was supposed to be a boolean comparison using ==, not an assignment using =.
+
+这样的 variable 一定是布尔类型的。
+
+### Examples
+
+
+```java
+// https://github.com/TouK/sputnik-test/pull/3#discussion_r57453267
+    private static void incorrectAssignmentInIfCondition() {
+        boolean value = false;
+        if (value = false) {
+```
+
+下面这个issue的发起者认为它是 FN，我觉得不是，因为它看起来更像是把赋值顺便放在条件语句里做了，并不会影响最终结果。但如果是直接给 variable 赋值就错的很明显了，变成了恒真/假。
+
+```java
+// https://github.com/spotbugs/spotbugs/issues/1149
+if(b = inKnowledge(g.directGoals)) {
+
+if (scanning = b == true)
+
+if (received = (barrier != null)) {
+```
+
+```java
+    void tmp(boolean b){
+        boolean sum = false;
+        if (sum = b){	// 也不会产生 warning
+```
+
+### SpotBugs 实现思路
+[link](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/QuestionableBooleanAssignment.java#L90)
+
+没看懂
+```java
+switch (state) {
+	...
+	case SEEN_ISTORE:
+        if (seen == Const.IFEQ || seen == Const.IFNE) {
+            bug = new BugInstance(this, "QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT", HIGH_PRIORITY).addClassAndMethod(this)
+                    .addSourceLine(this);
+            state = SEEN_IF;
+        } else {
+            state = SEEN_NOTHING;
+        }
+        break;
+    ...
+```
+
+### 我的实现思路
+1. 提取 `if` 和 `while` 括号里的内容
+2. 判断是否有 `var = true` 或 `var = false`
+
+### Regex
+```regexp
+\b(?:if|while)\s*(?P<aux>\(((?:[^()]++|(?&aux))*)\))
+\b[\w$]+\s*=\s*(?:true|false)\b
+```
