@@ -612,3 +612,27 @@ propertySet.addProperty(DeadLocalStoreProperty.DEAD_INCREMENT_IN_RETURN);
 ```regexp
 return\s+([\w$]+)(?:\+\+|--)\s*;
 ```
+
+## NM_BAD_EQUAL
+
+### SpotBugs 实现思路
+```java
+if (obj.isAbstract()) {
+    return;
+}
+if (obj.isPrivate()) {
+    return;
+}
+        
+if ("equal".equals(mName) && "(Ljava/lang/Object;)Z".equals(sig)) {
+    bugReporter.reportBug(new BugInstance(this, "NM_BAD_EQUAL", HIGH_PRIORITY).addClassAndMethod(this)
+                    .lowerPriorityIfDeprecated());
+    return;
+}
+```
+
+### Regex
+
+```regexp
+^[\w\s]*?\bboolean\s+equal\s*\(\s*Object\s+[\w$]+\s*\)
+```
