@@ -714,9 +714,12 @@ void bug2(Date date) {
 }
 
 // spotbugs 没有检查两个参数的重载
-calenderInstance.set(Calendar.MONTH, Calendar.SEPTEMBER)
-calenderInstance.set(Calendar.MONTH, 12)
+calendarInstance.set(Calendar.MONTH, Calendar.SEPTEMBER)
+calendarInstance.set(Calendar.MONTH, 12)
 // spotbugs 只检查三个参数以上的重载
+cal.set(2021, 12, 10);
+
+Calendar c = new GregorianCalendar(2020, 12, 1);
 ```
 ### SpotBugs 实现思路
 [link](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindPuzzlers.java#L416)
