@@ -1,7 +1,9 @@
 from patterns.detect.find_dead_local_stores import FindDeadLocalIncrementInReturn
+from patterns.detect.find_puzzlers import BadMonthDetector
 from patterns.detect.find_self_comparison import CheckForSelfComputation, CheckForSelfComparison
 from patterns.detect.incompat_mask import IncompatMaskDetector
 from patterns.detect.inheritance_unsafe_get_resource import GetResourceDetector
+from patterns.detect.questionable_boolean_assignment import BooleanAssignmentDetector
 from patterns.detect.static_calendar_detector import StaticDateFormatDetector
 from patterns.detect.method_return_check import NotThrowDetector
 from patterns.detect.overriding_equals_not_symmetrical import EqualsClassNameDetector
@@ -9,7 +11,7 @@ from patterns.detect.infinite_recursive_loop import CollectionAddItselfDetector
 from patterns.detect.find_rough_constants import FindRoughConstantsDetector
 from patterns.detect.find_ref_comparison import EqualityDetector, CallToNullDetector
 from patterns.detect.naming import SimpleSuperclassNameDetector, SimpleInterfaceNameDetector, HashCodeNameDetector, \
-    ToStringNameDetector
+    ToStringNameDetector, EqualNameDetector
 from patterns.detect.dont_catch_illegal_monitor_state_exception import DontCatchIllegalMonitorStateException
 from patterns.detect.find_finalize_invocations import ExplicitInvDetector, PublicAccessDetector
 from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod, DefPrivateMethod
@@ -17,6 +19,7 @@ from patterns.detect.find_unrelated_types_in_generic_container import Suspicious
 from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDetector, RandomD2IDetector, \
     StringCtorDetector, InvalidMinMaxDetector
 from patterns.detect.format_string_checker import NewLineDetector
+from patterns.detect.find_float_equality import FloatEqualityDetector
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -48,4 +51,8 @@ DETECTOR_DICT = {
     'CheckForSelfComparison': CheckForSelfComparison,
     'FindDeadLocalIncrementInReturn': FindDeadLocalIncrementInReturn,
     "DefPrivateMethod": DefPrivateMethod,
+    'EqualNameDetector': EqualNameDetector,
+    'BooleanAssignmentDetector': BooleanAssignmentDetector,
+    'BadMonthDetector': BadMonthDetector,
+    'FloatEqualityDetector': FloatEqualityDetector
 }
