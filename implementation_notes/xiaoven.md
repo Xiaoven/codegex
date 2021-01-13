@@ -697,3 +697,65 @@ switch (state) {
 \b(?:if|while)\s*(?P<aux>\(((?:[^()]++|(?&aux))*)\))
 \b[\w$]+\s*=\s*(?:true|false)\b
 ```
+
+## DMI_BAD_MONTH
+
+### Examples
+```java
+// https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugsTestCases/src/java/bugPatterns/DMI_BAD_MONTH.java
+@ExpectWarning("DMI_BAD_MONTH")
+void bug(Date date) {
+    date.setMonth(12);
+}
+
+@DesireWarning("DMI_BAD_MONTH")  // 其实没有 warning
+void bug2(Date date) {
+    boolean b = date.getMonth() == 12;
+}
+
+// spotbugs 没有检查两个参数的重载
+calendarInstance.set(Calendar.MONTH, Calendar.SEPTEMBER)
+calendarInstance.set(Calendar.MONTH, 12)
+// spotbugs 只检查三个参数以上的重载
+cal.set(2021, 12, 10);
+
+Calendar c = new GregorianCalendar(2020, 12, 1);
+```
+### SpotBugs 实现思路
+[link](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindPuzzlers.java#L416)
+
+它检查了 4 个类的用法：
+
+1. "java/util/Date" 或 "java/sql/Date" 的 "setMonth" 方法，它的 signature 为 "(I)V"，即参数类型为 int 返回值类型为 void。
+    ```java
+        // java.util.Date (sql 的 Date 继承了 util 中的 Date)
+        * @param   month   the month value between 0-11.
+        * @see     java.util.Calendar
+        * @deprecated As of JDK version 1.1,
+        * replaced by <code>Calendar.set(Calendar.MONTH, int month)</code>.
+        */
+    ```
+2. "java/util/Calendar" 的  "set" 方法
+    - spotbugs 没有检查的重载 
+      - `public void set(int field, int value)`
+    - spotbugs 只检查三个参数以上的重载
+        - `public final void set(int year, int month, int date)`
+        - `public final void set(int year, int month, int date, int hourOfDay, int minute)`
+        - `public final void set(int year, int month, int date, int hourOfDay, int minute,
+          int second)`
+3. "java/util/GregorianCalendar" 的 constructor
+    - `GregorianCalendar(int year, int month, int dayOfMonth)`
+    - `GregorianCalendar(int year, int month, int dayOfMonth, int hourOfDay, int minute)`
+    - `GregorianCalendar(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second)`
+    
+上述 moth 的值范围为 0-11
+
+### 我的实现思路
+1. 对于 `Date` 类可以识别方法名 `setMonth`, 提取括号内的数字，判断是否合法
+2. 对于 `Calendar` 类，暂且先识别方法名 `set`, 提取 object 名字和参数内容
+   - 根据逗号分割参数内容，得到参数列表
+   - 如果长度为 2， 判断参数内容是否包含 `Calendar.MONTH`, 并提取数字并判断范围 (用正则)
+   - 如果长度大于等于 3，判断 object 名字小写是否包含 "calendar" 来辅助判断 object 的类型，提取第二个参数值判断范围
+3. 识别 `new GregorianCalendar(...)`, 提取参数列表，判断长度是否至少为 3；提取第二个参数值判断范围
+
+对于 `Calendar` 和 `GregorianCalendar`，最好当 linecontent 缺失后面的部分参数时也能 work
