@@ -1,43 +1,9 @@
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
 from patterns.models import priorities
+from utils import convert_str_to_int
 
 import regex
-
-
-def tohex(val, nbits):
-    # https://stackoverflow.com/questions/7822956/how-to-convert-negative-integer-value-to-hex-in-python
-    return hex((val + (1 << nbits)) % (1 << nbits))
-
-
-def convert_str_to_int(num_str: str):
-    num_str = num_str.strip()
-    try:
-        # Bitwise Complement (with all bits inversed): ~0b 1000 0000 0000 0000, i.e., 0b 0111 1111 1111 1111
-        bitwise_complement = False
-        if num_str.startswith('~'):
-            bitwise_complement = True
-            num_str = num_str.lstrip('~')
-        # In fact, the type of constant depends on the variable.
-        # For example, if the variable is long, then const will be convert to long even if it is int.
-        # Since cannot get the variable type, there may be some false positives.
-        is_long = False
-        if num_str.endswith(('L', 'l')):
-            num_str = num_str[:-1]
-            is_long = True
-        int_val = int(num_str, 0)
-        if bitwise_complement:
-            int_val = ~int_val
-
-        # Notice 'negative' hex numbers in Java are positive in Python
-        # Now, int_val can be a negative number in python, we need to map it back to hex number for Java
-        if int_val < 0:
-            hex_str = tohex(int_val, 64) if is_long else tohex(int_val, 32)
-            int_val = int(hex_str, 0)
-
-        return int_val
-    except ValueError:
-        return None
 
 
 class IncompatMaskDetector(Detector):

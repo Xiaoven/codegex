@@ -3,6 +3,7 @@ import re
 from patterns.models import priorities
 from patterns.models.bug_instance import BugInstance
 from patterns.models.detectors import Detector
+from utils import convert_str_to_int
 
 
 class BadMonthDetector(Detector):
@@ -48,3 +49,34 @@ class BadMonthDetector(Detector):
             if month < 0 or month > 11:
                 self.bug_accumulator.append(BugInstance('DMI_BAD_MONTH', priority, filename, lineno,
                                                         'Bad constant value for month.'))
+
+
+class ShiftAddPriorityDetector(Detector):
+    def __init__(self):
+        self.pattern = re.compile(r'\b[\w$]+\s*<<\s*([\w$]+)\s*[+-]\s*[\w$]+')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        if '<<' not in linecontent and '+' not in linecontent:
+            return
+
+        m = self.pattern.search(linecontent)
+        if m:
+            priority = priorities.LOW_PRIORITY
+            const = convert_str_to_int(m.groups()[0])
+
+            if const is not None:
+                # If (foo << 32 + var) encountered for ISHL (left shift for int), then((foo << 32) + var) is absolutely
+                # meaningless, but(foo << (32 + var)) can be meaningful for negative var values.
+                # The same for LSHL (left shift for long)
+                if const == 32 or const == 64:
+                    return
+
+                if const == 8:
+                    priority = priorities.MEDIUM_PRIORITY
+
+            self.bug_accumulator.append(BugInstance('BSHIFT_WRONG_ADD_PRIORITY', priority, filename, lineno,
+                                                    'Possible bad parsing of shift operation.'))
+
+
+
