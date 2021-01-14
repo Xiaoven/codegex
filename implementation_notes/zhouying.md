@@ -51,3 +51,26 @@ public static final String tostring(){
 1. 匹配方法名是否为tostring, Signature 是否为`()Ljava/lang/String;`
 2. 该方法访问修饰符不为`private`
 
+## FE: Doomed test for equality to NaN (FE_TEST_IF_EQUAL_TO_NOT_A_NUMBER)
+
+### Regex
+
+```regexp
+((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w."])++)\s*[!=]=\s*((?:(?&aux1)|[\w."])+)
+```
+
+refers to **ES: Comparison of String objects using == or != (ES_COMPARING_STRINGS_WITH_EQ)**
+
+### Example
+
+```java
+x == Double.NaN
+```
+
+[**SpotBugs 实现思路**](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindFloatEquality.java#L131)
+
+因为jdk1.8+编译器已经优化number comparison，即与Double.NaN(Float.NaN)比较都被编译成False，所以无需spotbugs检查出类似错误。
+
+1. 匹配'>', '<', '>=', '<=', '==', '!='
+2. 提取运算数
+3. 判断是否有且仅有一个运算数为Double.NaN(Float.NaN)，即两个运算数都为则不报该warning

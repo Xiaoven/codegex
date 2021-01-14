@@ -19,6 +19,7 @@ from patterns.detect.find_unrelated_types_in_generic_container import Suspicious
 from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDetector, RandomD2IDetector, \
     StringCtorDetector, InvalidMinMaxDetector
 from patterns.detect.format_string_checker import NewLineDetector
+from patterns.detect.find_float_equality import FloatEqualityDetector
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -54,4 +55,5 @@ DETECTOR_DICT = {
     'BooleanAssignmentDetector': BooleanAssignmentDetector,
     'BadMonthDetector': BadMonthDetector,
     'ShiftAddPriorityDetector': ShiftAddPriorityDetector,
+    'FloatEqualityDetector': FloatEqualityDetector,
 }
