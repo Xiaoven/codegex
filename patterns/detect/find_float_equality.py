@@ -19,8 +19,6 @@ class FloatEqualityDetector(Detector):
             for m in its:
                 op_1 = m.groups()[0]  # m.groups()[1] is the result of named pattern
                 op_2 = m.groups()[2]
-                if self.is_float(op_1) and self.is_float(op_2):
-                    return
                 if self.is_float(op_1) or self.is_float(op_2):
                     self.bug_accumulator.append(
                     BugInstance('FE_TEST_IF_EQUAL_TO_NOT_A_NUMBER', priorities.HIGH_PRIORITY,
