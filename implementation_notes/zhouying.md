@@ -74,3 +74,29 @@ x == Double.NaN
 1. 匹配'>', '<', '>=', '<=', '==', '!='
 2. 提取运算数
 3. 判断是否有且仅有一个运算数为Double.NaN(Float.NaN)，即两个运算数都为则不报该warning
+
+## BC: Impossible downcast of toArray() result (BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY)
+
+### Regex
+
+```regexp
+(?:(\(\s*\w+)(\[\])+\))\s*.*\.toArray\s*\(\s*\)
+Arrays\.asList\(.*\)\.toArray\(
+```
+
+### Example
+
+```java
+(String[]) c.toArray();
+(String[][])new LinkedList<String>().toArray();
+```
+
+### 实现思路
+
+[**SpotBugs实现思路**](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindBadCast2.java#L612)
+
+我的思路：
+
+1. 匹配'toArray('，如果匹配成功则进入步骤2
+2. 匹配'Arrays.asList('，如果匹配成功，判断是否满足例外条件（即第二行regex). 匹配上例外条件就返回，否则进入步骤3
+3. 匹配第一行regex， 如果匹配成功，报warning

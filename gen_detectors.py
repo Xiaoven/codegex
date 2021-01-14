@@ -20,6 +20,7 @@ from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDete
     StringCtorDetector, InvalidMinMaxDetector
 from patterns.detect.format_string_checker import NewLineDetector
 from patterns.detect.find_float_equality import FloatEqualityDetector
+from patterns.detect.find_bad_cast import FindBadCastDetector
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -54,5 +55,6 @@ DETECTOR_DICT = {
     'EqualNameDetector': EqualNameDetector,
     'BooleanAssignmentDetector': BooleanAssignmentDetector,
     'BadMonthDetector': BadMonthDetector,
-    'FloatEqualityDetector': FloatEqualityDetector
+    'FloatEqualityDetector': FloatEqualityDetector,
+    'FindBadCastDetector': FindBadCastDetector
 }
