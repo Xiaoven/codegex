@@ -56,7 +56,7 @@ public static final String tostring(){
 ### Regex
 
 ```regexp
-((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w."])++)\s*[!=]=\s*((?:(?&aux1)|[\w."])+)
+(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*)\s*[<>!=]+\s*(\b\w[\w.]*(?&aux1)*)
 ```
 
 refers to **ES: Comparison of String objects using == or != (ES_COMPARING_STRINGS_WITH_EQ)**
@@ -82,7 +82,8 @@ x == Double.NaN
 ### Regex
 
 ```regexp
-((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w])++)\s*=\s*((?:(?&aux1)|[\w\s+\-*\/])+)
+(?:(\b[\w+$]\s*))=(?:(\s*[\w\s+\-*\/]+))
+\+\+\s*{}|--\s*{}|{}\s*\+\+|{}\s*--
 ```
 
 refers to **FE: Doomed test for equality to NaN (FE_TEST_IF_EQUAL_TO_NOT_A_NUMBER)**

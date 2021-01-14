@@ -49,11 +49,12 @@ class BadMonthDetector(Detector):
                 self.bug_accumulator.append(BugInstance('DMI_BAD_MONTH', priority, filename, lineno,
                                                         'Bad constant value for month.'))
 
+
 class OverwrittenIncrementDetector(Detector):
     def __init__(self):
         # 提取'='左右操作数
         self.pattern = regex.compile(
-            r'((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w])++)\s*=\s*((?:(?&aux1)|[\w\s+\-*\/])+)'
+            r'(?:(\b[\w+$]\s*))=(?:(\s*[\w\s+\-*\/]+))'
         )
         Detector.__init__(self)
 
@@ -62,14 +63,14 @@ class OverwrittenIncrementDetector(Detector):
         if '=' in strip_line and any(op in strip_line for op in ('++', '--')):
             its = self.pattern.finditer(strip_line)
             for m in its:
-                op_1 = m.groups()[0]  # m.groups()[1] is the result of named pattern
-                op_2 = m.groups()[2]
+                op_1 = m.groups()[0].strip()  # m.groups()[1] is the result of named pattern
+                op_2 = m.groups()[1].strip()
                 # 四种可能的匹配 '++a', '--a', 'a++', 'a--'
-                pattern_inc = regex.compile(r'\+\+\s*{}|\-\-\s*{}|\s*{}\+\+|\s*{}\-\-'.format(op_1, op_1, op_1, op_1))
+                pattern_inc = regex.compile(r'\+\+\s*{}|--\s*{}|{}\s*\+\+|{}\s*--'.format(op_1, op_1, op_1, op_1))
                 if pattern_inc.search(op_2):
                     self.bug_accumulator.append(
-                    BugInstance('DLS_OVERWRITTEN_INCREMENT', priorities.HIGH_PRIORITY,
-                                        filename, lineno,
-                                        "DLS: Overwritten increment ")
-                            )
+                        BugInstance('DLS_OVERWRITTEN_INCREMENT', priorities.HIGH_PRIORITY,
+                                    filename, lineno,
+                                    "DLS: Overwritten increment")
+                    )
                     break
