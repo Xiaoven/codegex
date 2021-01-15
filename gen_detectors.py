@@ -20,6 +20,7 @@ from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDete
     StringCtorDetector, InvalidMinMaxDetector
 from patterns.detect.format_string_checker import NewLineDetector
 from patterns.detect.find_float_equality import FloatEqualityDetector
+from patterns.detect.find_puzzlers import OverwrittenIncrementDetector
 from patterns.detect.find_bad_cast import FindBadCastDetector
 
 DETECTOR_DICT = {
@@ -58,4 +59,5 @@ DETECTOR_DICT = {
     'ShiftAddPriorityDetector': ShiftAddPriorityDetector,
     'FloatEqualityDetector': FloatEqualityDetector,
     'FindBadCastDetector': FindBadCastDetector,
+    'OverwrittenIncrementDetector': OverwrittenIncrementDetector,
 }

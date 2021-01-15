@@ -42,6 +42,73 @@ params = [
     ('BSHIFT_WRONG_ADD_PRIORITY', 'Fake_10.java',
      '''long main(long foo, long var){
           return foo << 8L + var;''', 1, 2),
+    # ------------------------ DLS_OVERWRITTEN_INCREMENT ------------------------
+    # https://spotbugs.readthedocs.io/en/stable/bugDescriptions.html
+    ('DLS_OVERWRITTEN_INCREMENT', 'Main_01.java',
+     '''public class DLS_OVERWRITTEN_INCREMENT {
+    void test(){
+        int var = 5;
+        var = var++;
+    }
+}
+     ''', 1, 4),
+    # DIY
+    ('DLS_OVERWRITTEN_INCREMENT', 'Main_02.java',
+     '''public class DLS_OVERWRITTEN_INCREMENT {
+    void test(){
+        int a=5;
+        a = ++a;
+    }
+}
+     ''', 1, 4),
+    ('DLS_OVERWRITTEN_INCREMENT', 'Main_03.java',
+     '''public class DLS_OVERWRITTEN_INCREMENT {
+    void test(){
+        int a=5;
+        a=2 + ++a;
+    }
+}
+     ''', 1, 4),
+    ('DLS_OVERWRITTEN_INCREMENT', 'Main_04.java',
+     '''public class DLS_OVERWRITTEN_INCREMENT {
+    void test(){
+        int a=5;
+        a=++a - ++a;
+    }
+}
+     ''', 1, 4),
+    ('DLS_OVERWRITTEN_INCREMENT', 'Main_05.java',
+     '''public class DLS_OVERWRITTEN_INCREMENT {
+    void test(){
+        int a=5, b;
+        a=++b * ++a;
+    }
+}
+     ''', 1, 4),
+    ('DLS_OVERWRITTEN_INCREMENT', 'Main_06.java',
+     '''public class DLS_OVERWRITTEN_INCREMENT {
+    void test(){
+        int a=5;
+        a= a / ++a;
+    }
+}
+     ''', 1, 4),
+        ('DLS_OVERWRITTEN_INCREMENT', 'Main_06.java',
+     '''public class DLS_OVERWRITTEN_INCREMENT {
+    void test(){
+        int a=5;
+        a= a / --a;
+    }
+}
+     ''', 1, 4),
+    ('DLS_OVERWRITTEN_INCREMENT', 'Main_05.java',
+     '''public class DLS_OVERWRITTEN_INCREMENT {
+    void test(){
+        int a=5, b;
+        a=++b * --a;
+    }
+}
+     ''', 1, 4)
 ]
 
 
@@ -49,7 +116,7 @@ params = [
 def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, False)
     patch.name = file_name
-    engine = DefaultEngine(included_filter=('BadMonthDetector', 'ShiftAddPriorityDetector'))
+    engine = DefaultEngine(included_filter=('BadMonthDetector', 'ShiftAddPriorityDetector', 'OverwrittenIncrementDetector'))
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
