@@ -6,25 +6,24 @@ from patterns.models import priorities
 
 class FindBadCastDetector(Detector):
     def __init__(self):
-        self.pattern = regex.compile(r'\(\s*(?:(\w+))(\[\])+\)\s*.*\.toArray\s*\(\s*\)')
-        self.pattern_ex = regex.compile(r'Arrays\.asList\(.*\)\.toArray\(')
+        self.pattern = regex.compile(
+            r'\(\s*(\w+)\s*\[\s*\]\s*\)\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.$<>\s])+?)\s*\.\s*toArray\s*\(\s*\)')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        strip_line = linecontent.strip()
-        if 'toArray(' in strip_line:
-            if 'Arrays.asList(' in strip_line:
-                if self.pattern_ex.search(strip_line):
-                    return
-            if self.pattern.search(strip_line):
-                its = self.pattern.finditer(strip_line)
-                for m in its:
-                    type_name = m.groups()[0]
-                    print("*****", type_name)
-                    if type_name == 'Object':
-                        return
-                    self.bug_accumulator.append(
-                        BugInstance('BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY', priorities.HIGH_PRIORITY,
-                                    filename, lineno,
-                                    "BC: Impossible downcast of toArray() result")
-                    )
+        if 'toArray' not in linecontent:
+            return
+
+        its = self.pattern.finditer(linecontent)
+        for m in its:
+            g = m.groups()
+            type_name = g[0]
+            obj_name = g[1]
+
+            if g[0] != 'Object' and 'Arrays.asList' not in linecontent:
+                self.bug_accumulator.append(
+                    BugInstance('BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY', priorities.HIGH_PRIORITY,
+                                filename, lineno,
+                                "BC: Impossible downcast of toArray() result")
+                )
+

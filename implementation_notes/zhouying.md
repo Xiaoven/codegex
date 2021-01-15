@@ -80,8 +80,7 @@ x == Double.NaN
 ### Regex
 
 ```regexp
-(?:(\(\s*\w+)(\[\])+\))\s*.*\.toArray\s*\(\s*\)
-Arrays\.asList\(.*\)\.toArray\(
+\(\s*(\w+)\s*\[\s*\]\s*\)\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.$<>\s])+?)\s*\.\s*toArray\s*\(\s*\)
 ```
 
 ### Example
@@ -97,6 +96,5 @@ Arrays\.asList\(.*\)\.toArray\(
 
 我的思路：
 
-1. 匹配'toArray('，如果匹配成功则进入步骤2
-2. 匹配'Arrays.asList('，如果匹配成功，判断是否满足例外条件（即第二行regex). 匹配上例外条件就返回，否则进入步骤3
-3. 匹配第一行regex， 如果匹配成功，报warning
+1. 提取强制转换类型和 `.toArray` 前面的 object name
+2. 如果强制转换类型不为 `Object[]` 且 obejct name 不包含 `Arrays.asList`，则报 warning
