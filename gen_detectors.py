@@ -1,5 +1,5 @@
 from patterns.detect.find_dead_local_stores import FindDeadLocalIncrementInReturn
-from patterns.detect.find_puzzlers import BadMonthDetector
+from patterns.detect.find_puzzlers import BadMonthDetector, ShiftAddPriorityDetector
 from patterns.detect.find_self_comparison import CheckForSelfComputation, CheckForSelfComparison
 from patterns.detect.incompat_mask import IncompatMaskDetector
 from patterns.detect.inheritance_unsafe_get_resource import GetResourceDetector
@@ -21,6 +21,7 @@ from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDete
 from patterns.detect.format_string_checker import NewLineDetector
 from patterns.detect.find_float_equality import FloatEqualityDetector
 from patterns.detect.find_puzzlers import OverwrittenIncrementDetector
+from patterns.detect.find_bad_cast import FindBadCastDetector
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -55,6 +56,8 @@ DETECTOR_DICT = {
     'EqualNameDetector': EqualNameDetector,
     'BooleanAssignmentDetector': BooleanAssignmentDetector,
     'BadMonthDetector': BadMonthDetector,
+    'ShiftAddPriorityDetector': ShiftAddPriorityDetector,
     'FloatEqualityDetector': FloatEqualityDetector,
-    'OverwrittenIncrementDetector': OverwrittenIncrementDetector
+    'FindBadCastDetector': FindBadCastDetector,
+    'OverwrittenIncrementDetector': OverwrittenIncrementDetector，
 }

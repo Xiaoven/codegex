@@ -24,13 +24,31 @@ params = [
             cal.set(2021, 12, 10);''', 0, 1),
     ('DMI_BAD_MONTH', 'Fake_05.java',
      '''Calendar c = new GregorianCalendar(2020, 12, 1);''', 1, 1),
+    # --------------- BSHIFT_WRONG_ADD_PRIORITY -----------------
+    # DIY
+    ('BSHIFT_WRONG_ADD_PRIORITY', 'Fake_06.java',
+     '''int main(int foo, int var){
+          return rst = foo << 32 + var;
+        }''', 0, 2),
+    ('BSHIFT_WRONG_ADD_PRIORITY', 'Fake_07.java',
+     '''return foo << 16 + bar;''', 1, 1),
+    ('BSHIFT_WRONG_ADD_PRIORITY', 'Fake_08.java',
+     '''return foo << 8 + var;''', 1, 1),
+    ('BSHIFT_WRONG_ADD_PRIORITY', 'Fake_09.java',
+     '''return foo << 8 - var;''', 1, 1),
+    ('BSHIFT_WRONG_ADD_PRIORITY', 'Fake_10.java',
+     '''int constant = 16;
+        return foo << constant + var;''', 1, 2),
+    ('BSHIFT_WRONG_ADD_PRIORITY', 'Fake_10.java',
+     '''long main(long foo, long var){
+          return foo << 8L + var;''', 1, 2),
     # ------------------------ DLS_OVERWRITTEN_INCREMENT ------------------------
     # https://spotbugs.readthedocs.io/en/stable/bugDescriptions.html
     ('DLS_OVERWRITTEN_INCREMENT', 'Main_01.java',
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
-        int a=5;
-        a = a++;
+        int var = 5;
+        var = var++;
     }
 }
      ''', 1, 4),
@@ -98,7 +116,7 @@ params = [
 def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, False)
     patch.name = file_name
-    engine = DefaultEngine(included_filter=('BadMonthDetector', 'OverwrittenIncrementDetector'))
+    engine = DefaultEngine(included_filter=('BadMonthDetector', 'ShiftAddPriorityDetector', 'OverwrittenIncrementDetector'))
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
