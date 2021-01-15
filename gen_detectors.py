@@ -59,5 +59,5 @@ DETECTOR_DICT = {
     'ShiftAddPriorityDetector': ShiftAddPriorityDetector,
     'FloatEqualityDetector': FloatEqualityDetector,
     'FindBadCastDetector': FindBadCastDetector,
-    'OverwrittenIncrementDetector': OverwrittenIncrementDetector，
+    'OverwrittenIncrementDetector': OverwrittenIncrementDetector,
 }

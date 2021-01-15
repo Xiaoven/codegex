@@ -53,7 +53,7 @@ class BadMonthDetector(Detector):
                 
 class ShiftAddPriorityDetector(Detector):
     def __init__(self):
-        self.pattern = re.compile(r'\b[\w$]+\s*<<\s*([\w$]+)\s*[+-]\s*[\w$]+')
+        self.pattern = regex.compile(r'\b[\w$]+\s*<<\s*([\w$]+)\s*[+-]\s*[\w$]+')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
