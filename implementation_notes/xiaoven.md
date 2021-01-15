@@ -759,3 +759,79 @@ Calendar c = new GregorianCalendar(2020, 12, 1);
 3. 识别 `new GregorianCalendar(...)`, 提取参数列表，判断长度是否至少为 3；提取第二个参数值判断范围
 
 对于 `Calendar` 和 `GregorianCalendar`，最好当 linecontent 缺失后面的部分参数时也能 work
+
+
+## BSHIFT: Possible bad parsing of shift operation (BSHIFT_WRONG_ADD_PRIORITY)
+The code performs an operation like `(x << 8 + y)`. Although this might be correct, probably it was meant to perform `(x << 8) + y`, but shift operation has a lower precedence, so it's actually parsed as `x << (8 + y)`.
+
+### Examples
+```java
+// no warning
+int main(int foo, int var){
+  return rst = foo << 32 + var;
+}
+
+// 在实践中它没有报错，理论上应该会报错
+long main(long foo, long var){
+  return foo << 8L + var;
+
+
+// low
+return foo << 16 + bar;
+int rst = foo << 9 + var;
+
+int constant = 16;
+return foo << constant + var;
+
+// medium
+return foo << 8 + var;
+
+
+// spotbugs 不考虑减法的样子
+return foo << 8 - var;
+
+
+
+```
+
+### SpotBugs 实现思路
+[link](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindPuzzlers.java#L365)
+
+1. 如果看到 `Const.IADD` (int add) 且 `getNextOpcode()` 是 `Const.ISHL` 或 `Const.LSHL` (int/long shift left)
+
+2. 排除 `1 << (const + var)` 形式
+
+3. 如果 const 为 32 且是 `Const.ISHL`, 则 ((foo << 32) + var) 是无意义的，但是 (foo << (32 + var)) 再 var 为负数的情况下是有意义的。所以开发者是故意这么写的，此时不报warning。对 `Const.LSHL` 同理。故做如下判断
+
+```java
+if (c < 32 || (c < 64 && getNextOpcode() == Const.LSHL)) 
+```
+
+4. 根据 const 大小、加号类型还有是否在 `hashCode` 方法的 return 语句里调高 priority
+```java
+if (c == 8) {
+        priority--;
+}
+if (getPrevOpcode(1) == Const.IAND) {
+    priority--;
+}
+if (getMethodName().equals("hashCode") && getMethodSig().equals("()I")
+        && (getCode().getCode()[getNextPC() + 1] & 0xFF) == Const.IRETURN) {
+    // commonly observed error is hashCode body like "return foo << 16 + bar;"
+    priority = HIGH_PRIORITY;
+}
+```
+
+### 我的实现思路
+我们无法获取 int 或 long 的信息，无法判断 const = 32 时是否应该报 warning
+
+1. 用正则匹配，如果匹配得上，且 const 不为 32 或 64, 报 warning (至少 low priority)。例子 `foo << constant + var;`
+
+2. 提取 const 信息，尝试转为 int，如果小于 64 且不等于 32，进一步判断是否等于 8, 如果是，priority 为 medium
+
+
+### Regex
+```regexp
+\b[\w$]+\s*<<\s*([\w$]+)\s*[+-]\s*[\w$]+
+```
+
