@@ -54,7 +54,7 @@ class OverwrittenIncrementDetector(Detector):
     def __init__(self):
         # 提取'='左右操作数
         self.pattern = regex.compile(
-            r'(?:(\b[\w+$]\s*))=(?:(\s*[\w\s+\-*\/]+))'
+            r'(\b[\w+$]\s*)=(\s*[\w\s+\-*\/]+)'
         )
         Detector.__init__(self)
 
