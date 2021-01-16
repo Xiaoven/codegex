@@ -71,6 +71,18 @@ params = [
                     matchedTemplates.add(template);
                 }
             }''', 1, 1),
+    # FN: com/alibaba/fastjson/parser/deserializer/FieldDeserializer.java
+    ('ES_COMPARING_STRINGS_WITH_EQ', 'FieldDeserializer.java',
+     '''@@ -1,0 +1,0 @@
+     if (collection == Collections.emptySet()
+        || collection == Collections.emptyList()
+        || collectionClassName == "java.util.ImmutableCollections$ListN"
+        || collectionClassName == "java.util.ImmutableCollections$List12"
+        || collectionClassName.startsWith("java.util.Collections$Unmodifiable")) {
+    // skip
+    return;
+}''', 1, 1),
+
 ]
 
 
