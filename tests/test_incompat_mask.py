@@ -5,9 +5,9 @@ from rparser import parse
 from patterns.models.priorities import *
 
 params = [
-        # From other repository: https://github.com/albfan/jmeld/commit/bab5df4d96b511dd1e4be36fce3a2eab52c24c4e
-        (True, 'BIT_SIGNED_CHECK', "Fake.java",
-         '''@@ -51,7 +51,7 @@ public void hierarchyChanged(HierarchyEvent e)
+    # From other repository: https://github.com/albfan/jmeld/commit/bab5df4d96b511dd1e4be36fce3a2eab52c24c4e
+    (True, 'BIT_SIGNED_CHECK', "Fake.java",
+     '''@@ -51,7 +51,7 @@ public void hierarchyChanged(HierarchyEvent e)
              {
                JRootPane rootPane;
 
@@ -15,9 +15,9 @@ params = [
                {
                  rootPane = getRootPane();
                  if (rootPane == null)}''', 1, 54),
-        # From other repository: https://github.com/bndtools/bnd/commit/68c73f78ef7de5234714b350a7d0b8760f9eaf1a
-        (True, 'BIT_SIGNED_CHECK', "Fake.java",
-         '''@@ -222,7 +222,7 @@ public void resourceChanged(IResourceChangeEvent event) {
+    # From other repository: https://github.com/bndtools/bnd/commit/68c73f78ef7de5234714b350a7d0b8760f9eaf1a
+    (True, 'BIT_SIGNED_CHECK', "Fake.java",
+     '''@@ -222,7 +222,7 @@ public void resourceChanged(IResourceChangeEvent event) {
              if (delta == null)
                  return;
 
@@ -25,9 +25,9 @@ params = [
                  getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
                      public void run() {
                          loadProblems();''', 1, 225),
-        # DIY from https://github.com/SpigotMC/BungeeCord/blob/master/protocol/src/main/java/net/md_5/bungee/protocol/Varint21LengthFieldPrepender.java
-        (False, 'BIT_AND_ZZ', 'Varint21LengthFieldPrepender.java',
-         '''private static int varintSize(int paramInt){
+    # DIY from https://github.com/SpigotMC/BungeeCord/blob/master/protocol/src/main/java/net/md_5/bungee/protocol/Varint21LengthFieldPrepender.java
+    (False, 'BIT_AND_ZZ', 'Varint21LengthFieldPrepender.java',
+     '''private static int varintSize(int paramInt){
                 if ( ( paramInt & 0xFFFFFF80 ) == 0 ) { return 1;}
                 if ( ( paramInt & 0xFFFFC000 ) == 0 ) { return 2;}
                 if ( ( paramInt & 0x00000000 ) == 0 ) { return 3;}
@@ -35,7 +35,7 @@ params = [
                 return 5;
             }''', 1, 4),
 
-        (False, 'BIT_SIGNED_CHECK_HIGH_BIT', 'TMP.java', 'if ((x | 0x80000000) < 0)', 1, 1),
+    (False, 'BIT_SIGNED_CHECK_HIGH_BIT', 'TMP.java', 'if ((x | 0x80000000) < 0)', 1, 1),
 
     # from https://github.com/betterlife/betterlifepsi/issues/158
     (False, 'BIT_IOR', 'BitIOR1.java', 'if ((x | 0x1) == 0x0) {', 1, 1),
@@ -53,6 +53,9 @@ params = [
     # DIY two bug instances
     (False, 'BIT_IOR', 'BitAnd3.java', '''if (((e | 1) == 0)
                     || ((e & 2) == 4)) {''', 2, 1),
+    # fastjson/src/main/java/com/alibaba/fastjson/util/UTF8Decoder.java
+    (False, 'BIT_SIGNED_CHECK', 'UTF8Decoder.java',
+     'int uc = ((b1 & 0x07) << 18) | ((b2 & 0x3f) << 12) | ((b3 & 0x3f) << 06) | (b4 & 0x3f);', 0, 1),
 ]
 
 
