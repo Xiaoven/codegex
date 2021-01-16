@@ -840,7 +840,7 @@ if (getMethodName().equals("hashCode") && getMethodSig().equals("()I")
 
 A String function is being invoked and "." or "|" is being passed to a parameter that takes a regular expression as an argument. Is this what you intended? 
 
-### Eexamples
+### Examples
 
 - `s.replaceAll(".", "/")` will return a String in which every character has been replaced by a '/' character
 - `s.split(".")` always returns a zero length array of String
@@ -927,3 +927,50 @@ if (ignorePasswordMasking && dotIsUsed) {
 ```regexp
 \.\s*(replaceAll|replaceFirst|split|matches)\s*\(\s*"([.|])\s*"\s*,?([^)]*)
 ```
+
+## RE: File.separator used for regular expression (RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION)
+The code here uses `File.separator` where a regular expression is required. This will fail on Windows platforms, where 
+the `File.separator` is a backslash, which is interpreted in a regular expression as an escape character. 
+
+Among other options, you can just use `File.separatorChar=='\\' ? "\\\\" : File.separator` instead of `File.separator`.
+
+### Examples
+```java
+// https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugsTestCases/src/java/bugPatterns/RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION.java#L9
+any1.replaceAll(File.separator, any2);
+Pattern.compile(File.separator, Pattern.DOTALL);
+Pattern.compile(File.separator, Pattern.CASE_INSENSITIVE);
+```
+
+### Spotbugs' Implementation
+[link](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/BadSyntaxForRegularExpression.java#L89)
+
+#### 检查的方法
+- `java/util/regex/Pattern`
+    - `static Pattern	compile(String regex, int flags)`
+    - `static Pattern	compile(String regex)`
+    - `static boolean	matches(String regex, CharSequence input)`
+- `java/lang/String`
+    - `String replaceAll(String regex, String replacement)`
+    - `String replaceFirst(String regex, String replacement)`
+    - `String[]	split(String regex)`
+    - `String[]	split(String regex, int limit)`
+    - `boolean	matches(String regex)`
+    
+#### 判断条件
+```java
+OpcodeStack.Item it = stack.getStackItem(stackDepth);
+if (it.getSpecialKind() == OpcodeStack.Item.FILE_SEPARATOR_STRING && (flags & Pattern.LITERAL) == 0) {
+    bugReporter.reportBug(new BugInstance(this, "RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION", HIGH_PRIORITY)
+            .addClassAndMethod(this).addCalledMethod(this).addSourceLine(this));
+    return;
+}
+```
+
+> - `Pattern.DOTALL` Enables dotall mode. In dotall mode, the expression `.` matches any character, including a line terminator. By default this expression does not match line terminators. Dotall mode can also be enabled via the embedded flag expression `(?s)`. (The s is a mnemonic for "single-line" mode, which is what this is called in Perl.) 
+> - `Pattern.LITERAL` Enables literal parsing of the pattern. When this flag is specified then the input string that specifies the pattern is treated as a sequence of literal characters. Metacharacters or escape sequences in the input sequence will be given no special meaning. The flags CASE_INSENSITIVE and UNICODE_CASE retain their impact on matching when used in conjunction with this flag. The other flags become superfluous. There is no embedded flag character for enabling literal parsing.
+
+判断条件为第一个参数为 `File.separator`，且第二个参数不包含 `Pattern.LITERAL`， 它会使输入序列中的元字符或转义序列将没有特殊含义。
+只有 `static Pattern	compile(String regex, int flags)` 需要判断 `Pattern.LITERAL`.
+
+### 

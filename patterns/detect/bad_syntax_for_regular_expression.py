@@ -15,7 +15,6 @@ class SingleDotPatternDetector(Detector):
                 and any(key in linecontent for key in ('"."', '"|"')):
             m = self.pattern.search(linecontent)
             if m:
-
                 g = m.groups()
                 method_name = g[0]
                 arg_1 = g[1]
@@ -38,3 +37,35 @@ class SingleDotPatternDetector(Detector):
 
                 self.bug_accumulator.append(BugInstance('RE_POSSIBLE_UNINTENDED_PATTERN', priority, filename, lineno,
                                                         '“.” or “|” used for regular expressions'))
+
+
+class FileSeparatorAsRegexpDetector(Detector):
+    def __init__(self):
+        self.pattern = regex.compile(
+            r'(\bPattern)?\.\s*(replaceAll|replaceFirst|split|matches|compile)\s*\(\s*File\.separator\s*,?([^)]*)')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        if 'File.separator' in linecontent and any(
+                method in linecontent for method in ('replaceAll', 'replaceFirst', 'split', 'matches', 'compile')):
+            m = self.pattern.search(linecontent)
+            if m:
+                g = m.groups()
+                class_name = g[0]
+                method_name = g[1]
+                arg_2 = g[2].strip()
+
+                # Check number of parameter.
+                if ',' in arg_2 and not (arg_2.startswith('"') and arg_2.endswith('"')):
+                    return
+
+                if method_name == 'compile' and (class_name != 'Pattern' or 'Pattern.LITERAL' in arg_2):
+                    return
+
+                priority = priorities.HIGH_PRIORITY
+                if method_name == 'matches' and not arg_2:  # Observe from spotbugs' test cases
+                    priority = priorities.LOW_PRIORITY
+
+                self.bug_accumulator.append(
+                    BugInstance('RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', priority, filename, lineno,
+                                'File.separator used for regular expression'))
