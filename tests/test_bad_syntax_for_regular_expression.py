@@ -36,6 +36,36 @@ params = [
      '''return any.matches("|");''', 1, 1, HIGH_PRIORITY),
     (False, 'RE_POSSIBLE_UNINTENDED_PATTERN', 'DIY_02.java',
      '''return customized.replaceAll("|", any2, arg3);''', 0, 1, None),
+
+    # ------------------------ RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION ------------------------
+    # https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugsTestCases/src/java/bugPatterns/RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION.java#L9
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION_01.java',
+     '''void bug1(String any1, String any2) {
+            any1.replaceAll(File.separator, any2);
+        }''', 1, 2, HIGH_PRIORITY),
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION_02.java',
+     '''void bug2(String any1, String any2) {
+            any1.replaceFirst(File.separator, any2);
+        }''', 1, 2, HIGH_PRIORITY),
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION_03.java',
+     'any1.split(File.separator);', 1, 1, HIGH_PRIORITY),
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION_04.java',
+     'any1.matches(File.separator);', 1, 1, LOW_PRIORITY),
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION_05.java',
+     'Pattern.compile(File.separator);', 1, 1, HIGH_PRIORITY),
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION_06.java',
+     'Pattern.compile(File.separator, Pattern.CASE_INSENSITIVE);', 1, 1, HIGH_PRIORITY),
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION_07.java',
+     'Pattern.compile(File.separator, Pattern.LITERAL);', 0, 1, None),
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION_08.java',
+     'Pattern.compile(File.separator, Pattern.DOTALL);', 1, 1, HIGH_PRIORITY),
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION_09.java',
+     'Pattern.compile(File.separator, Pattern.LITERAL | Pattern.CASE_INSENSITIVE);', 0, 1, None),
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION_10.java',
+     'Pattern.compile(File.separator, Pattern.DOTALL | Pattern.LITERAL);', 0, 1, None),
+    # DIY
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'DIY_03.java',
+     '''Pattern.matches(File.separator, "hh");''', 1, 1, HIGH_PRIORITY),
 ]
 
 
@@ -44,7 +74,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
          line_no: int, expected_priority: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine(included_filter=('SingleDotPatternDetector',))
+    engine = DefaultEngine(included_filter=('SingleDotPatternDetector', 'FileSeparatorAsRegexpDetector'))
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
