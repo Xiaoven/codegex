@@ -123,6 +123,8 @@ def _check_statement_end(line: str):
     if (not strip_line) or re_stmt_end.search(strip_line) or re_annotation.match(strip_line) \
             or strip_line.endswith('*/') or strip_line.startswith('//'):
         return True
+    if strip_line.startswith('case ') and strip_line.endswith(':'):
+        return True
     return False
 
 

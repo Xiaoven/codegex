@@ -7,7 +7,7 @@ from patterns.models import priorities
 
 def is_str_with_quotes(s: str):
     s = s.strip()
-    if s.startswith('"') and s.endswith('"'):
+    if len(s) > 1 and s.startswith('"') and s.endswith('"'):
         return True
     return False
 
@@ -15,7 +15,7 @@ def is_str_with_quotes(s: str):
 class EqualityDetector(Detector):
     def __init__(self):
         self.p = regex.compile(
-            r'((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w."])++)\s*[!=]=\s*((?:(?&aux1)|[\w."])+)')
+            r'((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.$"])++)\s*[!=]=\s*((?:(?&aux1)|[\w.$"])+)')
         self.bool_objs = ('Boolean.TRUE', 'Boolean.FALSE')
         Detector.__init__(self)
 

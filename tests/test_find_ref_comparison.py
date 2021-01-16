@@ -71,6 +71,22 @@ params = [
                     matchedTemplates.add(template);
                 }
             }''', 1, 1),
+    # FN: com/alibaba/fastjson/parser/deserializer/FieldDeserializer.java
+    ('ES_COMPARING_STRINGS_WITH_EQ', 'FieldDeserializer.java',
+     '''@@ -1,0 +1,0 @@
+     if (collection == Collections.emptySet()
+        || collection == Collections.emptyList()
+        || collectionClassName == "java.util.ImmutableCollections$ListN"
+        || collectionClassName == "java.util.ImmutableCollections$List12"
+        || collectionClassName.startsWith("java.util.Collections$Unmodifiable")) {
+    // skip
+    return;
+}''', 1, 1),
+    # FP: nanohttpd/websocket/src/test/java/org/nanohttpd/junit/protocols/websockets/WebSocketResponseHandlerTest.java
+    ('ES_COMPARING_STRINGS_WITH_EQ', 'WebSocketResponseHandlerTest.java',
+     '''@@ -1,0 +1,0 @@
+     this.headers.put("sec-websocket-key", "x3JJHMbDL1EzLkh9GBhXDw==");''', 0, 1),
+
 ]
 
 

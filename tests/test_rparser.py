@@ -58,7 +58,7 @@ params = [
     (True,
      '''@@ -2,0 +2,0 @@ @Override
     public void onReceive(final Context context, Intent intent) {
--       /*  
+-       /*
         dbhelper = new DatabaseHandler(context, "RG", null, 1);
         mURL = dbhelper.Obt_url();
         if (mURL == ""){
@@ -122,6 +122,16 @@ params = [
            */
 
             WebView gv = new WebView(context);''', 1),
+    # switch case
+    (False, '''switch (c) {
+        case 'a':
+        case 'A':
+            if (csName == "ASCII" || equalEncodings(csName, "ASCII")) {
+                return CS_US_ASCII;
+            }
+            break;
+
+        case 'c':''', 8)
     ]
 
 
