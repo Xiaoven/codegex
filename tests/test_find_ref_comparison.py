@@ -82,6 +82,10 @@ params = [
     // skip
     return;
 }''', 1, 1),
+    # FP: nanohttpd/websocket/src/test/java/org/nanohttpd/junit/protocols/websockets/WebSocketResponseHandlerTest.java
+    ('ES_COMPARING_STRINGS_WITH_EQ', 'WebSocketResponseHandlerTest.java',
+     '''@@ -1,0 +1,0 @@
+     this.headers.put("sec-websocket-key", "x3JJHMbDL1EzLkh9GBhXDw==");''', 0, 1),
 
 ]
 

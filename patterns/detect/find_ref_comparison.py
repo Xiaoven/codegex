@@ -7,7 +7,7 @@ from patterns.models import priorities
 
 def is_str_with_quotes(s: str):
     s = s.strip()
-    if s.startswith('"') and s.endswith('"'):
+    if len(s) > 1 and s.startswith('"') and s.endswith('"'):
         return True
     return False
 
