@@ -835,3 +835,95 @@ if (getMethodName().equals("hashCode") && getMethodSig().equals("()I")
 \b[\w$]+\s*<<\s*([\w$]+)\s*[+-]\s*[\w$]+
 ```
 
+
+## RE: “.” or “|” used for regular expression (RE_POSSIBLE_UNINTENDED_PATTERN)
+
+A String function is being invoked and "." or "|" is being passed to a parameter that takes a regular expression as an argument. Is this what you intended? 
+
+### Eexamples
+
+- `s.replaceAll(".", "/")` will return a String in which every character has been replaced by a '/' character
+- `s.split(".")` always returns a zero length array of String
+- `"ab|cd".replaceAll("|", "/")` will return "/a/b/|/c/d/"
+- `"ab|cd".split("|")` will return array with six (!) elements: [, a, b, |, c, d]
+
+### SpotBugs 实现思路
+[link](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/BadSyntaxForRegularExpression.java#L75)
+
+```java
+} else if (seen == Const.INVOKEVIRTUAL && "java/lang/String".equals(getClassConstantOperand())
+                && "replaceAll".equals(getNameConstantOperand())) {
+            sawRegExPattern(1);
+            singleDotPatternWouldBeSilly(1, true);
+        } else if (seen == Const.INVOKEVIRTUAL && "java/lang/String".equals(getClassConstantOperand())
+                && "replaceFirst".equals(getNameConstantOperand())) {
+            sawRegExPattern(1);
+            singleDotPatternWouldBeSilly(1, false);
+        } else if (seen == Const.INVOKEVIRTUAL && "java/lang/String".equals(getClassConstantOperand())
+                && "matches".equals(getNameConstantOperand())) {
+            sawRegExPattern(0);
+            singleDotPatternWouldBeSilly(0, false);
+        } else if (seen == Const.INVOKEVIRTUAL && "java/lang/String".equals(getClassConstantOperand())
+                && "split".equals(getNameConstantOperand())) {
+            sawRegExPattern(0);
+            singleDotPatternWouldBeSilly(0, false);
+        }
+```
+
+ 
+ 它检查 `String` 类的以下四个方法:
+
+- `String replaceAll(String regex, String replacement)`
+- `String replaceFirst(String regex, String replacement)`
+- `String[]	split(String regex)`
+	- `String[]	split(String regex, int limit)`
+- `boolean	matches(String regex)`
+
+前两个方法要检查两个参数，后两个方法只检查第一个参数。只有 `replaceAll` 的 ignorePasswordMasking 为 true
+
+```java
+// singleDotPatternWouldBeSilly
+// 获取第一个参数，判断是否等于 "." 或 "|"
+Object value = it.getConstant();
+if (!(value instanceof String)) {
+    return;
+}
+String regex = (String) value;
+boolean dotIsUsed = ".".equals(regex);
+if (!dotIsUsed && !"|".equals(regex)) {
+    return;
+}
+// 如果包含已经可以报 warning 了
+int priority = HIGH_PRIORITY;
+// 现在 对replaceAll 做 ignorePasswordMasking
+if (ignorePasswordMasking && dotIsUsed) {
+    priority = NORMAL_PRIORITY;
+    OpcodeStack.Item top = stack.getStackItem(0);  // 获取第二个参数
+    Object topValue = top.getConstant();
+    if (topValue instanceof String) {
+        String replacementString = (String) topValue;
+        // 如果第二个参数是以下的值，很可能是在做加密操作，没必要报 warning
+        if ("x".equals(replacementString.toLowerCase()) || "-".equals(replacementString) || "*".equals(replacementString)
+                || " ".equals(replacementString) || "\\*".equals(replacementString)) {
+            return;
+        }
+        // 否则，如果满足以下条件，有问题的可能新也比较低
+        if (replacementString.length() == 1 && getMethodName().toLowerCase().indexOf("pass") >= 0) {
+            priority = LOW_PRIORITY;
+        }
+    }
+}
+
+```
+
+### 我的实现思路
+
+1. 匹配上述四种方法并提取参数
+2. 按照上述流程判断
+
+但是我无法获取它所在的方法名，判断不了方法名是否包含 "pass", 只能省去这个条件
+
+### Regex
+```regexp
+\.\s*(replaceAll|replaceFirst|split|matches)\s*\(\s*"([.|])\s*"\s*,?([^)]*)
+```
