@@ -922,3 +922,8 @@ if (ignorePasswordMasking && dotIsUsed) {
 2. 按照上述流程判断
 
 但是我无法获取它所在的方法名，判断不了方法名是否包含 "pass", 只能省去这个条件
+
+### Regex
+```regexp
+\.\s*(replaceAll|replaceFirst|split|matches)\s*\(\s*"([.|])\s*"\s*,?([^)]*)
+```

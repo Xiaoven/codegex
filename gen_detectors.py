@@ -1,3 +1,4 @@
+from patterns.detect.bad_syntax_for_regular_expression import SingleDotPatternDetector
 from patterns.detect.find_dead_local_stores import FindDeadLocalIncrementInReturn
 from patterns.detect.find_puzzlers import BadMonthDetector, ShiftAddPriorityDetector
 from patterns.detect.find_self_comparison import CheckForSelfComputation, CheckForSelfComparison
@@ -60,4 +61,5 @@ DETECTOR_DICT = {
     'FloatEqualityDetector': FloatEqualityDetector,
     'FindBadCastDetector': FindBadCastDetector,
     'OverwrittenIncrementDetector': OverwrittenIncrementDetector,
+    'SingleDotPatternDetector': SingleDotPatternDetector,
 }
