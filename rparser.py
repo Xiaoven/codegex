@@ -227,6 +227,11 @@ def _parse_hunk(stream, hunk=None):
                     _add_virtual_statement_to_hunk(del_statement, hunk, '-')
                 # new a del_statement for the multiline comment
                 del_statement = VirtualStatement(line_obj)
+                # fix: "- /** This is a comment */"
+                if _check_multiline_comment_end(line_obj.content):
+                    _finish_vt_statement(line_obj, del_statement, hunk, '-')
+                    del_statement = None
+                    del_multi_comment = False
                 # then goto reset common_statement
             elif del_multi_comment:
                 if _check_multiline_comment_end(line_obj.content):
@@ -264,6 +269,8 @@ def _parse_hunk(stream, hunk=None):
                         del_statement.append_sub_line(line_obj)
                     else:
                         del_statement = VirtualStatement(line_obj)
+                else:
+                    del_statement.append_sub_line(line_obj)
         # -------------------------- Add line -----------------------------
         elif line.startswith("+"):
             cnt_dict['linestgt'] += 1
@@ -279,6 +286,11 @@ def _parse_hunk(stream, hunk=None):
                     _add_virtual_statement_to_hunk(add_statement, hunk, '+')
                 # new a add_statement for the multiline comment
                 add_statement = VirtualStatement(line_obj)
+                # fix: "+ /** This is a comment */"
+                if _check_multiline_comment_end(line_obj.content):
+                    _finish_vt_statement(line_obj, add_statement, hunk, '+')
+                    add_statement = None
+                    add_multi_comment = False
                 # then goto reset common_statement
             elif add_multi_comment:
                 if _check_multiline_comment_end(line_obj.content):
@@ -316,6 +328,8 @@ def _parse_hunk(stream, hunk=None):
                         add_statement.append_sub_line(line_obj)
                     else:
                         add_statement = VirtualStatement(line_obj)
+                else:
+                    add_statement.append_sub_line(line_obj)
         # -------------------------- common line -----------------------------
         else:
             cnt_dict['linessrc'] += 1
@@ -330,11 +344,17 @@ def _parse_hunk(stream, hunk=None):
                     _finish_vt_statement(line_obj, common_statement, hunk)
                 common_statement = VirtualStatement(line_obj)
 
+                # fix: "/** This is a comment */"
+                if _check_multiline_comment_end(line_obj.content):
+                    _finish_vt_statement(line_obj, common_statement, hunk)
+                    common_statement = None
+                    add_multi_comment, del_multi_comment = False, False
+
                 if del_statement:
                     _finish_vt_statement(line_obj, del_statement, hunk, '-')
                     del_statement = None
                 if add_statement:
-                    _finish_vt_statement(line_obj, del_statement, hunk, '+')
+                    _finish_vt_statement(line_obj, add_statement, hunk, '+')
                     add_statement = None
 
             elif add_multi_comment and del_multi_comment:
@@ -445,8 +465,10 @@ def _parse_hunk(stream, hunk=None):
                 if add_statement:
                     add_statement.append_sub_line(line_obj)
         # -------------------------- Reset Common_Statement -----------------------------
-        if incomplete_common_statement[0] and incomplete_common_statement[1]:
+        if common_statement and incomplete_common_statement[0] and incomplete_common_statement[1]:
             common_statement = None
+            incomplete_common_statement[0], incomplete_common_statement[1] = False, False
+        elif not common_statement and (incomplete_common_statement[0] or incomplete_common_statement[1]):
             incomplete_common_statement[0], incomplete_common_statement[1] = False, False
 
     if common_statement:
@@ -461,7 +483,7 @@ def _parse_hunk(stream, hunk=None):
     return hunk
 
 
-re_hunk_start = re.compile(r'^@@ -(\d+),?(\d+)? \+(\d+),?(\d+)? @@[^\n]*\n')
+re_hunk_start = re.compile(r'@@ -(\d+),?(\d+)? \+(\d+),?(\d+)? @@[^\n]*\n')
 
 
 def parse(stream, is_patch=True):

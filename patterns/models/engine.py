@@ -38,7 +38,8 @@ class BaseEngine:
             from patterns.detect.naming import GENERIC_REGEX, CLASS_EXTENDS_REGEX, INTERFACE_EXTENDS_REGEX
 
         visible_name_in_cur_scope = dir()
-        assert all(regexp in visible_name_in_cur_scope for regexp in ('GENERIC_REGEX', 'CLASS_EXTENDS_REGEX', 'INTERFACE_EXTENDS_REGEX'))
+        assert all(regexp in visible_name_in_cur_scope for regexp in
+                   ('GENERIC_REGEX', 'CLASS_EXTENDS_REGEX', 'INTERFACE_EXTENDS_REGEX'))
 
         self.extends_dict = dict()
         for patch in patch_set:
@@ -110,10 +111,6 @@ class BaseEngine:
 
         return tuple(bug for bug in self.bug_accumulator if bug.priority <= bound)
 
-
-
-
-
     def report(self, level='low'):
         """
         This method is called after all patches to be visited.
@@ -158,6 +155,3 @@ class DefaultEngine(BaseEngine):
             if detector.bug_accumulator:
                 self.bug_accumulator += detector.bug_accumulator
                 detector.reset_bug_accumulator()
-
-if __name__ == '__main__':
-    DefaultEngine()

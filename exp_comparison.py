@@ -6,7 +6,6 @@ import re
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 from timer import Timer
-from gen_detectors import DETECTORS
 
 BASE_PATH = '/home/xiaowen/Project/rbugs_experiments/github-repos'
 LOG_PATH = 'comparison_exp'
@@ -33,7 +32,7 @@ def write_file(file_path: str, content: str):
 
 def exec_task(file_dict: dict):
     bug_instance_dict = dict()
-    engine = DefaultEngine(DETECTORS)
+    engine = DefaultEngine()
 
     for subproject, file_list in file_dict.items():
         # generate patch set

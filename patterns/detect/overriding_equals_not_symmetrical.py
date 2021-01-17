@@ -30,7 +30,7 @@ class EqualsClassNameDetector(Detector):
             else:
                 if before_equals.replace(' ', '').endswith('getClass().getName()'):
                     comparing_class_name = True
-                elif after_equals(' ', '').endswith('getClass().getName()'):
+                elif after_equals.replace(' ', '').endswith('getClass().getName()'):
                     comparing_class_name = True
 
             if comparing_class_name:

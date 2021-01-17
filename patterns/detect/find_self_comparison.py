@@ -39,8 +39,8 @@ class CheckForSelfComparison(Detector):
                     hit = True
                     break
 
-        if not hit and any(method in linecontent for method in ('equals', 'compareTo', 'endsWith', 'startsWith', 'contains',
-                                                    'equalsIgnoreCase', 'compareToIgnoreCase')):
+        if not hit and any(method in linecontent for method in ('equals', 'compareTo', 'endsWith', 'startsWith',
+                                                                'contains', 'equalsIgnoreCase', 'compareToIgnoreCase')):
             its = self.pattern_2.finditer(linecontent)
             for m in its:
                 g = m.groups()
@@ -52,7 +52,8 @@ class CheckForSelfComparison(Detector):
                     break
                 else:
                     elements = after_method.split(',')
-                    if len(elements) == 2 and elements[0] == elements[2]:
+
+                    if len(elements) == 2 and elements[0] == elements[1]:
                         hit = True
                         break
 

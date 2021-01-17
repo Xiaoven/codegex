@@ -57,6 +57,13 @@ params = [
             return a.compareTo(a);
         }
     ''', 1, 3),
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+     ''' Objects.equals(requestCount, throttlingPolicy.requestCount) &&
+         Objects.equals(unitTime, throttlingPolicy.unitTime) &&
+         Objects.equals(timeUnit, throttlingPolicy.timeUnit) &&
+         Objects.equals(tierPlan, throttlingPolicy.tierPlan) &&
+         Objects.equals(stopOnQuotaReach, throttlingPolicy.stopOnQuotaReach) &&
+         Objects.equals(monetizationProperties, throttlingPolicy.monetizationProperties);''', 0, 1),
 ]
 
 
