@@ -64,6 +64,8 @@ def decide_priority(simple_name: str, local_search=None):
         total_count = online_search(simple_name)
         if total_count > 0:
             return priorities.MEDIUM_PRIORITY
+        else:
+            return None
     # default priority
     return priorities.IGNORE_PRIORITY
 
@@ -84,6 +86,9 @@ class GetResourceDetector(Detector):
                 simple_name = filename.rstrip('.java').rsplit('/', 1)[-1]  # default class name is the filename
                 local_search = kwargs.get('local_search', None)
                 priority = decide_priority(simple_name, local_search)
+
+                if priority is None:
+                    return
 
                 self.bug_accumulator.append(
                     BugInstance('UI_INHERITANCE_UNSAFE_GETRESOURCE', priority, filename, lineno,
