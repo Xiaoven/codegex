@@ -24,7 +24,8 @@ class CheckForSelfComputation(Detector):
 
 class CheckForSelfComparison(Detector):
     def __init__(self):
-        self.pattern_1 = regex.compile(r'(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*+)\s*([><=!]+)\s*\1[^.\w$]')
+        self.pattern_1 = regex.compile(
+            r'(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*)\s*([><=!]+)\s*([\w.]+(?&aux1)*)')
         self.pattern_2 = regex.compile(
             r'\b((?:[\w\.$"]|(?:\(\s*\)))+)\s*\.\s*(?:equals|compareTo|endsWith|startsWith|contains|equalsIgnoreCase|compareToIgnoreCase)(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
         Detector.__init__(self)
@@ -34,8 +35,11 @@ class CheckForSelfComparison(Detector):
         if any(op in linecontent for op in ('>', '<', '>=', '<=', '==', '!=')):
             its = self.pattern_1.finditer(linecontent)
             for m in its:
-                relation_op = m.groups()[-1]
-                if relation_op in ('>', '<', '>=', '<=', '==', '!='):
+                g = m.groups()
+                obj_1 = g[0]
+                relation_op = g[2]
+                obj_2 = g[3]
+                if obj_1 == obj_2 and relation_op in ('>', '<', '>=', '<=', '==', '!='):
                     hit = True
                     break
 
