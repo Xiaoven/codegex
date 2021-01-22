@@ -299,3 +299,91 @@ def test_03():
      public String getUpLive() {
          return upLive;''')
     assert len(patch.hunks[0].lines) == 11
+
+
+def test_04():
+    patch = parse('''@@ -86,4 +104,10 @@
+        /** Total time it took to process all {@link #mProcessedFiles}. */
+ 		public long mProcessingTimeNanoseconds = 0;
+ 
+-		/**
+-		 * Gets the average time it took for processing a file, in seconds. This is rather crude as
+-		 * it includes all of those:<br>
++		/** Gets the average time it took for processing a file, in seconds. This includes only the
++		 *  most significant computations:
++		 *  - The time to parse the XML.
+ 		 * ATTENTION: Not synchronized - only use this if you are sure that the Statistics object is
+ 		 * not being modified anymore. This is the case if you obtained it using
+ 		 * {@link IdentityFileProcessor#getStatistics()}. */
+ 		public double getAverageXMLImportTime() {
+ 			if (mProcessedFiles == 0) // prevent division by 0
+ 				return 0;
+-
+-			return ((double) mProcessingTimeNanoseconds / (1000 * 1000 * 1000))
++			
++			return ((double) mProcessingTimeNanoseconds / (double) SECONDS.toNanos(1))
+ 				/ (double) mProcessedFiles;
+ 		}''')
+    assert len(patch.hunks[0].lines) == 6
+
+
+def test_05():
+    patch = parse('''@@ -86,4 +104,10 @@
+    public final DContactGeom geom = new DContactGeom();
+    public final DVector3 fdir1 = new DVector3();
+ 
+-   DContact() {
++   public DContact() {
+        // Nothing
+    }
+-   
++
+    public static class DSurfaceParameters {
+        /* must always be defined */
+        public int mode;''', False)
+    assert len(patch.hunks[0].lines) == 7
+
+
+def test_06():
+    patch = parse('''@@ -86,4 +104,10 @@
+  * Represents the task of loading a Firestore bundle. It provides progress of bundle loading, as
+  * well as task completion and error events.
+  */
+-/* package */ class LoadBundleTask extends Task<LoadBundleTaskProgress> {
++public class LoadBundleTask extends Task<LoadBundleTaskProgress> {
+   private final Object lock = new Object();
+ 
+   /** The last progress update, or {@code null} if not yet available. */''')
+    assert len(patch.hunks[0].lines) == 3
+
+
+def test_07():
+    patch = parse('''@@ -86,4 +104,10 @@
+   public void loadBundle(BundleReader bundleReader, LoadBundleTask resultTask) {
++    try {
++      BundleMetadata bundleMetadata = bundleReader.getBundleMetadata();
++      boolean hasNewerBundle = localStore.hasNewerBundle(bundleMetadata);
++      if (hasNewerBundle) {
++        resultTask.setResult(
++            new LoadBundleTaskProgress(
++                bundleMetadata.getTotalBytes(),
++                /* exception= */ null,
++                LoadBundleTaskProgress.TaskState.SUCCESS));
++      }
++      ImmutableSortedMap<DocumentKey, MaybeDocument> changes = bundleLoader.applyChanges();
++
++      // TODO(b/160876443): This currently raises snapshots with `fromCache=false` if users already
++      // listen to some queries and bundles has newer version.
++      emitNewSnapsAndNotifyLocalStore(changes, /* remoteEvent= */ null);
+    /** Resolves the task corresponding to this write result. */
+   private void notifyUser(int batchId, @Nullable Status status) {
+     Map<Integer, TaskCompletionSource<Void>> userTasks = mutationUserCallbacks.get(currentUser);''')
+    assert len(patch.hunks[0].lines) == 11
+
+
+def test_08():
+    patch = parse('''long handleException(long i, long cumulativeInterval) {
+        return  i - i % cumulativeInterval + Math.min(/* obj1 =
+        hhh*/ i, cumulativeInterval);
+    }''', False)
+    assert len(patch.hunks[0].lines) == 3

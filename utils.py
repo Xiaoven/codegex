@@ -49,7 +49,7 @@ def send(url, token='', max_retry=1):
 
     headers = {'User-Agent': user_agent}
     if token:
-        headers['Authorization'] = 'token ' + token
+        headers['Authorization'] = 'token' + token
 
     try:
         res = SESSION.get(url, headers=headers, stream=False, timeout=10)

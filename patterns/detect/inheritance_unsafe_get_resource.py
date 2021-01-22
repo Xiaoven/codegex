@@ -34,11 +34,11 @@ def online_search(simple_name: str):
             if 'total_count' in jresp:
                 return jresp['total_count']
 
-        log_message('[Online Search Error] No response, or response doesn\'t contain key "total_count"',
+        log_message(f'[Online Search Error]{query} No response, or response doesn\'t contain key "total_count"',
                     level='error')
 
     else:
-        log_message('[Online Search Error] Attribute "repo_name" not set. '
+        log_message(f'[Online Search Error]{query} Attribute "repo_name" not set. '
                     'If you set attribute "enable_online_search" as True, then you should also set "repo_name"',
                     level='error')
     return -1

@@ -1,6 +1,7 @@
 import copy
 import re
 from io import StringIO
+from utils import logger
 
 
 class Hunk:
@@ -212,6 +213,9 @@ def _parse_hunk(stream, hunk=None):
     incomplete_common_statement = [False, False]
 
     for line in StringIO(stream):
+        if '/*' in line and '*/' in line:
+            line = re.sub(r'/\*.*\*/', '', line)
+
         # -------------------------- Del line -----------------------------
         if line.startswith("-"):
             cnt_dict['linessrc'] += 1
@@ -220,18 +224,13 @@ def _parse_hunk(stream, hunk=None):
             if common_statement:
                 incomplete_common_statement[0] = True
 
-            if not (del_multi_comment or add_multi_comment) and _check_multiline_comment_start(line_obj.content):
+            if not (del_multi_comment and add_multi_comment) and _check_multiline_comment_start(line_obj.content):
                 del_multi_comment = True
                 if del_statement:
                     # store the last del_statement
                     _add_virtual_statement_to_hunk(del_statement, hunk, '-')
                 # new a del_statement for the multiline comment
                 del_statement = VirtualStatement(line_obj)
-                # fix: "- /** This is a comment */"
-                if _check_multiline_comment_end(line_obj.content):
-                    _finish_vt_statement(line_obj, del_statement, hunk, '-')
-                    del_statement = None
-                    del_multi_comment = False
                 # then goto reset common_statement
             elif del_multi_comment:
                 if _check_multiline_comment_end(line_obj.content):
@@ -246,6 +245,7 @@ def _parse_hunk(stream, hunk=None):
                     del_statement.append_sub_line(line_obj)  # then goto reset common_statement
             elif not del_multi_comment and _check_multiline_comment_end(line_obj.content):
                 _skip_started_incomplete_multi_line_comments(line_obj, hunk)
+                del_statement = None
             elif _check_statement_end(line_obj.content):  # whether line is a complete statement or not
                 # trim blank line or single-line comments
                 trim_useless_content(line_obj)
@@ -279,18 +279,13 @@ def _parse_hunk(stream, hunk=None):
             if common_statement:
                 incomplete_common_statement[1] = True
 
-            if not (del_multi_comment or add_multi_comment) and _check_multiline_comment_start(line_obj.content):
+            if not (del_multi_comment and add_multi_comment) and _check_multiline_comment_start(line_obj.content):
                 add_multi_comment = True
                 if add_statement:
                     # store the last add_statement
                     _add_virtual_statement_to_hunk(add_statement, hunk, '+')
                 # new a add_statement for the multiline comment
                 add_statement = VirtualStatement(line_obj)
-                # fix: "+ /** This is a comment */"
-                if _check_multiline_comment_end(line_obj.content):
-                    _finish_vt_statement(line_obj, add_statement, hunk, '+')
-                    add_statement = None
-                    add_multi_comment = False
                 # then goto reset common_statement
             elif add_multi_comment:
                 if _check_multiline_comment_end(line_obj.content):
@@ -305,6 +300,7 @@ def _parse_hunk(stream, hunk=None):
                     add_statement.append_sub_line(line_obj)  # then goto reset common_statement
             elif not add_multi_comment and _check_multiline_comment_end(line_obj.content):
                 _skip_started_incomplete_multi_line_comments(line_obj, hunk)
+                add_statement = None
             elif _check_statement_end(line_obj.content):
                 trim_useless_content(line_obj)
                 if not line_obj.content:
@@ -343,12 +339,6 @@ def _parse_hunk(stream, hunk=None):
                 if common_statement:
                     _finish_vt_statement(line_obj, common_statement, hunk)
                 common_statement = VirtualStatement(line_obj)
-
-                # fix: "/** This is a comment */"
-                if _check_multiline_comment_end(line_obj.content):
-                    _finish_vt_statement(line_obj, common_statement, hunk)
-                    common_statement = None
-                    add_multi_comment, del_multi_comment = False, False
 
                 if del_statement:
                     _finish_vt_statement(line_obj, del_statement, hunk, '-')
@@ -432,8 +422,9 @@ def _parse_hunk(stream, hunk=None):
                             del_statement = VirtualStatement(line_obj)
                         else:
                             del_statement.append_sub_line(line_obj)
-            elif not (del_multi_comment or add_multi_comment) and _check_multiline_comment_end(line_obj.content):
+            elif not del_multi_comment and not add_multi_comment and _check_multiline_comment_end(line_obj.content):
                 _skip_started_incomplete_multi_line_comments(line_obj, hunk)
+                common_statement, add_statement, del_statement = None, None, None
             elif _check_statement_end(line):
                 trim_useless_content(line_obj)
                 if not line_obj.content:
@@ -486,37 +477,40 @@ def _parse_hunk(stream, hunk=None):
 re_hunk_start = re.compile(r'@@ -(\d+),?(\d+)? \+(\d+),?(\d+)? @@[^\n]*\n')
 
 
-def parse(stream, is_patch=True):
+def parse(stream, is_patch=True, name=''):
     """
     parse modifications of a file
+    :param name: name of file
     :param stream: content of a patch or a hunk
     :param is_patch: stream contains lines like '@@ -d,d +d,d @@' or not
     :return: a patch object
     """
 
     patch = Patch()
+    patch.name = name
+    try:
+        if not is_patch:
+            patch.hunks.append(_parse_hunk(stream, Hunk()))
+        else:
+            hunk_bounds = []
 
-    if not is_patch:
-        patch.hunks.append(_parse_hunk(stream, Hunk()))
-    else:
-        hunk_bounds = []
+            matches = re_hunk_start.finditer(stream)
+            for match in matches:
+                g = match.groups()
+                startsrc = int(g[0])
+                linessrc = int(g[1]) if g[1] else 0  # fix case like '@@ -1 +1,21 @@'
+                starttgt = int(g[2])
+                linestgt = int(g[3]) if g[3] else 0
 
-        matches = re_hunk_start.finditer(stream)
-        for match in matches:
-            g = match.groups()
-            startsrc = int(g[0])
-            linessrc = int(g[1]) if g[1] else 0  # fix case like '@@ -1 +1,21 @@'
-            starttgt = int(g[2])
-            linestgt = int(g[3]) if g[3] else 0
+                patch.hunks.append(Hunk(startsrc, linessrc, starttgt, linestgt))
+                hunk_bounds.append((match.start(), match.end()))
 
-            patch.hunks.append(Hunk(startsrc, linessrc, starttgt, linestgt))
-            hunk_bounds.append((match.start(), match.end()))
-
-        last_end = hunk_bounds[0][1]
-        for i in range(1, len(hunk_bounds)):
-            hunk_content = stream[last_end:hunk_bounds[i][0]]
-            _parse_hunk(hunk_content, patch.hunks[i - 1])
-            last_end = hunk_bounds[i][1]
-        _parse_hunk(stream[last_end:], patch.hunks[-1])
-
+            last_end = hunk_bounds[0][1]
+            for i in range(1, len(hunk_bounds)):
+                hunk_content = stream[last_end:hunk_bounds[i][0]]
+                _parse_hunk(hunk_content, patch.hunks[i - 1])
+                last_end = hunk_bounds[i][1]
+            _parse_hunk(stream[last_end:], patch.hunks[-1])
+    except Exception as e:
+        logger.error(f'[Parser Error] {name}\n{e}')
     return patch

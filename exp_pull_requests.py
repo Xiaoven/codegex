@@ -20,8 +20,7 @@ def get_modified_patchset(path):
 
             if name.endswith('.java'):
                 if 'patch' in file and file['status'] != 'removed':
-                    patch = parse(file['patch'])
-                    patch.name = name
+                    patch = parse(file['patch'], name=name)
                     patch.type = file['status']
 
                     patchset.append(patch)
@@ -42,7 +41,7 @@ if __name__ == '__main__':
     engine = DefaultEngine()
     CONFIG['enable_local_search'] = True
     CONFIG['enable_online_search'] = True
-    CONFIG['token'] = 'e168ea8300580a7d0159a2fb5225c08f1cb0c235'
+    CONFIG['token'] = ''
 
     re_repo = re.compile(r'PullRequests/java/files/(.+?)/pulls/(\d+)')
 
@@ -66,7 +65,7 @@ if __name__ == '__main__':
             pr_timer.start()
             engine.visit(*patchset)
             if engine.bug_accumulator:
-                engine.report(level='ignore')
+                engine.report(level='low')
                 has_bug = True
             pr_timer.stop()
 
