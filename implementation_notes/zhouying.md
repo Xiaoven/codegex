@@ -133,3 +133,26 @@ a=++ a + ++ a + a ++;
 1. 匹配'=', 且'++' 或者 '--'
 2. 匹配`=`两边操作数
 3. 判断'++'或者'--'是否在左边操作数(即被赋值数)前后
+
+## NM_METHOD_NAMING_CONVENTION
+
+### Regex
+
+```regexp
+\w+\s+(\w+)\s*\(.*\)\s*{
+```
+
+### Example
+
+```java
+private boolean MethodName(Obejct o){
+```
+
+### 实现思路
+
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L543)**
+
+我的思路：
+
+- 匹配方法定义，提取方法名
+- 检查方法名是否首字母小写
