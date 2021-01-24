@@ -155,4 +155,4 @@ private boolean MethodName(Obejct o){
 我的思路：
 
 - 匹配方法定义，提取方法名
-- 检查方法名是否首字母小写
+- 参考spotbugs #L595-#L596

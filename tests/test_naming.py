@@ -128,7 +128,11 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_16.java', '''boolean methodName(Obejct o){''', 0, 1),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_17.java', '''void MethodName()
     {''', 1, 1),
-    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_18.java', '''Object.MethodCall(int arg1)''', 0, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_18.java', '''Object.MethodCall(int arg1){''', 0, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_23.java', '''void AM(){''', 0, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_24.java', '''void A(){''', 0, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_25.java', '''void Me(){''', 1, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_26.java', '''void Me_hello(){''', 0, 1),
 ]
 
 
