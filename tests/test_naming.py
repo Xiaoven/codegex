@@ -123,6 +123,17 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal(String s){''', 0, 1),
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal( Object o ){''', 1, 1),
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''static boolean equal(Object o )''', 1, 1),
+    # ------------------------ NM_CLASS_NAMING_CONVENTION ------------------------
+    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_19.java', '''class hashCODEnoEQUALS{
+}''', 1, 1),
+    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_20.java', '''class hash_CODEnoEQUALS{
+}''', 0, 1),
+    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_21.java', '''class className$className extends PreorderVisitor implements Detector {
+}''', 1, 1),
+    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_22.java', '''class helloProto$ extends PreorderVisitor implements Detector {
+}''', 0, 1),
+    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_23.java', '''class hello.A.world extends PreorderVisitor implements Detector {
+}''', 0, 1),
 ]
 
 
@@ -132,7 +143,8 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     patch.name = file_name
 
     engine = DefaultEngine(included_filter=['SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector',
-                                            'HashCodeNameDetector', 'ToStringNameDetector', 'EqualNameDetector'])
+                                            'HashCodeNameDetector', 'ToStringNameDetector', 'EqualNameDetector',
+                                            'ClassNameConventionDetector'])
     engine.visit(patch)
 
     if expected_length > 0:
