@@ -387,3 +387,22 @@ def test_08():
         hhh*/ i, cumulativeInterval);
     }''', False)
     assert len(patch.hunks[0].lines) == 3
+
+
+def test_09():
+    patch = parse('''@@ -198,9 +203,10 @@ public PerformancePublisher(String sourceDataFiles,
+                                 boolean failBuildIfNoResultFile,
+                                 boolean compareBuildPrevious,
+                                 boolean modeThroughput,
++                                boolean showTrendGraphs,
+                                 /**
+-                                 * Deprecated. Now use for support previous pipeline jobs.
+-                                 */
++                                     * Deprecated. Now use for support previous pipeline jobs.
++                                     */
+                                 List<PerformanceReportParser> parsers) {
+         this.parsers = parsers;
+         this.sourceDataFiles = sourceDataFiles;
+''')
+
+    assert len(patch.hunks[0].lines) == 5

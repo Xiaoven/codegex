@@ -2,6 +2,7 @@ import copy
 import re
 from io import StringIO
 from utils import logger
+import traceback
 
 
 class Hunk:
@@ -155,7 +156,8 @@ def _finish_vt_statement(line_obj: Line, vt_stmt: VirtualStatement, hunk: Hunk, 
     """
     Add line object to the virtual statement, add virtual statement to the hunk
     """
-    vt_stmt.append_sub_line(line_obj)
+    if line_obj:
+        vt_stmt.append_sub_line(line_obj)
     _add_virtual_statement_to_hunk(vt_stmt, hunk, prefix)
 
 
@@ -337,14 +339,16 @@ def _parse_hunk(stream, hunk=None):
                 del_multi_comment = True
 
                 if common_statement:
-                    _finish_vt_statement(line_obj, common_statement, hunk)
+                    _add_virtual_statement_to_hunk(common_statement, hunk)
                 common_statement = VirtualStatement(line_obj)
+                # reset incomplete_common_statement
+                incomplete_common_statement[0], incomplete_common_statement[1] = False, False
 
                 if del_statement:
-                    _finish_vt_statement(line_obj, del_statement, hunk, '-')
+                    _add_virtual_statement_to_hunk(del_statement, hunk, '-')
                     del_statement = None
                 if add_statement:
-                    _finish_vt_statement(line_obj, add_statement, hunk, '+')
+                    _add_virtual_statement_to_hunk(add_statement, hunk, '+')
                     add_statement = None
 
             elif add_multi_comment and del_multi_comment:
@@ -512,5 +516,5 @@ def parse(stream, is_patch=True, name=''):
                 last_end = hunk_bounds[i][1]
             _parse_hunk(stream[last_end:], patch.hunks[-1])
     except Exception as e:
-        logger.error(f'[Parser Error] {name}\n{e}')
+        logger.error(f'[Parser Error] {name}\n{e}\n{traceback.format_exc()}')
     return patch
