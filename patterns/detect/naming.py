@@ -121,12 +121,12 @@ class EqualNameDetector(Detector):
 class MethodNameConventionDetector(Detector):
     def __init__(self):
         # Extract the method name
-        self.mn_pattern = regex.compile(r'\w+\s+(\w+)\s*\(.*\)\s*{')
+        self.mn_pattern = regex.compile(r'\b\w+[\s.]+(\w+)\s*\(')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
         strip_line = linecontent.strip()
-        if '{' in strip_line and '(' in strip_line and ')' in strip_line:
+        if '(' in strip_line and ')' in strip_line:
             its = self.mn_pattern.finditer(strip_line)
             for m in its:
                 method_name = m.groups()[0]
