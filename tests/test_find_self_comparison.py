@@ -24,6 +24,9 @@ params = [
                 y = x - x;
             return x;
         }''', 8, 3),
+    # DIY
+    (False, 'SA_SELF_COMPUTATION', 'DIY_01.java',
+     '''return capabilities.level - level;''', 0, 1),
     # ---------------- SA_SELF_COMPARISON ----------------------
     (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
      '''@NoWarning("SA_FIELD_SELF_COMPARISON")
@@ -64,6 +67,8 @@ params = [
          Objects.equals(tierPlan, throttlingPolicy.tierPlan) &&
          Objects.equals(stopOnQuotaReach, throttlingPolicy.stopOnQuotaReach) &&
          Objects.equals(monetizationProperties, throttlingPolicy.monetizationProperties);''', 0, 1),
+    #  https://github.com/google/ExoPlayer/pull/8462
+    (False, 'SA_SELF_COMPARISON', '', 'if (capabilities.profile == profile && capabilities.level >= level) { ', 0, 1)
 ]
 
 

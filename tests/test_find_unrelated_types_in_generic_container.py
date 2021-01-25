@@ -64,6 +64,13 @@ params = [
                         }
             ''',
      1, 969),
+    # DIY
+    (False, 'DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES',
+     'DIY_01.java', 'obj._portals.removeAll(_portals);', 0, 1),
+    (False, 'DMI_VACUOUS_SELF_COLLECTION_CALL',
+     'DIY_01.java', 'obj.myList.removeAll(myList);', 0, 1),
+    (False, 'DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES',
+     'DIY_01.java', 'obj.myList.remove(myList);', 0, 1),
 ]
 
 

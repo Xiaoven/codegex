@@ -20,7 +20,9 @@ params = [
     # DIY
     (True, 'IL_CONTAINER_ADDED_TO_ITSELF', 'Fake.java',
          '''@@ -1,0 +1,0 @@ Substation substation = network.newSubstation()
-                    .add();''', 0, 2)
+                    .add();''', 0, 2),
+    (False, 'IL_CONTAINER_ADDED_TO_ITSELF', 'DIY_01.java',
+     'return obj.testee.add(testee);', 0, 2),
 ]
 
 
