@@ -23,27 +23,49 @@ params = [
     String enum = "hello world";
 }
      ''', 1, 2),
-    ('NM_FUTURE_KEYWORD_USED_AS_METHOD_IDENTIFIER', 'Main03.java',
+    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main03.java',
      '''public Main03.java{
     void enum(){
     ;
     }
 }
      ''', 1, 2),
-    ('NM_FUTURE_KEYWORD_USED_AS_METHOD_IDENTIFIER', 'Main03.java',
+    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main03.java',
      '''public Main04.java{
     private String assert(int num1, int num2){
         return null;
     }
 }
      ''', 1, 2),
-    ('NM_FUTURE_KEYWORD_USED_AS_METHOD_IDENTIFIER', 'Main03.java',
+    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main03.java',
      '''public Main05.java{
     void test05(int num1, int num2){
         System.out.println(assert(num1=num2));
     }
 }
      ''', 0, 1),
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main06.java',
+     '''public enum Color
+     ''', 0, 1),
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main06.java',
+     '''int enum;
+     ''', 1, 1),
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main06.java',
+     '''if ( enum > 0){ ... }
+     ''', 1, 1),
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main06.java',
+     '''enum = 10;
+     ''', 1, 1),
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main06.java',
+     '''if( 3 < assert)
+     ''', 1, 1),
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main06.java',
+     '''while(assert && a)
+     ''', 1, 1),
+    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main03.java',
+     '''assert (a > 0);''', 0, 1),
+    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main03.java',
+     '''a.enum(expression)''', 1, 1),
 ]
 
 @pytest.mark.parametrize('pattern_type,file_name,patch_str,expected_length,line_no', params)

@@ -138,7 +138,8 @@ a=++ a + ++ a + a ++;
 
 ## Nm: Use of identifier that is a keyword in later versions of Java (NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER)
 
-对`Filed`和`LocalVariable Name`检查。对`Method Name`检查看 **NM_FUTURE_KEYWORD_USED_AS_METHOD_IDENTIFIER**
+> java: as of release 5, 'enum' is a keyword, and may not be used as an identifier (use -source 1.4 or lower to use 'enum' as an identifier)
+> java: as of release 1.4, 'assert' is a keyword, and may not be used as an identifier (use -source 1.3 or lower to use 'assert' as an identifier)
 
 ### Regex
 
@@ -161,11 +162,12 @@ private String assert = "hello world";
 
 - 匹配命名为`enum` or `assert`的成员变量 or 局部变量
 
-## Nm: Use of identifier that is a keyword in later versions of Java (NM_FUTURE_KEYWORD_USED_AS_METHOD_IDENTIFIER)
+## Nm: Use of identifier that is a keyword in later versions of Java (NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER)
 
-原pattern名字为**NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER**
+考虑到正则无法判断是`Field` or `LocalVariable`。所以对`Filed`和`LocalVariable Name`检查为`NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER`; 对`Method Name`的检查为`NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER`
 
-考虑到正则无法判断是`Field` or `LocalVariable`。所以对`Filed`和`LocalVariable Name`检查为`NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER`; 对`Method Name`的检查为`NM_FUTURE_KEYWORD_USED_AS_METHOD_IDENTIFIER`
+>java: as of release 5, 'enum' is a keyword, and may not be used as an identifier (use -source 1.4 or lower to use 'enum' as an identifier)
+>java: as of release 1.4, 'assert' is a keyword, and may not be used as an identifier (use -source 1.3 or lower to use 'assert' as an identifier)
 
 ### Regex
 
