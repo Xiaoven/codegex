@@ -7,19 +7,25 @@ import patterns.models.priorities as Priorities
 
 class CheckForSelfComputation(Detector):
     def __init__(self):
-        self.pattern = regex.compile(r'(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*+)\s*([|^&-])\s*\1[^.\w$]')
+        self.pattern = regex.compile(r'(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*)\s*([|^&-])\s*([\w.]+(?&aux1)*)')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if not any(op in linecontent for op in ('&', '|', '^', '-')):
+        if all(op not in linecontent for op in ('&', '|', '^', '-')):
             return
 
         its = self.pattern.finditer(linecontent)
         for m in its:
-            self.bug_accumulator.append(
-                BugInstance('SA_SELF_COMPUTATION', Priorities.MEDIUM_PRIORITY, filename, lineno,
-                            'Nonsensical self computation involving a variable or field')
-            )
+            g = m.groups()
+            obj_1 = g[0]
+            op = g[2]
+            obj_2 = g[3]
+            if obj_1 == obj_2 and op in ('&', '|', '^', '-'):
+                self.bug_accumulator.append(
+                    BugInstance('SA_SELF_COMPUTATION', Priorities.MEDIUM_PRIORITY, filename, lineno,
+                                'Nonsensical self computation involving a variable or field')
+                )
+                return
 
 
 class CheckForSelfComparison(Detector):
