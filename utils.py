@@ -39,13 +39,13 @@ def log_message(message: str, level='info'):
 requests.adapters.DEFAULT_RETRIES = 5
 SESSION = requests.Session()
 SESSION.keep_alive = False
-SLEEP_TIME = 4
+BASE_SLEEP_TIME = 4
 user_agent = 'Mozilla/5.0 ven(Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
              'Chrome/69.0.3497.100 Safari/537.36 '
 
 
-def send(url, token='', max_retry=1):
-    time.sleep(SLEEP_TIME)
+def send(url, token='', max_retry=1, sleep_time=12):
+    time.sleep(BASE_SLEEP_TIME)
 
     headers = {'User-Agent': user_agent}
     if token:
@@ -60,7 +60,7 @@ def send(url, token='', max_retry=1):
         # only retry when exception happens
         if max_retry <= 0:
             return None
-        time.sleep(SLEEP_TIME * 3)
+        time.sleep(sleep_time + BASE_SLEEP_TIME)
         return send(url, token, max_retry - 1)
 
 

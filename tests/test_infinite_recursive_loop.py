@@ -1,6 +1,5 @@
 import pytest
 
-from patterns.detect.infinite_recursive_loop import CollectionAddItselfDetector
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 

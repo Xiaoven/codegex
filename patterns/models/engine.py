@@ -1,16 +1,17 @@
+from rparser import Patch
 from utils import log_message
-from rparser import VirtualStatement
 from gen_detectors import DETECTOR_DICT
-from patterns.detect.inheritance_unsafe_get_resource import clear_cache
 from .priorities import *
+from .context import Context
 
 
 class BaseEngine:
     """
     The interface which all bug pattern detectors must implement.
+    An engine maintains a Context object, and assigns tasks to detectors.
     """
 
-    def __init__(self, included_filter=None, excluded_filter=None):
+    def __init__(self, context: Context, included_filter=None, excluded_filter=None):
         """
         Init detectors according to included_filter or excluded_filter
         :param included_filter: a list or tuple of detector class names to include
@@ -18,6 +19,8 @@ class BaseEngine:
         """
         self.bug_accumulator = list()  # every patch set should own a new bug_accumulator
         self._detectors = dict()
+        assert isinstance(context, Context)
+        self.context = context
 
         if included_filter:
             for name in included_filter:
@@ -32,61 +35,16 @@ class BaseEngine:
             for name, detector_class in DETECTOR_DICT.items():
                 self._detectors[name] = detector_class()
 
-    def _init_extends_dict(self, patch_set):
-        # is this name visible in the current scope:
-        if 'GENERIC_REGEX' not in dir():
-            from patterns.detect.naming import GENERIC_REGEX, CLASS_EXTENDS_REGEX, INTERFACE_EXTENDS_REGEX
-
-        visible_name_in_cur_scope = dir()
-        assert all(regexp in visible_name_in_cur_scope for regexp in
-                   ('GENERIC_REGEX', 'CLASS_EXTENDS_REGEX', 'INTERFACE_EXTENDS_REGEX'))
-
-        self.extends_dict = dict()
-        for patch in patch_set:
-            extended_names_in_patch = set()
-            for hunk in patch:
-                for line in hunk:
-                    if line.prefix == '-':
-                        continue
-
-                    if 'extends' in line.content:
-                        if 'class' in line.content:
-                            m = CLASS_EXTENDS_REGEX.search(line.content.strip())
-                        elif 'interface' in line.content:
-                            m = INTERFACE_EXTENDS_REGEX.search(line.content.strip())
-                        else:
-                            continue
-
-                        if m:
-                            g = m.groups()
-                            extended_str = GENERIC_REGEX.sub('', g[-1])  # remove <...>
-                            extended_names_in_line = [name.rsplit('.', 1)[-1].strip() for name in
-                                                      extended_str.split(',')]
-                            extended_names_in_patch.update(extended_names_in_line)
-
-            self.extends_dict[patch.name] = extended_names_in_patch
-
-    def _local_search(self, simple_name):
-        assert hasattr(self, 'extends_dict')
-        for patch_name, extended_name_list in self.extends_dict.items():
-            if simple_name in extended_name_list:
-                return simple_name
-        return None
-
     def visit(self, *patch_set):
-        detector_name = 'GetResourceDetector'
-        if detector_name in self._detectors:
-            # clean cache of GetResourceDetector for next patch_set which belongs to another project for online search
-            clear_cache()
-            self._init_extends_dict(patch_set)
-
+        self.context.set_patch_set(patch_set)
         self.bug_accumulator = list()  # reset
 
-        for patch in patch_set:
+        for patch in self.context.patch_set:
             self._visit_patch(patch)
 
     def _visit_patch(self, patch):
         """
+        Update context and assign tasks to detectors
         :param patch: code from a single file to visit
         :return: bug instances
         """
@@ -124,31 +82,42 @@ class DefaultEngine(BaseEngine):
     ParentDetector and SubDetector are for multiple single-line patterns in the same file
     """
 
-    def _visit_patch(self, patch):
+    def _visit_patch(self, patch: Patch):
         """
-        Scan the patch using sub-detectors and generate bug instances
+        Update context and assign tasks to detectors
         :param patch:
         :return: None
         """
-        in_multiline_comments = False
+
+        self.context.cur_patch = patch
+
         # detect patch
         for hunk in patch:
+            self.context.cur_hunk = hunk
+
             for i in range(len(hunk.lines)):
                 # detect all lines in the patch rather than the addition
                 if i in hunk.dellines:
                     continue
 
-                line_content = hunk.lines[i].content
+                self.context.cur_line_idx = i
+                self.context.cur_line = hunk.lines[i]
 
                 for name, detector in self._detectors.items():
-                    method_dict = dict()
-                    if isinstance(hunk.lines[i], VirtualStatement):
-                        method_dict['get_exact_lineno'] = hunk.lines[i].get_exact_lineno
+                    detector.match(self.context)
 
-                    if name == 'GetResourceDetector':
-                        method_dict['local_search'] = self._local_search
 
-                    detector.match(line_content, patch.name, hunk.lines[i].lineno[1], **method_dict)
+                # line_content = hunk.lines[i].content
+                #
+                # for name, detector in self._detectors.items():
+                #     method_dict = dict()
+                #     if isinstance(hunk.lines[i], VirtualStatement):
+                #         method_dict['get_exact_lineno'] = hunk.lines[i].get_exact_lineno
+                #
+                #     if name == 'GetResourceDetector':
+                #         method_dict['local_search'] = self._local_search
+                #
+                #     detector.match(line_content, patch.name, hunk.lines[i].lineno[1], **method_dict)
 
         # collect bug instances
         for detector in list(self._detectors.values()):

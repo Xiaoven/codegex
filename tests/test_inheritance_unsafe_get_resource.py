@@ -1,6 +1,6 @@
 import pytest
 
-from config import CONFIG
+from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 
@@ -36,9 +36,9 @@ params = [
 
 @pytest.mark.parametrize('is_patch,pattern_type,file_name,patch_str,expected_length,line_no', params)
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
-    patch = parse(patch_str, is_patch)
-    patch.name = file_name
-    engine = DefaultEngine(['GetResourceDetector'])
+    patch = parse(patch_str, is_patch, file_name)
+    context = Context()
+    engine = DefaultEngine(context, ['GetResourceDetector'])
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
@@ -48,54 +48,43 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
         assert len(engine.bug_accumulator) == 0
 
 
-class ShareCacheEngine(DefaultEngine):
-    def visit(self, *patch_set):
-        self.bug_accumulator = list()  # every patch set should own a new bug_accumulator
-        for patch in patch_set:
-            self._visit_patch(patch)
-
-
 @pytest.mark.skip(reason="Time consuming due to involving network requests")
 def test_online_search():
     patch_1 = parse('''File expectedFile = new File(getClass().getResource(name).getFile());''', False)
     patch_1.name = 'animated-gif-lib-for-java/src/main/java/com/madgag/gif/fmsware/NanoHTTPD.java'
     patch_2 = parse('''File expectedFile = new File(getClass().getResource(name).getFile());''', False)
     patch_2.name = 'animated-gif-lib-for-java/src/test/java/com/madgag/gif/fmsware/TestAnimatedGifEncoder.java'
-    patch_set = [patch_1, patch_2]
+    context = Context()
+    context.enable_online_search('NanoHttpd/nanohttpd')
 
-    CONFIG['enable_online_search'] = True
-    CONFIG['repo_name'] = 'NanoHttpd/nanohttpd'
-
-    engine = ShareCacheEngine(included_filter=('GetResourceDetector',))
+    engine = DefaultEngine(context, included_filter=('GetResourceDetector',))
 
     start = time.time()
-    engine.visit(*patch_set)
+    engine.visit(patch_1, patch_2)
     time_elapsed = time.time() - start
     # print(time_elapsed)
     assert len(engine.filter_bugs('low')) == 1
 
     start = time.time()
-    engine.visit(*patch_set)
+    engine.visit(patch_1, patch_2)
     time_elapsed_2 = time.time() - start
     # print(time_elapsed_2)
-    assert time_elapsed > time_elapsed_2 * 10**3  # 9.663780927658081 seconds > 7.081031799316406e-05 seconds
+    assert time_elapsed > time_elapsed_2 * 10**3  # 9.473357200622559 seconds > 1.1396408081054688-04 seconds
     assert len(engine.filter_bugs('low')) == 1
 
 
 def test_local_search():
-    patch_1 = parse('''File expectedFile = new File(getClass().getResource(name).getFile());''', False)
-    patch_1.name = 'animated-gif-lib-for-java/src/main/java/com/madgag/gif/fmsware/NanoHTTPD.java'
+    patch_1 = parse('''File expectedFile = new File(getClass().getResource(name).getFile());''', is_patch=False,
+                    name='animated-gif-lib-for-java/src/main/java/com/madgag/gif/fmsware/NanoHTTPD.java')
     patch_2 = parse('''class TMP {
                             String doSomething() {
-                                InputStream resourceAsStream = this.getClass().getResourceAsStream(DB_SCHEMA);''', False)
-    patch_2.name = 'TMP.java'
+                                InputStream resourceAsStream = this.getClass().getResourceAsStream(DB_SCHEMA);''',
+                    is_patch=False, name='TMP.java')
     patch_3 = parse('''interface Bingo extends OtherClass<String, Integer>, madgag.gif.fmsware.NanoHTTPD, AnotherClass
-    {''', False)
-    patch_3.name = 'Bingo.java'
+    {''', is_patch=False, name='Bingo.java')
 
-    CONFIG['enable_local_search'] = True
-
-    engine = DefaultEngine(included_filter=('GetResourceDetector',))
+    context = Context()  # local_search is enabled by default
+    engine = DefaultEngine(context, included_filter=('GetResourceDetector',))
     engine.visit(patch_1, patch_2, patch_3)
     assert len(engine.filter_bugs()) == 2
     assert len(engine.filter_bugs('low')) == 1
