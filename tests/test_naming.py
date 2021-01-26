@@ -132,8 +132,6 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
 }''', 1, 1),
     (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_22.java', '''class helloProto$ extends PreorderVisitor implements Detector {
 }''', 0, 1),
-    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_23.java', '''class hello.A.world extends PreorderVisitor implements Detector {
-}''', 0, 1),
 ]
 
 

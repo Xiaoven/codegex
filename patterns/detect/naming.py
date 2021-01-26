@@ -132,9 +132,6 @@ class ClassNameConventionDetector(Detector):
                 class_name = m.groups()[0]
                 if "Proto$" in class_name:
                     return
-                for p in regex.split("[.]", class_name):
-                    if len(p) == 1:
-                        return
                 # reference from https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222
                 # /spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L389
                 if class_name[0].isalpha() and not class_name[0].isupper() and '_' not in class_name:
