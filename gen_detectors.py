@@ -23,6 +23,7 @@ from patterns.detect.format_string_checker import NewLineDetector
 from patterns.detect.find_float_equality import FloatEqualityDetector
 from patterns.detect.find_puzzlers import OverwrittenIncrementDetector
 from patterns.detect.find_bad_cast import FindBadCastDetector
+from patterns.detect.naming import FieldNameConventionDetector
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -63,4 +64,5 @@ DETECTOR_DICT = {
     'OverwrittenIncrementDetector': OverwrittenIncrementDetector,
     'SingleDotPatternDetector': SingleDotPatternDetector,
     'FileSeparatorAsRegexpDetector': FileSeparatorAsRegexpDetector,
+    'FieldNameConventionDetector': FieldNameConventionDetector
 }

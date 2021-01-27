@@ -123,6 +123,12 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal(String s){''', 0, 1),
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal( Object o ){''', 1, 1),
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''static boolean equal(Object o )''', 1, 1),
+    # ------------------------ NM_FIELD_NAMING_CONVENTION ------------------------
+    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_40.java', '''this.Field''', 1, 1),
+    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_41.java', '''this.FIELD''', 0, 1),
+    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_42.java', '''this.My_FIELD''', 0, 1),
+    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_43.java', '''public class SpringLiquibase extends liquibase.integration.spring.CLASS{''', 0, 1),
+    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_44.java', '''@InterfaceAudience.Public''', 0, 1),
 ]
 
 
@@ -132,7 +138,8 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     patch.name = file_name
 
     engine = DefaultEngine(included_filter=['SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector',
-                                            'HashCodeNameDetector', 'ToStringNameDetector', 'EqualNameDetector'])
+                                            'HashCodeNameDetector', 'ToStringNameDetector', 'EqualNameDetector',
+                                            'FieldNameConventionDetector',])
     engine.visit(patch)
 
     if expected_length > 0:
