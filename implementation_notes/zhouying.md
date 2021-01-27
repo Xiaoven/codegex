@@ -133,3 +133,59 @@ a=++ a + ++ a + a ++;
 1. 匹配'=', 且'++' 或者 '--'
 2. 匹配`=`两边操作数
 3. 判断'++'或者'--'是否在左边操作数(即被赋值数)前后
+
+
+
+## Nm: Use of identifier that is a keyword in later versions of Java (NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER)
+
+> java: as of release 5, 'enum' is a keyword, and may not be used as an identifier (use -source 1.4 or lower to use 'enum' as an identifier)
+> java: as of release 1.4, 'assert' is a keyword, and may not be used as an identifier (use -source 1.3 or lower to use 'assert' as an identifier)
+
+### Regex
+
+```
+\w+\s+(enum|assert)\s*=\s*
+```
+
+### Example
+
+```
+int enum = 0;
+private String assert = "hello world";
+```
+
+### 实现思路
+
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/DontUseEnum.java#L73)**
+
+我的思路:
+
+- 匹配命名为`enum` or `assert`的成员变量 or 局部变量
+
+## Nm: Use of identifier that is a keyword in later versions of Java (NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER)
+
+考虑到正则无法判断是`Field` or `LocalVariable`。所以对`Filed`和`LocalVariable Name`检查为`NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER`; 对`Method Name`的检查为`NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER`
+
+>java: as of release 5, 'enum' is a keyword, and may not be used as an identifier (use -source 1.4 or lower to use 'enum' as an identifier)
+>java: as of release 1.4, 'assert' is a keyword, and may not be used as an identifier (use -source 1.3 or lower to use 'assert' as an identifier)
+
+### Regex
+
+```
+\w+\s+(enum|assert)\s*\(.*\)\s*{
+```
+
+### Example
+
+```
+void enum(){}
+protected Boolean assert(...){}
+```
+
+### 实现思路
+
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/DontUseEnum.java#L45)**
+
+我的思路：
+
+- 匹配命名为`enum` or `assert` 的方法名
