@@ -121,8 +121,18 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     # ------------------------ NM_BAD_EQUAL ------------------------
     (False, 'NM_BAD_EQUAL', 'Main_11.java', '''private boolean equal(Obejct o){''', 0, 1),
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal(String s){''', 0, 1),
-    (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal( Object o ){''', 1, 1),
-    (False, 'NM_BAD_EQUAL', 'Main_12.java', '''static boolean equal(Object o )''', 1, 1),
+    (False, 'NM_BAD_EQUAL', 'Main_13.java', '''boolean equal( Object o ){''', 1, 1),
+    (False, 'NM_BAD_EQUAL', 'Main_14.java', '''static boolean equal(Object o )''', 1, 1),
+    # ------------------------ NM_METHOD_NAMING_CONVENTION ------------------------
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_15.java', '''private boolean MethodName(Obejct o){''', 1, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_16.java', '''boolean methodName(Obejct o){''', 0, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_17.java', '''void MethodName()
+    {''', 1, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_23.java', '''void AM(){''', 0, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_24.java', '''void A(){''', 0, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_25.java', '''void Me(){''', 1, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_26.java', '''void Me_hello(){''', 0, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_27.java', '''b.MethodName()''', 1, 1),
 ]
 
 
@@ -132,7 +142,8 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     patch.name = file_name
 
     engine = DefaultEngine(included_filter=['SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector',
-                                            'HashCodeNameDetector', 'ToStringNameDetector', 'EqualNameDetector'])
+                                            'HashCodeNameDetector', 'ToStringNameDetector', 'EqualNameDetector',
+                                            'MethodNameConventionDetector'])
     engine.visit(patch)
 
     if expected_length > 0:

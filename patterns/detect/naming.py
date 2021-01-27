@@ -116,3 +116,26 @@ class EqualNameDetector(Detector):
         if m:
             self.bug_accumulator.append(BugInstance('NM_BAD_EQUAL', priorities.HIGH_PRIORITY, filename, lineno,
                                                     "Class defines equal(Object); should it be equals(Object)?"))
+
+
+class MethodNameConventionDetector(Detector):
+    def __init__(self):
+        # Extract the method name
+        self.mn_pattern = regex.compile(r'\b\w+[\s.]+(\w+)\s*\(')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        strip_line = linecontent.strip()
+        if '(' in strip_line and ')' in strip_line:
+            its = self.mn_pattern.finditer(strip_line)
+            for m in its:
+                method_name = m.groups()[0]
+                if len(method_name) >= 2 and method_name[0].isalpha() and not method_name[0].islower() and \
+                        method_name[1].isalpha() and method_name[1].islower() and '_' not in method_name:
+                    if any(access in strip_line for access in ('public', 'protected')):
+                        self.bug_accumulator.append(BugInstance('NM_METHOD_NAMING_CONVENTION', priorities.MEDIUM_PRIORITY, filename, lineno,
+                                                                "Nm: Method names should start with a lower case letter"))
+                    else:
+                        self.bug_accumulator.append(
+                            BugInstance('NM_METHOD_NAMING_CONVENTION', priorities.LOW_PRIORITY, filename, lineno,
+                                        "Nm: Method names should start with a lower case letter"))

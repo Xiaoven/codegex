@@ -135,6 +135,27 @@ a=++ a + ++ a + a ++;
 3. 判断'++'或者'--'是否在左边操作数(即被赋值数)前后
 
 
+## NM_METHOD_NAMING_CONVENTION
+
+### Regex
+
+```regexp
+\w+\s+(\w+)\s*\(.*\)\s*{
+```
+
+### Example
+```java
+private boolean MethodName(Obejct o){
+```
+
+### 实现思路
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L543)**
+
+我的思路：
+
+- 匹配方法定义，提取方法名
+- 参考spotbugs #L595-#L596
+
 
 ## Nm: Use of identifier that is a keyword in later versions of Java (NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER)
 
@@ -148,7 +169,6 @@ a=++ a + ++ a + a ++;
 ```
 
 ### Example
-
 ```
 int enum = 0;
 private String assert = "hello world";
@@ -183,7 +203,6 @@ protected Boolean assert(...){}
 ```
 
 ### 实现思路
-
 **[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/DontUseEnum.java#L45)**
 
 我的思路：
