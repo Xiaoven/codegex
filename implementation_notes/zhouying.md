@@ -135,6 +135,26 @@ a=++ a + ++ a + a ++;
 3. 判断'++'或者'--'是否在左边操作数(即被赋值数)前后
 
 
+## NM_CLASS_NAMING_CONVENTION
+### Regex
+
+```regexp
+class\s+([A-Za-z_$0-9]+).*{
+```
+
+### Example
+
+```java
+class hashCODEnoEQUALS{
+```
+
+### 实现思路
+
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L389)**
+
+参考spotbugs L373-L389, 因为正则拿到的class name为base name，不需要另外以`$` 分割
+
+
 ## NM_METHOD_NAMING_CONVENTION
 
 ### Regex

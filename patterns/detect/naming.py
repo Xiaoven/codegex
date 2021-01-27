@@ -82,7 +82,7 @@ class HashCodeNameDetector(Detector):
         m = self.pattern.match(strip_line)
         if m:
             self.bug_accumulator.append(BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY, filename, lineno,
-                            "Class defines hashcode(); should it be hashCode()?"))
+                                                    "Class defines hashcode(); should it be hashCode()?"))
 
 
 class ToStringNameDetector(Detector):
@@ -116,6 +116,33 @@ class EqualNameDetector(Detector):
         if m:
             self.bug_accumulator.append(BugInstance('NM_BAD_EQUAL', priorities.HIGH_PRIORITY, filename, lineno,
                                                     "Class defines equal(Object); should it be equals(Object)?"))
+
+
+class ClassNameConventionDetector(Detector):
+    def __init__(self):
+        # Match class name
+        self.cn_pattern = regex.compile(r'class\s+([a-z][\w$]+).*{')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        strip_line = linecontent.strip()
+        if 'class ' in strip_line and '{' in strip_line:
+            its = self.cn_pattern.finditer(strip_line)
+            for m in its:
+                class_name = m.groups()[0]
+                if "Proto$" in class_name:
+                    return
+                # reference from https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222
+                # /spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L389
+                if '_' not in class_name:
+                    if any(access in strip_line for access in ('public', 'protected')):
+                        self.bug_accumulator.append(BugInstance('NM_CLASS_NAMING_CONVENTION',
+                                                                priorities.MEDIUM_PRIORITY, filename, lineno,
+                                                                "Nm: Class names should start with an upper case letter"))
+                    else:
+                        self.bug_accumulator.append(BugInstance('NM_CLASS_NAMING_CONVENTION',
+                                                                priorities.LOW_PRIORITY, filename, lineno,
+                                                                "Nm: Class names should start with an upper case letter"))
 
 
 class MethodNameConventionDetector(Detector):

@@ -23,6 +23,7 @@ from patterns.detect.format_string_checker import NewLineDetector
 from patterns.detect.find_float_equality import FloatEqualityDetector
 from patterns.detect.find_puzzlers import OverwrittenIncrementDetector
 from patterns.detect.find_bad_cast import FindBadCastDetector
+from patterns.detect.naming import ClassNameConventionDetector
 from patterns.detect.naming import MethodNameConventionDetector
 from patterns.detect.dont_use_enum import DontUseEnumDetector
 
@@ -66,6 +67,7 @@ DETECTOR_DICT = {
     'OverwrittenIncrementDetector': OverwrittenIncrementDetector,
     'SingleDotPatternDetector': SingleDotPatternDetector,
     'FileSeparatorAsRegexpDetector': FileSeparatorAsRegexpDetector,
+    'ClassNameConventionDetector': ClassNameConventionDetector,
     'MethodNameConventionDetector': MethodNameConventionDetector,
     'DontUseEnumDetector': DontUseEnumDetector,
 }
