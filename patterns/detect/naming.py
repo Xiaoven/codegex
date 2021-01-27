@@ -121,7 +121,7 @@ class EqualNameDetector(Detector):
 class ClassNameConventionDetector(Detector):
     def __init__(self):
         # Match class name
-        self.cn_pattern = regex.compile(r'class\s+([A-Za-z_$0-9.]+).*{')
+        self.cn_pattern = regex.compile(r'class\s+([a-z][\w$]+).*{')
         Detector.__init__(self)
 
     def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
@@ -134,7 +134,7 @@ class ClassNameConventionDetector(Detector):
                     return
                 # reference from https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222
                 # /spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L389
-                if class_name[0].isalpha() and not class_name[0].isupper() and '_' not in class_name:
+                if '_' not in class_name:
                     if any(access in strip_line for access in ('public', 'protected')):
                         self.bug_accumulator.append(BugInstance('NM_CLASS_NAMING_CONVENTION',
                                                                 priorities.MEDIUM_PRIORITY, filename, lineno,
