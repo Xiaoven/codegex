@@ -228,3 +228,27 @@ protected Boolean assert(...){}
 我的思路：
 
 - 匹配命名为`enum` or `assert` 的方法名
+
+## RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION
+
+### Regex
+
+```regexp
+(\bPattern)?\.\s*(replaceAll|replaceFirst|split|matches|compile)\s*\("((?:[^\\"]|\\.)*)",?[^)]*\)
+```
+
+### Example
+
+```java
+Pattern.compile("[");
+Pattern.compile("[", 0);
+```
+
+### 实现思路
+
+[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/BadSyntaxForRegularExpression.java#L106)
+
+我的思路：
+
+- 匹配.replaceAll(...)等方法的第一个字符串
+- 调用`regex.compile`检查字符串是否合法

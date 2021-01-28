@@ -66,6 +66,13 @@ params = [
     # DIY
     (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'DIY_03.java',
      '''Pattern.matches(File.separator, "hh");''', 1, 1, HIGH_PRIORITY),
+    # ------------------------ RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION ------------------------
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'DIY_04.java',
+     ''''Pattern somePattern = Pattern.compile("(?<someGroup>\\w*)\"");''', 0, 0, HIGH_PRIORITY),
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'DIY_05.java',
+     ''''Pattern somePattern = Pattern.compile("[");''', 1, 1, HIGH_PRIORITY),
+    (False, 'RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', 'DIY_05.java',
+     ''''Pattern somePattern = Pattern.compile("[", 0);''', 1, 1, HIGH_PRIORITY)
 ]
 
 
@@ -74,7 +81,8 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
          line_no: int, expected_priority: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine(included_filter=('SingleDotPatternDetector', 'FileSeparatorAsRegexpDetector'))
+    engine = DefaultEngine(included_filter=('SingleDotPatternDetector', 'FileSeparatorAsRegexpDetector', \
+                                            'BadSyntaxForRegularExpressionDetector'))
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

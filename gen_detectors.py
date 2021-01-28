@@ -1,4 +1,5 @@
-from patterns.detect.bad_syntax_for_regular_expression import SingleDotPatternDetector, FileSeparatorAsRegexpDetector
+from patterns.detect.bad_syntax_for_regular_expression import SingleDotPatternDetector, FileSeparatorAsRegexpDetector, \
+    BadSyntaxForRegularExpressionDetector
 from patterns.detect.find_dead_local_stores import FindDeadLocalIncrementInReturn
 from patterns.detect.find_puzzlers import BadMonthDetector, ShiftAddPriorityDetector
 from patterns.detect.find_self_comparison import CheckForSelfComputation, CheckForSelfComparison
@@ -26,7 +27,6 @@ from patterns.detect.find_bad_cast import FindBadCastDetector
 from patterns.detect.naming import ClassNameConventionDetector
 from patterns.detect.naming import MethodNameConventionDetector
 from patterns.detect.dont_use_enum import DontUseEnumDetector
-
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -70,4 +70,5 @@ DETECTOR_DICT = {
     'ClassNameConventionDetector': ClassNameConventionDetector,
     'MethodNameConventionDetector': MethodNameConventionDetector,
     'DontUseEnumDetector': DontUseEnumDetector,
+    'BadSyntaxForRegularExpressionDetector': BadSyntaxForRegularExpressionDetector,
 }

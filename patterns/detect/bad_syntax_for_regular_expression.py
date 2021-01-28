@@ -69,3 +69,26 @@ class FileSeparatorAsRegexpDetector(Detector):
                 self.bug_accumulator.append(
                     BugInstance('RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', priority, filename, lineno,
                                 'File.separator used for regular expression'))
+
+
+class BadSyntaxForRegularExpressionDetector(Detector):
+    def __init__(self):
+        self.pattern = regex.compile(
+            r'(\bPattern)?\.\s*(replaceAll|replaceFirst|split|matches|compile)\s*\("((?:[^\\"]|\\.)*)",?[^)]*\)')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        if any(method in linecontent for method in ('replaceAll', 'replaceFirst', 'split', 'matches', 'compile')):
+            m = self.pattern.search(linecontent)
+            if m:
+                value = m.groups()[2]
+                try:
+                    regex.compile(value)
+                    is_valid = True
+                except regex.error:
+                    is_valid = False
+                if not is_valid:
+                    self.bug_accumulator.append(
+                        BugInstance('RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', priorities.HIGH_PRIORITY, filename, lineno,
+                                    'Invalid syntax for regular expression'))
+
