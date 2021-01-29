@@ -67,7 +67,7 @@ DETECTOR_DICT = {
     'OverwrittenIncrementDetector': OverwrittenIncrementDetector,
     'SingleDotPatternDetector': SingleDotPatternDetector,
     'FileSeparatorAsRegexpDetector': FileSeparatorAsRegexpDetector,
-    'FieldNameConventionDetector': FieldNameConventionDetector
+    'FieldNameConventionDetector': FieldNameConventionDetector,
     'ClassNameConventionDetector': ClassNameConventionDetector,
     'MethodNameConventionDetector': MethodNameConventionDetector,
     'DontUseEnumDetector': DontUseEnumDetector,
