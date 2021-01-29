@@ -1,0 +1,36 @@
+import pytest
+
+from patterns.models.engine import DefaultEngine
+from rparser import parse
+
+params = [
+    # --------------- SA_DOUBLE_ASSIGNMENT ---------------
+    # https://github.com/shweta1021/jenkins/commit/7aa09f4674f41b8514da2acee531a1d01d1d3071
+    (True, 'SA_DOUBLE_ASSIGNMENT', 'core/src/main/java/hudson/model/View.java',
+     '''@@ -1355,7 +1355,7 @@ public static View create(StaplerRequest req, StaplerResponse rsp, ViewGroup own
+    private static View copy(StaplerRequest req, ViewGroup owner, String name) throws IOException {
+        View v;
+        String from = req.getParameter("from");
+        View src = src = owner.getView(from);
+        if(src==null) {
+            if(Util.fixEmpty(from)==null)''', 1, 1358),
+    # DIY
+    (False, 'SA_DOUBLE_ASSIGNMENT', 'Test02.java', '''int foo = foo = 17;''', 1, 1),
+    (False, 'SA_DOUBLE_ASSIGNMENT', 'Test03.java', '''foo = foo = 17 + methodCall(arg1, "arg2");''', 1, 1),
+    (False, 'SA_DOUBLE_ASSIGNMENT', 'Test04.java', '''this.foo = foo = 10;''', 0, 1),
+    (False, 'SA_DOUBLE_ASSIGNMENT', 'Test05.java', '''boolean foo = False;
+foo = foo == True;''', 0, 1),
+]
+
+
+@pytest.mark.parametrize('is_patch,pattern_type,file_name,patch_str,expected_length,line_no', params)
+def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
+    patch = parse(patch_str, is_patch)
+    engine = DefaultEngine(included_filter=['CheckForSelfAssignment', 'CheckForSelfDoubleAssignment'])
+    engine.visit(patch)
+    if expected_length > 0:
+        assert len(engine.bug_accumulator) == expected_length
+        assert engine.bug_accumulator[0].line_no == line_no
+        assert engine.bug_accumulator[0].type == pattern_type
+    else:
+        assert len(engine.bug_accumulator) == 0
