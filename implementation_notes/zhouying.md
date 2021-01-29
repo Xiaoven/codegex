@@ -136,6 +136,38 @@ a=++ a + ++ a + a ++;
 2. 匹配`=`两边操作数
 3. 判断'++'或者'--'是否在左边操作数(即被赋值数)前后
 
+
+## NM_FIELD_NAMING_CONVENTION
+
+> Names of fields that are **not final** should be in mixed case with a lowercase first letter and the first letters of subsequent words capitalized.
+> 因为无法区分local variable和field, 所以匹配field use. 
+>
+> 因为是对不是final的field做检查，所以大概率存在FP，建议加上online search？
+
+### Regex
+
+```regexp
+(\b\w(?:[\w.]|(?P<aux1>\((?:[^()]++|(?&aux1))*\)))*)\.(\w+)\s*([^\s\w])
+```
+
+### Example
+
+```java
+this.myField
+method().myField
+a.method(args).myField
+a.method(expression).myField
+```
+
+### 实现思路
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L432)**\#L438-\#L443
+
+我的思路：
+
+- 提取field
+
+- 参考spotbugs实现思路
+
 ## NM_CLASS_NAMING_CONVENTION
 ### Regex
 
@@ -194,10 +226,10 @@ void methodName(){}
 ```
 int enum = 0;
 private String assert = "hello world";
+
 ```
 
 ### 实现思路
-
 **[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/DontUseEnum.java#L73)**
 
 我的思路:
