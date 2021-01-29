@@ -1,3 +1,5 @@
+
+
 ## Nm: Class defines hashcode(); should it be hashCode()? (NM_LCASE_HASHCODE)
 
 如果方法名为 `hashCode`, 但不符合 `public int hashCode()` 的话，会 build failed
@@ -134,12 +136,11 @@ a=++ a + ++ a + a ++;
 2. 匹配`=`两边操作数
 3. 判断'++'或者'--'是否在左边操作数(即被赋值数)前后
 
-
 ## NM_CLASS_NAMING_CONVENTION
 ### Regex
 
 ```regexp
-class\s+([A-Za-z_$0-9]+).*{
+class\s+([a-z][\w$]+).*{
 ```
 
 ### Example
@@ -156,16 +157,17 @@ class hashCODEnoEQUALS{
 
 
 ## NM_METHOD_NAMING_CONVENTION
-
 ### Regex
 
 ```regexp
-\w+\s+(\w+)\s*\(.*\)\s*{
+\b\w+[\s.]+(\w+)\s*\(
 ```
 
 ### Example
+
 ```java
-private boolean MethodName(Obejct o){
+a.methodName()
+void methodName(){}
 ```
 
 ### 实现思路
@@ -185,7 +187,7 @@ private boolean MethodName(Obejct o){
 ### Regex
 
 ```
-\w+\s+(enum|assert)\s*=\s*
+\b(enum|assert)\s*[^\w$\s(]
 ```
 
 ### Example
@@ -212,7 +214,7 @@ private String assert = "hello world";
 ### Regex
 
 ```
-\w+\s+(enum|assert)\s*\(.*\)\s*{
+\b\w+[\s.]+(enum|assert)\s*\(
 ```
 
 ### Example
@@ -229,6 +231,34 @@ protected Boolean assert(...){}
 
 - 匹配命名为`enum` or `assert` 的方法名
 
+
+## SA_SELF_ASSIGNMENT
+
+合并**SA_FIELD_SELF_ASSIGNMENT** 与 **SA_LOCAL_SELF_ASSIGNMENT**, 也可能是**SA_LOCAL_SELF_ASSIGNMENT_INSTEAD_OF_FIELD**
+
+### Regex
+
+```regexp
+(\b\w[\w.]*)\s*=\s*(\w[\w.]*)\s*;
+```
+
+### Example
+
+```java
+public void foo() {
+    int x = 3;
+    x = x;
+}
+```
+
+### 实现思路
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindFieldSelfAssignment.java#L83)**
+
+我的思路:
+
+直接匹配
+
+
 ## SA_DOUBLE_ASSIGNMENT
 
 合并**SA_FIELD_DOUBLE_ASSIGNMENT**与 **SA_LOCAL_DOUBLE_ASSIGNMENT**
@@ -236,7 +266,7 @@ protected Boolean assert(...){}
 ## Regex
 
 ```regexp
-\b(\w[\w.]*)\s*=\s*(\1)\s*=
+\b(\w[\w.]*)\s*=\s*(\w[\w.]*)\s*=[^=]
 ```
 
 ### Example
@@ -247,7 +277,6 @@ foo = foo = 17 + methodCall(arg1, "arg2");
 ```
 
 ### 实现思路
-
 **[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindSelfComparison.java#L157)**
 
 我的思路:

@@ -26,7 +26,7 @@ from patterns.detect.find_bad_cast import FindBadCastDetector
 from patterns.detect.naming import ClassNameConventionDetector
 from patterns.detect.naming import MethodNameConventionDetector
 from patterns.detect.dont_use_enum import DontUseEnumDetector
-from patterns.detect.find_self_assignment import CheckForSelfDoubleAssignment
+from patterns.detect.find_self_assignment import CheckForSelfAssignment, CheckForSelfDoubleAssignment
 
 
 DETECTOR_DICT = {
@@ -71,5 +71,6 @@ DETECTOR_DICT = {
     'ClassNameConventionDetector': ClassNameConventionDetector,
     'MethodNameConventionDetector': MethodNameConventionDetector,
     'DontUseEnumDetector': DontUseEnumDetector,
+    'CheckForSelfAssignment': CheckForSelfAssignment,
     'CheckForSelfDoubleAssignment': CheckForSelfDoubleAssignment,
 }
