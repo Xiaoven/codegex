@@ -23,6 +23,10 @@ from patterns.detect.format_string_checker import NewLineDetector
 from patterns.detect.find_float_equality import FloatEqualityDetector
 from patterns.detect.find_puzzlers import OverwrittenIncrementDetector
 from patterns.detect.find_bad_cast import FindBadCastDetector
+from patterns.detect.naming import ClassNameConventionDetector, MethodNameConventionDetector, FieldNameConventionDetector
+from patterns.detect.dont_use_enum import DontUseEnumDetector
+from patterns.detect.find_self_assignment import CheckForSelfAssignment, CheckForSelfDoubleAssignment
+
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -63,4 +67,10 @@ DETECTOR_DICT = {
     'OverwrittenIncrementDetector': OverwrittenIncrementDetector,
     'SingleDotPatternDetector': SingleDotPatternDetector,
     'FileSeparatorAsRegexpDetector': FileSeparatorAsRegexpDetector,
+    'FieldNameConventionDetector': FieldNameConventionDetector,
+    'ClassNameConventionDetector': ClassNameConventionDetector,
+    'MethodNameConventionDetector': MethodNameConventionDetector,
+    'DontUseEnumDetector': DontUseEnumDetector,
+    'CheckForSelfAssignment': CheckForSelfAssignment,
+    'CheckForSelfDoubleAssignment': CheckForSelfDoubleAssignment,
 }
