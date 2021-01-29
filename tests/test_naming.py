@@ -124,11 +124,15 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal( Object o ){''', 1, 1),
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''static boolean equal(Object o )''', 1, 1),
     # ------------------------ NM_FIELD_NAMING_CONVENTION ------------------------
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_40.java', '''this.Field''', 1, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_41.java', '''this.FIELD''', 0, 1),
+    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_40.java', '''this.Field = field;''', 1, 1),
+    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_41.java', '''this.FIELD = field;''', 0, 1),
     (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_42.java', '''this.My_FIELD''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_43.java', '''public class SpringLiquibase extends liquibase.integration.spring.CLASS{''', 0, 1),
+    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_43.java',
+     '''public class SpringLiquibase extends liquibase.integration.spring.CLASS{''', 0, 1),
     (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_44.java', '''@InterfaceAudience.Public''', 0, 1),
+    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_45.java', '''b = a.get();''', 0, 1),
+    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_46.java', '''b = obj1.FieldOne.field;''', 1, 1),
+    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_47.java', '''b = obj1.get().field;''', 0, 1),
 ]
 
 
