@@ -57,20 +57,21 @@ class FindRoughConstantsDetector(Detector):
         self.regexp = re.compile(r'(\d*\.\d+)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-            match = self.regexp.findall(linecontent)
-            for m in match:
-                float_const = float(m)
-                p, bad_const = check_const(float_const)
-                if p < priorities.IGNORE_PRIORITY:
-                    get_exact_lineno = kwargs.get('get_exact_lineno', None)
-                    if get_exact_lineno:
-                        tmp = get_exact_lineno(m)
-                        if tmp:
-                            lineno = tmp[1]
-                    bug_ins = RoughConstantValueBugInstance("CNT_ROUGH_CONSTANT_VALUE", p, filename, lineno)
-                    bug_ins.gen_description(float_const, bad_const)
-                    self.bug_accumulator.append(bug_ins)
+    def match(self, context):
+        line_content = context.cur_line.content
+        line_no = context.cur_line.lineno[1]
+        its = self.regexp.findall(line_content)
+        for m in its:
+            float_const = float(m)
+            p, bad_const = check_const(float_const)
+            if p < priorities.IGNORE_PRIORITY:
+                if hasattr(context.cur_line, 'get_exact_lineno'):
+                    tmp = context.cur_line.get_exact_lineno(m)
+                    if tmp:
+                        line_no = tmp[1]
+                bug_ins = RoughConstantValueBugInstance("CNT_ROUGH_CONSTANT_VALUE", p, context.cur_patch.name, line_no)
+                bug_ins.gen_description(float_const, bad_const)
+                self.bug_accumulator.append(bug_ins)
 
 
 class RoughConstantValueBugInstance(BugInstance):

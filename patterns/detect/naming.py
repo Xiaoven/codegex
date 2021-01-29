@@ -16,11 +16,12 @@ class SimpleSuperclassNameDetector(Detector):
         self.pattern = CLASS_EXTENDS_REGEX
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if not all(key in linecontent for key in ('class', 'extends')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        if not all(key in line_content for key in ('class', 'extends')):
             return
 
-        m = self.pattern.search(linecontent.strip())
+        m = self.pattern.search(line_content.strip())
         if m:
             g = m.groups()
             class_name = g[0]
@@ -28,10 +29,11 @@ class SimpleSuperclassNameDetector(Detector):
             super_classes_list = [name.rsplit('.', 1)[-1].strip() for name in super_classes.split(',')]
 
             if class_name in super_classes_list:
-                if len(linecontent) == len(linecontent.lstrip()):
+                if len(line_content) == len(line_content.lstrip()):
                     self.bug_accumulator.append(
-                        BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', priorities.HIGH_PRIORITY, filename, lineno,
-                                    "Class names shouldn’t shadow simple name of superclass")
+                        BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', priorities.HIGH_PRIORITY,
+                                    context.cur_patch.name, context.cur_line.lineno[1],
+                                    'Class names shouldn’t shadow simple name of superclass')
                     )
 
 
@@ -46,11 +48,12 @@ class SimpleInterfaceNameDetector(Detector):
         self.pattern2 = INTERFACE_EXTENDS_REGEX
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if all(key in linecontent for key in ('class', 'implements')):
-            m = self.pattern1.search(linecontent.strip())
-        elif all(key in linecontent for key in ('interface', 'extends')):
-            m = self.pattern2.search(linecontent.strip())
+    def match(self, context):
+        line_content = context.cur_line.content
+        if all(key in line_content for key in ('class', 'implements')):
+            m = self.pattern1.search(line_content.strip())
+        elif all(key in line_content for key in ('interface', 'extends')):
+            m = self.pattern2.search(line_content.strip())
         else:
             return
 
@@ -61,10 +64,11 @@ class SimpleInterfaceNameDetector(Detector):
             super_interface_list = [name.rsplit('.', 1)[-1].strip() for name in super_interfaces.split(',')]
 
             if class_name in super_interface_list:
-                if len(linecontent) == len(linecontent.lstrip()):
+                if len(line_content) == len(line_content.lstrip()):
                     self.bug_accumulator.append(
-                        BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', priorities.MEDIUM_PRIORITY, filename, lineno,
-                                    "Class or interface names shouldn’t shadow simple name of implemented interface")
+                        BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', priorities.MEDIUM_PRIORITY,
+                                    context.cur_patch.name, context.cur_line.lineno[1],
+                                    'Class or interface names shouldn’t shadow simple name of implemented interface')
                     )
 
 
@@ -74,14 +78,16 @@ class HashCodeNameDetector(Detector):
         self.pattern = regex.compile(r'^[\w\s]*?\bint\s+hashcode\s*\(\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        strip_line = linecontent.strip()
-        if strip_line.startswith('private') or any(key not in linecontent for key in ('int', 'hashcode')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        strip_line = line_content.strip()
+        if strip_line.startswith('private') or any(key not in line_content for key in ('int', 'hashcode')):
             return
 
         m = self.pattern.match(strip_line)
         if m:
-            self.bug_accumulator.append(BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY, filename, lineno,
+            self.bug_accumulator.append(BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY,
+                                                    context.cur_patch.name, context.cur_line.lineno[1],
                                                     "Class defines hashcode(); should it be hashCode()?"))
 
 
@@ -91,14 +97,17 @@ class ToStringNameDetector(Detector):
         self.pattern = regex.compile(r'^[\w\s]*?\bString\s+tostring\s*\(\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        strip_line = linecontent.strip()
-        if strip_line.startswith('private') or any(key not in linecontent for key in ('String', 'tostring')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        strip_line = line_content.strip()
+        if strip_line.startswith('private') or any(key not in line_content for key in ('String', 'tostring')):
             return
         m = self.pattern.search(strip_line)
         if m:
-            self.bug_accumulator.append(BugInstance('NM_LCASE_TOSTRING', priorities.HIGH_PRIORITY, filename, lineno,
-                                                    "Class defines tostring(); should it be toString()?"))
+            self.bug_accumulator.append(
+                BugInstance('NM_LCASE_TOSTRING', priorities.HIGH_PRIORITY, context.cur_patch.name,
+                            context.cur_line.lineno[1],
+                            'Class defines tostring(); should it be toString()?'))
 
 
 class EqualNameDetector(Detector):
@@ -107,15 +116,17 @@ class EqualNameDetector(Detector):
         self.pattern = regex.compile(r'^[\w\s]*?\bboolean\s+equal\s*\(\s*Object\s+[\w$]+\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        strip_line = linecontent.strip()
-        if strip_line.startswith('private') or 'equals' in linecontent \
-                or any(key not in linecontent for key in ('boolean', 'equal')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        strip_line = line_content.strip()
+        if strip_line.startswith('private') or 'equals' in line_content \
+                or any(key not in line_content for key in ('boolean', 'equal')):
             return
         m = self.pattern.search(strip_line)
         if m:
-            self.bug_accumulator.append(BugInstance('NM_BAD_EQUAL', priorities.HIGH_PRIORITY, filename, lineno,
-                                                    "Class defines equal(Object); should it be equals(Object)?"))
+            self.bug_accumulator.append(BugInstance('NM_BAD_EQUAL', priorities.HIGH_PRIORITY, context.cur_patch.name,
+                                                    context.cur_line.lineno[1],
+                                                    'Class defines equal(Object); should it be equals(Object)?'))
 
 
 class FieldNameConventionDetector(Detector):
@@ -124,8 +135,8 @@ class FieldNameConventionDetector(Detector):
         self.fn_pattern = regex.compile(r'(\b\w(?:[\w.]|(?P<aux1>\((?:[^()]++|(?&aux1))*\)))*)\.(\w+)\s*([^\s\w])')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        strip_line = linecontent.strip()
+    def match(self, context):
+        strip_line = context.cur_line.content.strip()
         if not any(key in strip_line for key in ('import', 'class', '@', 'interface')) and '.' in strip_line:
             its = self.fn_pattern.finditer(strip_line)
             for m in its:
@@ -144,18 +155,19 @@ class FieldNameConventionDetector(Detector):
                     if len(field_name) >= 2 and field_name[0].isalpha() and not field_name[0].islower() and \
                             field_name[1].isalpha() and field_name[1].islower() and '_' not in field_name:
                         self.bug_accumulator.append(
-                            BugInstance('NM_FIELD_NAMING_CONVENTION', priorities.LOW_PRIORITY, filename, lineno,
-                                        "Nm: Field names should start with a lower case letter"))
-                        
-                        
+                            BugInstance('NM_FIELD_NAMING_CONVENTION', priorities.LOW_PRIORITY, context.cur_patch.name,
+                                        context.cur_line.lineno[1],
+                                        'Nm: Field names should start with a lower case letter'))
+
+
 class ClassNameConventionDetector(Detector):
     def __init__(self):
         # Match class name
         self.cn_pattern = regex.compile(r'class\s+([a-z][\w$]+).*{')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        strip_line = linecontent.strip()
+    def match(self, context):
+        strip_line = context.cur_line.content.strip()
         if 'class ' in strip_line and '{' in strip_line:
             its = self.cn_pattern.finditer(strip_line)
             for m in its:
@@ -165,14 +177,14 @@ class ClassNameConventionDetector(Detector):
                 # reference from https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222
                 # /spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L389
                 if '_' not in class_name:
+                    priority = priorities.LOW_PRIORITY
                     if any(access in strip_line for access in ('public', 'protected')):
-                        self.bug_accumulator.append(BugInstance('NM_CLASS_NAMING_CONVENTION',
-                                                                priorities.MEDIUM_PRIORITY, filename, lineno,
-                                                                "Nm: Class names should start with an upper case letter"))
-                    else:
-                        self.bug_accumulator.append(BugInstance('NM_CLASS_NAMING_CONVENTION',
-                                                                priorities.LOW_PRIORITY, filename, lineno,
-                                                                "Nm: Class names should start with an upper case letter"))
+                        priority = priorities.MEDIUM_PRIORITY
+
+                    self.bug_accumulator.append(
+                        BugInstance('NM_CLASS_NAMING_CONVENTION', priority, context.cur_patch.name,
+                                    context.cur_line.lineno[1],
+                                    'Nm: Class names should start with an upper case letter'))
 
 
 class MethodNameConventionDetector(Detector):
@@ -181,18 +193,19 @@ class MethodNameConventionDetector(Detector):
         self.mn_pattern = regex.compile(r'\b\w+[\s.]+(\w+)\s*\(')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        strip_line = linecontent.strip()
+    def match(self, context):
+        strip_line = context.cur_line.content.strip()
         if '(' in strip_line and ')' in strip_line:
             its = self.mn_pattern.finditer(strip_line)
             for m in its:
                 method_name = m.groups()[0]
                 if len(method_name) >= 2 and method_name[0].isalpha() and not method_name[0].islower() and \
                         method_name[1].isalpha() and method_name[1].islower() and '_' not in method_name:
+                    priority = priorities.LOW_PRIORITY
                     if any(access in strip_line for access in ('public', 'protected')):
-                        self.bug_accumulator.append(BugInstance('NM_METHOD_NAMING_CONVENTION', priorities.MEDIUM_PRIORITY, filename, lineno,
-                                                                "Nm: Method names should start with a lower case letter"))
-                    else:
-                        self.bug_accumulator.append(
-                            BugInstance('NM_METHOD_NAMING_CONVENTION', priorities.LOW_PRIORITY, filename, lineno,
-                                        "Nm: Method names should start with a lower case letter"))
+                        priority = priorities.MEDIUM_PRIORITY
+
+                    self.bug_accumulator.append(
+                        BugInstance('NM_METHOD_NAMING_CONVENTION', priority, context.cur_patch.name,
+                                    context.cur_line.lineno[1],
+                                    'Nm: Method names should start with a lower case letter'))

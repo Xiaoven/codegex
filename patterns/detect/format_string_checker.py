@@ -10,20 +10,21 @@ class NewLineDetector(Detector):
         super().__init__()
         self.p = re.compile(r'(?:(?:String\.format)|printf)\([\w.\s()]*,?\s*"([^"]*)"\s*')
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        m = self.p.search(linecontent.strip())
+    def match(self, context):
+        line_content = context.cur_line.content
+        line_no = context.cur_line.lineno[1]
+        m = self.p.search(line_content.strip())
         if m:
             format_str = m.groups()[0]
 
             if '\\n' in format_str:
-                get_exact_lineno = kwargs.get('get_exact_lineno', None)
-                if get_exact_lineno:
-                    tmp = get_exact_lineno(format_str)
+                if hasattr(context.cur_line, 'get_exact_lineno'):
+                    tmp = context.cur_line.get_exact_lineno(format_str)
                     if tmp:
-                        lineno = tmp[1]
+                        line_no = tmp[1]
 
                 self.bug_accumulator.append(
                     BugInstance('VA_FORMAT_STRING_USES_NEWLINE', priorities.MEDIUM_PRIORITY,
-                                filename, lineno,
+                                context.cur_patch.name, line_no,
                                 'Format string should use %n rather than \\n')
                 )

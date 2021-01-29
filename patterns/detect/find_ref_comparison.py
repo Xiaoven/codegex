@@ -19,14 +19,15 @@ class EqualityDetector(Detector):
         self.bool_objs = ('Boolean.TRUE', 'Boolean.FALSE')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+    def match(self, context):
+        line_content = context.cur_line.content
         # Leading [\w."] may cause to catastrophic backtracking,
         # and it is a little complicate to rewrite regex with word boundary `\b`
         # therefore, use the following condition to speed up.
-        if not any(op in linecontent for op in ['==', '!=']):
+        if not any(op in line_content for op in ['==', '!=']):
             return
 
-        its = self.p.finditer(linecontent.strip())
+        its = self.p.finditer(line_content.strip())
         for m in its:
             op_1 = m.groups()[0]  # m.groups()[1] is the result of named pattern
             op_2 = m.groups()[2]
@@ -34,7 +35,7 @@ class EqualityDetector(Detector):
             if op_1 in self.bool_objs or op_2 in self.bool_objs:
                 self.bug_accumulator.append(
                     BugInstance('RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN', priorities.MEDIUM_PRIORITY,
-                                filename, lineno,
+                                context.cur_patch.name, context.cur_line.lineno[1],
                                 "Suspicious reference comparison of Boolean values")
                 )
                 break
@@ -50,7 +51,7 @@ class EqualityDetector(Detector):
                 else:
                     self.bug_accumulator.append(
                         BugInstance('ES_COMPARING_STRINGS_WITH_EQ', priorities.MEDIUM_PRIORITY,
-                                    filename, lineno,
+                                    context.cur_patch.name, context.cur_line.lineno[1],
                                     "Suspicious reference comparison of String objects"))
                     break
 
@@ -61,11 +62,13 @@ class CallToNullDetector(Detector):
             r'\.equals\s*\(\s*null\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        its = self.p.finditer(linecontent.strip())
+    def match(self, context):
+        line_content = context.cur_line.content
+        its = self.p.finditer(line_content.strip())
         for m in its:
             self.bug_accumulator.append(
                 BugInstance('EC_NULL_ARG', priorities.MEDIUM_PRIORITY,
-                            filename, lineno,
+                            context.cur_patch.name, context.cur_line.lineno[1],
                             "Call to equals(null)")
             )
+            return

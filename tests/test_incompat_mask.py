@@ -1,5 +1,6 @@
 import pytest
 
+from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 from patterns.models.priorities import *
@@ -64,7 +65,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
          line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine(included_filter=['IncompatMaskDetector'])
+    engine = DefaultEngine(Context(), included_filter=['IncompatMaskDetector'])
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
@@ -151,7 +152,7 @@ testcases = [
 def test_spotbugs_cases(patch_str: str, expected_warning: str, expected_length: str, expected_line_no: int,
                         expected_priority: int):
     patch = parse(patch_str, is_patch=False)
-    engine = DefaultEngine(included_filter=['IncompatMaskDetector'])
+    engine = DefaultEngine(Context(), included_filter=['IncompatMaskDetector'])
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
@@ -194,7 +195,7 @@ def test_1():
          if ((i | 16L) == 2) System.out.println("warn");
          if ((i | 16L) != 2) System.out.println("warn");
     }''', is_patch=False)
-    engine = DefaultEngine(included_filter=['IncompatMaskDetector'])
+    engine = DefaultEngine(Context(), included_filter=['IncompatMaskDetector'])
     engine.visit(patch)
     assert len(engine.bug_accumulator) == 8
     assert engine.bug_accumulator[0].type == 'BIT_AND'
@@ -256,7 +257,7 @@ def test_2():
             return; /* never equal */
         System.out.println("foo");
     }''', is_patch=False)
-    engine = DefaultEngine(included_filter=['IncompatMaskDetector'])
+    engine = DefaultEngine(Context(), included_filter=['IncompatMaskDetector'])
     engine.visit(patch)
     assert len(engine.bug_accumulator) == 18
 
@@ -271,7 +272,7 @@ def test_3():
             System.out.println();
         }
     }''', is_patch=False)
-    engine = DefaultEngine(included_filter=['IncompatMaskDetector'])
+    engine = DefaultEngine(Context(), included_filter=['IncompatMaskDetector'])
     engine.visit(patch)
     assert len(engine.bug_accumulator) == 2
     assert engine.bug_accumulator[0].type == 'BIT_IOR'

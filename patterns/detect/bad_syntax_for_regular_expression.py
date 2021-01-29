@@ -10,10 +10,11 @@ class SingleDotPatternDetector(Detector):
         self.pattern = regex.compile(r'\.\s*(replaceAll|replaceFirst|split|matches)\s*\(\s*"([.|])\s*"\s*,?([^)]*)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if any(method in linecontent for method in ('replaceAll', 'replaceFirst', 'split', 'matches')) \
-                and any(key in linecontent for key in ('"."', '"|"')):
-            m = self.pattern.search(linecontent)
+    def match(self, context):
+        line_content = context.cur_line.content
+        if any(method in line_content for method in ('replaceAll', 'replaceFirst', 'split', 'matches')) \
+                and any(key in line_content for key in ('"."', '"|"')):
+            m = self.pattern.search(line_content)
             if m:
                 g = m.groups()
                 method_name = g[0]
@@ -35,7 +36,8 @@ class SingleDotPatternDetector(Detector):
                         elif len(arg_2) == 3:
                             priority = priorities.LOW_PRIORITY
 
-                self.bug_accumulator.append(BugInstance('RE_POSSIBLE_UNINTENDED_PATTERN', priority, filename, lineno,
+                self.bug_accumulator.append(BugInstance('RE_POSSIBLE_UNINTENDED_PATTERN', priority,
+                                                        context.cur_patch.name, context.cur_line.lineno[1],
                                                         '“.” or “|” used for regular expressions'))
 
 
@@ -45,10 +47,11 @@ class FileSeparatorAsRegexpDetector(Detector):
             r'(\bPattern)?\.\s*(replaceAll|replaceFirst|split|matches|compile)\s*\(\s*File\.separator\s*,?([^)]*)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if 'File.separator' in linecontent and any(
-                method in linecontent for method in ('replaceAll', 'replaceFirst', 'split', 'matches', 'compile')):
-            m = self.pattern.search(linecontent)
+    def match(self, context):
+        line_content = context.cur_line.content
+        if 'File.separator' in line_content and any(
+                method in line_content for method in ('replaceAll', 'replaceFirst', 'split', 'matches', 'compile')):
+            m = self.pattern.search(line_content)
             if m:
                 g = m.groups()
                 class_name = g[0]
@@ -67,5 +70,6 @@ class FileSeparatorAsRegexpDetector(Detector):
                     priority = priorities.LOW_PRIORITY
 
                 self.bug_accumulator.append(
-                    BugInstance('RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION', priority, filename, lineno,
+                    BugInstance('RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION', priority, context.cur_patch.name,
+                                context.cur_line.lineno[1],
                                 'File.separator used for regular expression'))

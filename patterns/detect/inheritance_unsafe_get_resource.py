@@ -1,96 +1,110 @@
-import re
-
 import cachetools
+import regex
 from cachetools import cached, LRUCache
 
-from config import CONFIG
+from patterns.models import priorities
 from patterns.models.bug_instance import BugInstance
 from patterns.models.detectors import Detector
-from utils import send, log_message
-from patterns.models import priorities
+from utils import send
 
 _cache = LRUCache(maxsize=500)
 
-
-def clear_cache():
-    _cache.clear()
-
-
-def online_search(simple_name: str):
-    """
-    Search "extends @simple_name" with Github API in the remote repository.
-    :param simple_name: Simple name of super class
-    :return: The number of search results, or -1 if searching fails
-    """
-    repo_name = CONFIG.get('repo_name', None)
-    if repo_name:
-        query = f'https://api.github.com/search/code?q=%22extends+{simple_name}%22+in:file' \
-                f'+language:Java+repo:{repo_name}'
-        token = CONFIG.get('token', '')
-        resp = send(query, token, 3)
-
-        if resp:
-            jresp = resp.json()
-            if 'total_count' in jresp:
-                return jresp['total_count']
-
-        log_message(f'[Online Search Error]{query} No response, or response doesn\'t contain key "total_count"',
-                    level='error')
-
-    else:
-        log_message(f'[Online Search Error]{query} Attribute "repo_name" not set. '
-                    'If you set attribute "enable_online_search" as True, then you should also set "repo_name"',
-                    level='error')
-    return -1
-
-
-@cached(cache=_cache, key=lambda simple_name, local_search=None: cachetools.keys.hashkey(simple_name))
-def decide_priority(simple_name: str, local_search=None):
-    """
-    Decide the priority according to search results of local search or online search
-    :param simple_name: Simple name of super class
-    :param local_search: function passed by Engine to search in current patch set
-    :return: MEDIUM_PRIORITY if extended, else IGNORE_PRIORITY
-    """
-
-    # local search if enabled
-    if CONFIG.get('enable_local_search', False):
-        assert local_search is not None
-        file_name = local_search(simple_name)
-        if file_name:
-            return priorities.MEDIUM_PRIORITY
-    # online search if enabled
-    if CONFIG.get('enable_online_search', False):
-        total_count = online_search(simple_name)
-        if total_count > 0:
-            return priorities.MEDIUM_PRIORITY
-        else:
-            return None
-    # default priority
-    return priorities.IGNORE_PRIORITY
+GENERIC_REGEX = regex.compile(r'(?P<gen><(?:[^<>]++|(?&gen))*>)')
+CLASS_EXTENDS_REGEX = regex.compile(r'class\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)')
+INTERFACE_EXTENDS_REGEX = regex.compile(r'interface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)')
 
 
 class GetResourceDetector(Detector):
     def __init__(self):
-        self.pattern = re.compile(r'(?:(\b\w+)\.)?getClass\(\s*\)\.getResource(?:AsStream)?\(')
+        self.pattern = regex.compile(r'(?:(\b\w+)\.)?getClass\(\s*\)\.getResource(?:AsStream)?\(')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if not all(method in linecontent for method in ['getClass', 'getResource']):
+        self.patch_set, self.extends_dict = None, dict()  # If patch_set is updated, then update extends_dict
+
+    def match(self, context):
+        line_content = context.cur_line.content.strip()
+        if not all(method in line_content for method in ['getClass', 'getResource']):
             return
 
-        m = self.pattern.search(linecontent.strip())
+        m = self.pattern.search(line_content)
         if m:
             obj_name = m.groups()[0]
             if not obj_name or obj_name == 'this':
-                simple_name = filename.rstrip('.java').rsplit('/', 1)[-1]  # default class name is the filename
-                local_search = kwargs.get('local_search', None)
-                priority = decide_priority(simple_name, local_search)
+                simple_name = context.cur_patch.name.rstrip('.java').rsplit('/', 1)[-1]  # default class name is the filename
+                priority = self.decide_priority(simple_name, context)
 
                 if priority is None:
                     return
 
                 self.bug_accumulator.append(
-                    BugInstance('UI_INHERITANCE_UNSAFE_GETRESOURCE', priority, filename, lineno,
+                    BugInstance('UI_INHERITANCE_UNSAFE_GETRESOURCE', priority, context.cur_patch.name,
+                                context.cur_line.lineno[1],
                                 'Usage of GetResource may be unsafe if class is extended')
                 )
+
+    @cached(cache=_cache, key=lambda self, simple_name, context: cachetools.keys.hashkey(simple_name))
+    def decide_priority(self, simple_name, context):
+        """
+        Decide the priority according to search results of local search or online search
+        :param simple_name: simple name of class
+        :param context: context object to analysis
+        :return: MEDIUM_PRIORITY if extended, else IGNORE_PRIORITY
+        """
+        # check if patch_set is updated
+        if context.patch_set != self.patch_set:
+            self.patch_set = context.patch_set
+            self._init_extends_dict()
+            _cache.clear()
+
+        # local search
+        if context.local_search():
+            for patch_name, extended_name_list in self.extends_dict.items():
+                if simple_name in extended_name_list:
+                    return priorities.MEDIUM_PRIORITY
+        # online search
+        if context.online_search():
+            repo_name, token = context.get_online_search_info()
+            if context:
+                query = f'https://api.github.com/search/code?q=%22extends+{simple_name}%22+in:file' \
+                        f'+language:Java+repo:{repo_name}'
+                resp = send(query, token, 3)
+
+                if resp:
+                    jresp = resp.json()
+                    if 'total_count' in jresp:
+                        if jresp['total_count'] > 0:
+                            return priorities.MEDIUM_PRIORITY
+                        else:
+                            return None
+
+        # default priority
+        return priorities.IGNORE_PRIORITY
+
+    def _init_extends_dict(self, ):
+        self.extends_dict.clear()
+        if not self.patch_set:
+            return
+        for patch in self.patch_set:
+            extended_names_in_patch = set()
+            for hunk in patch:
+                for line in hunk:
+                    if line.prefix == '-':
+                        continue
+
+                    if 'extends' in line.content:
+                        if 'class' in line.content:
+                            m = CLASS_EXTENDS_REGEX.search(line.content.strip())
+                        elif 'interface' in line.content:
+                            m = INTERFACE_EXTENDS_REGEX.search(line.content.strip())
+                        else:
+                            continue
+
+                        if m:
+                            g = m.groups()
+                            extended_str = GENERIC_REGEX.sub('', g[-1])  # remove <...>
+                            extended_names_in_line = [name.rsplit('.', 1)[-1].strip() for name in
+                                                      extended_str.split(',')]
+                            extended_names_in_patch.update(extended_names_in_line)
+
+            if extended_names_in_patch:
+                self.extends_dict[patch.name] = extended_names_in_patch

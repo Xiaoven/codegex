@@ -10,11 +10,12 @@ class CheckForSelfComputation(Detector):
         self.pattern = regex.compile(r'(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*)\s*([|^&-])\s*([\w.]+(?&aux1)*)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if all(op not in linecontent for op in ('&', '|', '^', '-')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        if all(op not in line_content for op in ('&', '|', '^', '-')):
             return
 
-        its = self.pattern.finditer(linecontent)
+        its = self.pattern.finditer(line_content)
         for m in its:
             g = m.groups()
             obj_1 = g[0]
@@ -22,7 +23,8 @@ class CheckForSelfComputation(Detector):
             obj_2 = g[3]
             if obj_1 == obj_2 and op in ('&', '|', '^', '-'):
                 self.bug_accumulator.append(
-                    BugInstance('SA_SELF_COMPUTATION', Priorities.MEDIUM_PRIORITY, filename, lineno,
+                    BugInstance('SA_SELF_COMPUTATION', Priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                                context.cur_line.lineno[1],
                                 'Nonsensical self computation involving a variable or field')
                 )
                 return
@@ -36,10 +38,11 @@ class CheckForSelfComparison(Detector):
             r'\b((?:[\w\.$"]|(?:\(\s*\)))+)\s*\.\s*(?:equals|compareTo|endsWith|startsWith|contains|equalsIgnoreCase|compareToIgnoreCase)(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+    def match(self, context):
+        line_content = context.cur_line.content
         hit = False
-        if any(op in linecontent for op in ('>', '<', '>=', '<=', '==', '!=')):
-            its = self.pattern_1.finditer(linecontent)
+        if any(op in line_content for op in ('>', '<', '>=', '<=', '==', '!=')):
+            its = self.pattern_1.finditer(line_content)
             for m in its:
                 g = m.groups()
                 obj_1 = g[0]
@@ -49,9 +52,9 @@ class CheckForSelfComparison(Detector):
                     hit = True
                     break
 
-        if not hit and any(method in linecontent for method in ('equals', 'compareTo', 'endsWith', 'startsWith',
+        if not hit and any(method in line_content for method in ('equals', 'compareTo', 'endsWith', 'startsWith',
                                                                 'contains', 'equalsIgnoreCase', 'compareToIgnoreCase')):
-            its = self.pattern_2.finditer(linecontent)
+            its = self.pattern_2.finditer(line_content)
             for m in its:
                 g = m.groups()
                 before_method = g[0]
@@ -69,7 +72,8 @@ class CheckForSelfComparison(Detector):
 
         if hit:
             self.bug_accumulator.append(
-                BugInstance('SA_SELF_COMPARISON', Priorities.MEDIUM_PRIORITY, filename, lineno,
+                BugInstance('SA_SELF_COMPARISON', Priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                            context.cur_line.lineno[1],
                             'Self comparison of value or field with itself')
             )
 

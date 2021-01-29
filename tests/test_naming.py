@@ -1,5 +1,6 @@
 import pytest
 
+from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 
@@ -165,12 +166,10 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     patch = parse(patch_str, is_patch)
     patch.name = file_name
 
-
-    engine = DefaultEngine(included_filter=[
+    engine = DefaultEngine(Context(), included_filter=[
         'SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector', 'HashCodeNameDetector', 'ToStringNameDetector',
         'EqualNameDetector', 'ClassNameConventionDetector', 'MethodNameConventionDetector', 'FieldNameConventionDetector',
         ])
-  
     engine.visit(patch)
 
     if expected_length > 0:

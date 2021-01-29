@@ -1,6 +1,6 @@
 import pytest
 
-from patterns.detect.infinite_recursive_loop import CollectionAddItselfDetector
+from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 
@@ -30,7 +30,7 @@ params = [
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine(included_filter=['CollectionAddItselfDetector'])
+    engine = DefaultEngine(Context(), included_filter=['CollectionAddItselfDetector'])
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

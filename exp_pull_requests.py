@@ -1,13 +1,12 @@
 import glob
-import json
 import re
 from os import path
 import json
 
+from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 from utils import logger, logger_add, TRACE
-from config import CONFIG
 from timer import Timer
 
 
@@ -96,7 +95,6 @@ def get_modified_patchset(path):
                 if 'patch' in file and file['status'] != 'removed':
                     patch = parse(file['patch'], name=name)
                     patch.type = file['status']
-
                     patchset.append(patch)
     return patchset
 
@@ -110,18 +108,18 @@ def run():
     trace = logger_add(report_path, f'{cnt}.log')
     has_bug = False
 
-    engine = DefaultEngine()
-    CONFIG['enable_local_search'] = True
-    CONFIG['enable_online_search'] = True
-    CONFIG['token'] = ''
+    context = Context()
+    context.enable_online_search()
+    engine = DefaultEngine(context)
 
     re_repo = re.compile(r'PullRequests/java/files/(.+?)/pulls/(\d+)')
 
     for p in paths:
         m = re_repo.search(p)
         if m:
-            repo_name = CONFIG['repo_name'] = m.groups()[0]
+            repo_name = m.groups()[0]
             pr_id = m.groups()[1]
+            engine.context.update_repo_name(repo_name)
         else:
             continue
 

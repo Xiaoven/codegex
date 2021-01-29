@@ -10,20 +10,19 @@ class FindBadCastDetector(Detector):
             r'\(\s*(\w+)\s*\[\s*\]\s*\)\s*((?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.$<>\s])+?)\s*\.\s*toArray\s*\(\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if 'toArray' not in linecontent:
+    def match(self, context):
+        line_content = context.cur_line.content
+        if 'toArray' not in line_content:
             return
 
-        its = self.pattern.finditer(linecontent)
+        its = self.pattern.finditer(line_content)
         for m in its:
             g = m.groups()
-            type_name = g[0]
-            obj_name = g[1]
 
-            if g[0] != 'Object' and 'Arrays.asList' not in linecontent:
+            if g[0] != 'Object' and 'Arrays.asList' not in line_content:
                 self.bug_accumulator.append(
                     BugInstance('BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY', priorities.HIGH_PRIORITY,
-                                filename, lineno,
+                                context.cur_patch.name, context.cur_line.lineno[1],
                                 "BC: Impossible downcast of toArray() result")
                 )
 

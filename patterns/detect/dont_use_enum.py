@@ -11,19 +11,23 @@ class DontUseEnumDetector(Detector):
         self.p_method = regex.compile(r'\b\w+[\s.]+(enum|assert)\s*\(')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        strip_line = linecontent.strip()
+    def match(self, context):
+        strip_line = context.cur_line.content.strip()
         if not any(key in strip_line for key in ('assert', 'enum')):
             return
 
         if self.p.search(strip_line):
             self.bug_accumulator.append(
-                BugInstance('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', priorities.MEDIUM_PRIORITY, filename, lineno,
+                BugInstance('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                            context.cur_line.lineno[1],
                             'Nm: Use of identifier that is a keyword in later versions of Java')
             )
+            return
 
         if self.p_method.search(strip_line):
             self.bug_accumulator.append(
-                BugInstance('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', priorities.MEDIUM_PRIORITY, filename, lineno,
+                BugInstance('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', priorities.MEDIUM_PRIORITY,
+                            context.cur_patch.name, context.cur_line.lineno[1],
                             'Nm: Use of identifier that is a keyword in later versions of Java')
             )
+            return

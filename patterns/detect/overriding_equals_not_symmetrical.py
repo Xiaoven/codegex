@@ -10,11 +10,12 @@ class EqualsClassNameDetector(Detector):
         self.pattern = regex.compile(r'\b((?:[\w\.$"]|(?:\(\s*\)))+)\s*\.\s*equals(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if not all(key in linecontent for key in ('equals', 'getClass', 'getName')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        if not all(key in line_content for key in ('equals', 'getClass', 'getName')):
             return
 
-        its = self.pattern.finditer(linecontent)
+        its = self.pattern.finditer(line_content)
         for m in its:
             g = m.groups()
             before_equals = g[0]
@@ -35,5 +36,6 @@ class EqualsClassNameDetector(Detector):
 
             if comparing_class_name:
                 self.bug_accumulator.append(
-                    BugInstance('EQ_COMPARING_CLASS_NAMES', priorities.MEDIUM_PRIORITY, filename, lineno,
+                    BugInstance('EQ_COMPARING_CLASS_NAMES', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                                context.cur_line.lineno[1],
                                 'Equals method compares class names rather than class objects'))
