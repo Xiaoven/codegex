@@ -1,3 +1,5 @@
+
+
 ## Nm: Class defines hashcode(); should it be hashCode()? (NM_LCASE_HASHCODE)
 
 如果方法名为 `hashCode`, 但不符合 `public int hashCode()` 的话，会 build failed
@@ -134,6 +136,7 @@ a=++ a + ++ a + a ++;
 2. 匹配`=`两边操作数
 3. 判断'++'或者'--'是否在左边操作数(即被赋值数)前后
 
+
 ## NM_FIELD_NAMING_CONVENTION
 
 > Names of fields that are **not final** should be in mixed case with a lowercase first letter and the first letters of subsequent words capitalized.
@@ -157,7 +160,6 @@ a.method(expression).myField
 ```
 
 ### 实现思路
-
 **[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L432)**\#L438-\#L443
 
 我的思路：
@@ -165,3 +167,150 @@ a.method(expression).myField
 - 提取field
 
 - 参考spotbugs实现思路
+
+## NM_CLASS_NAMING_CONVENTION
+### Regex
+
+```regexp
+class\s+([a-z][\w$]+).*{
+```
+
+### Example
+
+```java
+class hashCODEnoEQUALS{
+```
+
+### 实现思路
+
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L389)**
+
+参考spotbugs L373-L389, 因为正则拿到的class name为base name，不需要另外以`$` 分割
+
+
+## NM_METHOD_NAMING_CONVENTION
+### Regex
+
+```regexp
+\b\w+[\s.]+(\w+)\s*\(
+```
+
+### Example
+
+```java
+a.methodName()
+void methodName(){}
+```
+
+### 实现思路
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L543)**
+
+我的思路：
+
+- 匹配方法定义，提取方法名
+- 参考spotbugs #L595-#L596
+
+
+## Nm: Use of identifier that is a keyword in later versions of Java (NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER)
+
+> java: as of release 5, 'enum' is a keyword, and may not be used as an identifier (use -source 1.4 or lower to use 'enum' as an identifier)
+> java: as of release 1.4, 'assert' is a keyword, and may not be used as an identifier (use -source 1.3 or lower to use 'assert' as an identifier)
+
+### Regex
+
+```
+\b(enum|assert)\s*[^\w$\s(]
+```
+
+### Example
+```
+int enum = 0;
+private String assert = "hello world";
+
+```
+
+### 实现思路
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/DontUseEnum.java#L73)**
+
+我的思路:
+
+- 匹配命名为`enum` or `assert`的成员变量 or 局部变量
+
+## Nm: Use of identifier that is a keyword in later versions of Java (NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER)
+
+考虑到正则无法判断是`Field` or `LocalVariable`。所以对`Filed`和`LocalVariable Name`检查为`NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER`; 对`Method Name`的检查为`NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER`
+
+>java: as of release 5, 'enum' is a keyword, and may not be used as an identifier (use -source 1.4 or lower to use 'enum' as an identifier)
+>java: as of release 1.4, 'assert' is a keyword, and may not be used as an identifier (use -source 1.3 or lower to use 'assert' as an identifier)
+
+### Regex
+
+```
+\b\w+[\s.]+(enum|assert)\s*\(
+```
+
+### Example
+
+```
+void enum(){}
+protected Boolean assert(...){}
+```
+
+### 实现思路
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/DontUseEnum.java#L45)**
+
+我的思路：
+
+- 匹配命名为`enum` or `assert` 的方法名
+
+
+## SA_SELF_ASSIGNMENT
+
+合并**SA_FIELD_SELF_ASSIGNMENT** 与 **SA_LOCAL_SELF_ASSIGNMENT**, 也可能是**SA_LOCAL_SELF_ASSIGNMENT_INSTEAD_OF_FIELD**
+
+### Regex
+
+```regexp
+(\b\w[\w.]*)\s*=\s*(\w[\w.]*)\s*;
+```
+
+### Example
+
+```java
+public void foo() {
+    int x = 3;
+    x = x;
+}
+```
+
+### 实现思路
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindFieldSelfAssignment.java#L83)**
+
+我的思路:
+
+直接匹配
+
+
+## SA_DOUBLE_ASSIGNMENT
+
+合并**SA_FIELD_DOUBLE_ASSIGNMENT**与 **SA_LOCAL_DOUBLE_ASSIGNMENT**
+
+## Regex
+
+```regexp
+\b(\w[\w.]*)\s*=\s*(\w[\w.]*)\s*=[^=]
+```
+
+### Example
+
+```java
+int foo = foo = 17;
+foo = foo = 17 + methodCall(arg1, "arg2");
+```
+
+### 实现思路
+**[Spotbugs实现思路](https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FindSelfComparison.java#L157)**
+
+我的思路:
+
+直接匹配

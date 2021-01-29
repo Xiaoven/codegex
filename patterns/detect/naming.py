@@ -82,7 +82,7 @@ class HashCodeNameDetector(Detector):
         m = self.pattern.match(strip_line)
         if m:
             self.bug_accumulator.append(BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY, filename, lineno,
-                            "Class defines hashcode(); should it be hashCode()?"))
+                                                    "Class defines hashcode(); should it be hashCode()?"))
 
 
 class ToStringNameDetector(Detector):
@@ -146,3 +146,53 @@ class FieldNameConventionDetector(Detector):
                         self.bug_accumulator.append(
                             BugInstance('NM_FIELD_NAMING_CONVENTION', priorities.LOW_PRIORITY, filename, lineno,
                                         "Nm: Field names should start with a lower case letter"))
+                        
+                        
+class ClassNameConventionDetector(Detector):
+    def __init__(self):
+        # Match class name
+        self.cn_pattern = regex.compile(r'class\s+([a-z][\w$]+).*{')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        strip_line = linecontent.strip()
+        if 'class ' in strip_line and '{' in strip_line:
+            its = self.cn_pattern.finditer(strip_line)
+            for m in its:
+                class_name = m.groups()[0]
+                if "Proto$" in class_name:
+                    return
+                # reference from https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222
+                # /spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L389
+                if '_' not in class_name:
+                    if any(access in strip_line for access in ('public', 'protected')):
+                        self.bug_accumulator.append(BugInstance('NM_CLASS_NAMING_CONVENTION',
+                                                                priorities.MEDIUM_PRIORITY, filename, lineno,
+                                                                "Nm: Class names should start with an upper case letter"))
+                    else:
+                        self.bug_accumulator.append(BugInstance('NM_CLASS_NAMING_CONVENTION',
+                                                                priorities.LOW_PRIORITY, filename, lineno,
+                                                                "Nm: Class names should start with an upper case letter"))
+
+
+class MethodNameConventionDetector(Detector):
+    def __init__(self):
+        # Extract the method name
+        self.mn_pattern = regex.compile(r'\b\w+[\s.]+(\w+)\s*\(')
+        Detector.__init__(self)
+
+    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+        strip_line = linecontent.strip()
+        if '(' in strip_line and ')' in strip_line:
+            its = self.mn_pattern.finditer(strip_line)
+            for m in its:
+                method_name = m.groups()[0]
+                if len(method_name) >= 2 and method_name[0].isalpha() and not method_name[0].islower() and \
+                        method_name[1].isalpha() and method_name[1].islower() and '_' not in method_name:
+                    if any(access in strip_line for access in ('public', 'protected')):
+                        self.bug_accumulator.append(BugInstance('NM_METHOD_NAMING_CONVENTION', priorities.MEDIUM_PRIORITY, filename, lineno,
+                                                                "Nm: Method names should start with a lower case letter"))
+                    else:
+                        self.bug_accumulator.append(
+                            BugInstance('NM_METHOD_NAMING_CONVENTION', priorities.LOW_PRIORITY, filename, lineno,
+                                        "Nm: Method names should start with a lower case letter"))
