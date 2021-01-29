@@ -41,8 +41,7 @@ class SuspiciousCollectionMethodDetector(Detector):
 
                 if pattern_type:
                     self.bug_accumulator.append(
-                        BugInstance(pattern_type, priority, context.cur_patch.name,
-                                    context.cur_line.lineno[1],
+                        BugInstance(pattern_type, priority, context.cur_patch.name, context.cur_line.lineno[1],
                                     description)
                     )
                     return

@@ -1,5 +1,6 @@
 import pytest
 
+from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 
@@ -41,7 +42,7 @@ foo = foo == True;''', 0, 1),
 @pytest.mark.parametrize('is_patch,pattern_type,file_name,patch_str,expected_length,line_no', params)
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
-    engine = DefaultEngine(included_filter=['CheckForSelfAssignment', 'CheckForSelfDoubleAssignment'])
+    engine = DefaultEngine(Context(), included_filter=['CheckForSelfAssignment', 'CheckForSelfDoubleAssignment'])
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

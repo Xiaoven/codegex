@@ -21,8 +21,8 @@ class FloatEqualityDetector(Detector):
                 op_2 = m.groups()[2]
                 if any(op in ('Float.NaN', 'Double.NaN') for op in (op_1, op_2)):
                     self.bug_accumulator.append(
-                    BugInstance('FE_TEST_IF_EQUAL_TO_NOT_A_NUMBER', priorities.HIGH_PRIORITY,
-                                        context.cur_patch.name, context.cur_line.lineno[1],
-                                        "Doomed test for equality to NaN")
-                            )
+                        BugInstance('FE_TEST_IF_EQUAL_TO_NOT_A_NUMBER', priorities.HIGH_PRIORITY,
+                                    context.cur_patch.name, context.cur_line.lineno[1],
+                                    "Doomed test for equality to NaN")
+                    )
                     return

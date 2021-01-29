@@ -36,7 +36,8 @@ class SingleDotPatternDetector(Detector):
                         elif len(arg_2) == 3:
                             priority = priorities.LOW_PRIORITY
 
-                self.bug_accumulator.append(BugInstance('RE_POSSIBLE_UNINTENDED_PATTERN', priority, context.cur_patch.name, context.cur_line.lineno[1],
+                self.bug_accumulator.append(BugInstance('RE_POSSIBLE_UNINTENDED_PATTERN', priority,
+                                                        context.cur_patch.name, context.cur_line.lineno[1],
                                                         '“.” or “|” used for regular expressions'))
 
 
@@ -69,5 +70,6 @@ class FileSeparatorAsRegexpDetector(Detector):
                     priority = priorities.LOW_PRIORITY
 
                 self.bug_accumulator.append(
-                    BugInstance('RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION', priority, filename, lineno,
+                    BugInstance('RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION', priority, context.cur_patch.name,
+                                context.cur_line.lineno[1],
                                 'File.separator used for regular expression'))
