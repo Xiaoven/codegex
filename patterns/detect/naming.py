@@ -16,11 +16,12 @@ class SimpleSuperclassNameDetector(Detector):
         self.pattern = CLASS_EXTENDS_REGEX
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if not all(key in linecontent for key in ('class', 'extends')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        if not all(key in line_content for key in ('class', 'extends')):
             return
 
-        m = self.pattern.search(linecontent.strip())
+        m = self.pattern.search(line_content.strip())
         if m:
             g = m.groups()
             class_name = g[0]
@@ -28,9 +29,10 @@ class SimpleSuperclassNameDetector(Detector):
             super_classes_list = [name.rsplit('.', 1)[-1].strip() for name in super_classes.split(',')]
 
             if class_name in super_classes_list:
-                if len(linecontent) == len(linecontent.lstrip()):
+                if len(line_content) == len(line_content.lstrip()):
                     self.bug_accumulator.append(
-                        BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', priorities.HIGH_PRIORITY, filename, lineno,
+                        BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', priorities.HIGH_PRIORITY,
+                                    context.cur_patch.name, context.cur_line.lineno[1],
                                     "Class names shouldn’t shadow simple name of superclass")
                     )
 
@@ -46,11 +48,12 @@ class SimpleInterfaceNameDetector(Detector):
         self.pattern2 = INTERFACE_EXTENDS_REGEX
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if all(key in linecontent for key in ('class', 'implements')):
-            m = self.pattern1.search(linecontent.strip())
-        elif all(key in linecontent for key in ('interface', 'extends')):
-            m = self.pattern2.search(linecontent.strip())
+    def match(self, context):
+        line_content = context.cur_line.content
+        if all(key in line_content for key in ('class', 'implements')):
+            m = self.pattern1.search(line_content.strip())
+        elif all(key in line_content for key in ('interface', 'extends')):
+            m = self.pattern2.search(line_content.strip())
         else:
             return
 
@@ -61,9 +64,10 @@ class SimpleInterfaceNameDetector(Detector):
             super_interface_list = [name.rsplit('.', 1)[-1].strip() for name in super_interfaces.split(',')]
 
             if class_name in super_interface_list:
-                if len(linecontent) == len(linecontent.lstrip()):
+                if len(line_content) == len(line_content.lstrip()):
                     self.bug_accumulator.append(
-                        BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', priorities.MEDIUM_PRIORITY, filename, lineno,
+                        BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', priorities.MEDIUM_PRIORITY,
+                                    context.cur_patch.name, context.cur_line.lineno[1],
                                     "Class or interface names shouldn’t shadow simple name of implemented interface")
                     )
 
@@ -74,15 +78,17 @@ class HashCodeNameDetector(Detector):
         self.pattern = regex.compile(r'^[\w\s]*?\bint\s+hashcode\s*\(\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        strip_line = linecontent.strip()
-        if strip_line.startswith('private') or any(key not in linecontent for key in ('int', 'hashcode')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        strip_line = line_content.strip()
+        if strip_line.startswith('private') or any(key not in line_content for key in ('int', 'hashcode')):
             return
 
         m = self.pattern.match(strip_line)
         if m:
-            self.bug_accumulator.append(BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY, filename, lineno,
-                            "Class defines hashcode(); should it be hashCode()?"))
+            self.bug_accumulator.append(BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY,
+                                                    context.cur_patch.name, context.cur_line.lineno[1],
+                                                    "Class defines hashcode(); should it be hashCode()?"))
 
 
 class ToStringNameDetector(Detector):
@@ -91,14 +97,17 @@ class ToStringNameDetector(Detector):
         self.pattern = regex.compile(r'^[\w\s]*?\bString\s+tostring\s*\(\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        strip_line = linecontent.strip()
-        if strip_line.startswith('private') or any(key not in linecontent for key in ('String', 'tostring')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        strip_line = line_content.strip()
+        if strip_line.startswith('private') or any(key not in line_content for key in ('String', 'tostring')):
             return
         m = self.pattern.search(strip_line)
         if m:
-            self.bug_accumulator.append(BugInstance('NM_LCASE_TOSTRING', priorities.HIGH_PRIORITY, filename, lineno,
-                                                    "Class defines tostring(); should it be toString()?"))
+            self.bug_accumulator.append(
+                BugInstance('NM_LCASE_TOSTRING', priorities.HIGH_PRIORITY, context.cur_patch.name,
+                            context.cur_line.lineno[1],
+                            "Class defines tostring(); should it be toString()?"))
 
 
 class EqualNameDetector(Detector):
@@ -107,12 +116,14 @@ class EqualNameDetector(Detector):
         self.pattern = regex.compile(r'^[\w\s]*?\bboolean\s+equal\s*\(\s*Object\s+[\w$]+\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        strip_line = linecontent.strip()
-        if strip_line.startswith('private') or 'equals' in linecontent \
-                or any(key not in linecontent for key in ('boolean', 'equal')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        strip_line = line_content.strip()
+        if strip_line.startswith('private') or 'equals' in line_content \
+                or any(key not in line_content for key in ('boolean', 'equal')):
             return
         m = self.pattern.search(strip_line)
         if m:
-            self.bug_accumulator.append(BugInstance('NM_BAD_EQUAL', priorities.HIGH_PRIORITY, filename, lineno,
+            self.bug_accumulator.append(BugInstance('NM_BAD_EQUAL', priorities.HIGH_PRIORITY, context.cur_patch.name,
+                                                    context.cur_line.lineno[1],
                                                     "Class defines equal(Object); should it be equals(Object)?"))

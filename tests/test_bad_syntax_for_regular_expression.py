@@ -1,5 +1,6 @@
 import pytest
 
+from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 from patterns.models.priorities import *
@@ -72,9 +73,8 @@ params = [
 @pytest.mark.parametrize('is_patch,pattern_type,file_name,patch_str,expected_length,line_no,expected_priority', params)
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int,
          line_no: int, expected_priority: int):
-    patch = parse(patch_str, is_patch)
-    patch.name = file_name
-    engine = DefaultEngine(included_filter=('SingleDotPatternDetector', 'FileSeparatorAsRegexpDetector'))
+    patch = parse(patch_str, is_patch, name=file_name)
+    engine = DefaultEngine(Context(), included_filter=('SingleDotPatternDetector', 'FileSeparatorAsRegexpDetector'))
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

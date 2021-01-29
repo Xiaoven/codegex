@@ -1,5 +1,6 @@
 import pytest
 
+from patterns.models.context import Context
 from rparser import parse
 from patterns.models.engine import DefaultEngine
 
@@ -71,7 +72,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     patch = parse(patch_str, is_patch)
     patch.name = file_name
 
-    engine = DefaultEngine(included_filter=['FloatEqualityDetector'])
+    engine = DefaultEngine(Context(), included_filter=['FloatEqualityDetector'])
     engine.visit(patch)
 
     if expected_length > 0:

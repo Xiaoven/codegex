@@ -10,10 +10,11 @@ class FindDeadLocalIncrementInReturn(Detector):
         self.pattern = re.compile(r'return\s+([\w$]+)(?:\+\+|--)\s*;')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if all(key not in linecontent for key in ('++', '--')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        if all(key not in line_content for key in ('++', '--')):
             return
-        m = self.pattern.match(linecontent.strip())
+        m = self.pattern.match(line_content.strip())
         if m:
             var_name = m.groups()[0]
 
@@ -23,7 +24,7 @@ class FindDeadLocalIncrementInReturn(Detector):
                 priority = Priorities.LOW_PRIORITY
 
             self.bug_accumulator.append(
-                BugInstance('DLS_DEAD_LOCAL_INCREMENT_IN_RETURN', Priorities.MEDIUM_PRIORITY, filename, lineno,
-                            'Useless increment in return statement')
+                BugInstance('DLS_DEAD_LOCAL_INCREMENT_IN_RETURN', priority, context.cur_patch.name,
+                            context.cur_line.lineno[1], 'Useless increment in return statement')
             )
 

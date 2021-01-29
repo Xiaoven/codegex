@@ -1,8 +1,8 @@
 import pytest
 
+from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
-from patterns.detect.static_calendar_detector import StaticDateFormatDetector
 
 params = [
     # https://github.com/sstrickx/yahoofinance-api/pull/152/files#diff-8d68307bdbd437a4c6e7bece19d314248059d2a5d13240a33b631ab83af4b2abR236
@@ -36,7 +36,7 @@ params = [
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine(included_filter=['StaticDateFormatDetector'])
+    engine = DefaultEngine(Context(), included_filter=['StaticDateFormatDetector'])
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

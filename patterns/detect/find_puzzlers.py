@@ -13,23 +13,24 @@ class BadMonthDetector(Detector):
         self.gre_calendar = regex.compile(r'new\s+GregorianCalendar\s*\([^,]+,\s*(\d+)\s*,')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
+    def match(self, context):
         fire = False
         instance_name = None
         month = None
         priority = priorities.MEDIUM_PRIORITY
 
-        if 'setMonth' in linecontent:
-            m = self.date.search(linecontent)
+        line_content = context.cur_line.content
+        if 'setMonth' in line_content:
+            m = self.date.search(line_content)
             if m:
                 fire = True
                 g = m.groups()
                 instance_name = g[0]
                 month = int(g[1])
                 priority = priorities.HIGH_PRIORITY
-        elif 'set' in linecontent:
-            if 'calendar' in linecontent.lower():  # To temporarily reduce unnecessary matches
-                m = self.calendar.search(linecontent)
+        elif 'set' in line_content:
+            if 'calendar' in line_content.lower():  # To temporarily reduce unnecessary matches
+                m = self.calendar.search(line_content)
                 if m:
                     g = m.groups()
 
@@ -39,15 +40,16 @@ class BadMonthDetector(Detector):
                         fire = True
                         instance_name = g[0]
                         month = int(g[2])
-        elif 'GregorianCalendar' in linecontent and 'new' in linecontent:
-            m = self.gre_calendar.search(linecontent)
+        elif 'GregorianCalendar' in line_content and 'new' in line_content:
+            m = self.gre_calendar.search(line_content)
             if m:
                 fire = True
                 month = int(m.groups()[0])
 
         if fire:
             if month < 0 or month > 11:
-                self.bug_accumulator.append(BugInstance('DMI_BAD_MONTH', priority, filename, lineno,
+                self.bug_accumulator.append(BugInstance('DMI_BAD_MONTH', priority, context.cur_patch.name,
+                                                        context.cur_line.lineno[1],
                                                         'Bad constant value for month.'))
 
                 
@@ -56,11 +58,12 @@ class ShiftAddPriorityDetector(Detector):
         self.pattern = regex.compile(r'\b[\w$]+\s*<<\s*([\w$]+)\s*[+-]\s*[\w$]+')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if '<<' not in linecontent and '+' not in linecontent:
+    def match(self, context):
+        line_content = context.cur_line.content
+        if '<<' not in line_content and '+' not in line_content:
             return
 
-        m = self.pattern.search(linecontent)
+        m = self.pattern.search(line_content)
         if m:
             priority = priorities.LOW_PRIORITY
             const = convert_str_to_int(m.groups()[0])
@@ -75,7 +78,8 @@ class ShiftAddPriorityDetector(Detector):
                 if const == 8:
                     priority = priorities.MEDIUM_PRIORITY
 
-            self.bug_accumulator.append(BugInstance('BSHIFT_WRONG_ADD_PRIORITY', priority, filename, lineno,
+            self.bug_accumulator.append(BugInstance('BSHIFT_WRONG_ADD_PRIORITY', priority, context.cur_patch.name,
+                                                    context.cur_line.lineno[1],
                                                     'Possible bad parsing of shift operation.'))
 
 
@@ -87,8 +91,9 @@ class OverwrittenIncrementDetector(Detector):
         )
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        strip_line = linecontent.strip()
+    def match(self, context):
+        line_content = context.cur_line.content
+        strip_line = line_content.strip()
         if '=' in strip_line and any(op in strip_line for op in ('++', '--')):
             its = self.pattern.finditer(strip_line)
             for m in its:
@@ -99,7 +104,7 @@ class OverwrittenIncrementDetector(Detector):
                 if pattern_inc.search(op_2):
                     self.bug_accumulator.append(
                         BugInstance('DLS_OVERWRITTEN_INCREMENT', priorities.HIGH_PRIORITY,
-                                    filename, lineno,
+                                    context.cur_patch.name, context.cur_line.lineno[1],
                                     "DLS: Overwritten increment")
                     )
                     break

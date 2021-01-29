@@ -16,22 +16,28 @@ class Context:
         self._online_search, self._repo_name, self._token = False, None, None
         self._local_search = True
 
-    def set_patch_set(self, patch_set: tuple):
+    def set_patch_set(self, patch_set: tuple, repo_name=''):
         self.patch_set = patch_set
         self.cur_patch = None
         self.cur_hunk = None
         self.cur_line = None
         self.cur_line_idx = -1
 
+        if repo_name:
+            self._repo_name = repo_name
+
     def online_search(self):
         return self._online_search
 
-    def enable_online_search(self, github_repo_name: str, github_token=''):
+    def enable_online_search(self, github_repo_name='', github_token=''):
+        self._online_search = True
         if github_repo_name:
-            self._online_search = True
             self._repo_name = github_repo_name
-            if github_token:
-                self._token = github_token
+        if github_token:
+            self._token = github_token
+
+    def update_repo_name(self, github_repo_name: str):
+        self._repo_name = github_repo_name
 
     def disable_online_search(self):
         self._online_search = False

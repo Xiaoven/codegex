@@ -12,12 +12,14 @@ class IncompatMaskDetector(Detector):
             r'\(\s*([~-]?(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\))|[\w.-])++)\s*([&|])\s*([~-]?(?:(?&aux1)|[\w.])++)\s*\)\s*([><=!]+)\s*([0-9a-zA-Z]+)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if not any(bitop in linecontent for bitop in ('&', '|')) and \
-                not any(op in linecontent for op in ('>', '<', '>=', '<=', '==', '!=')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        line_no = context.cur_line.lineno[1]
+        if not any(bitop in line_content for bitop in ('&', '|')) and \
+                not any(op in line_content for op in ('>', '<', '>=', '<=', '==', '!=')):
             return
 
-        its = self.regexpSign.finditer(linecontent.strip())
+        its = self.regexpSign.finditer(line_content.strip())
         for m in its:
             g = m.groups()
             operand_1 = g[0]
@@ -87,13 +89,12 @@ class IncompatMaskDetector(Detector):
 
             if p_type is not None:
                 # get exact lineno
-                get_exact_lineno = kwargs.get('get_exact_lineno', None)
-                if get_exact_lineno:
-                    tmp = get_exact_lineno(const_str)
+                if hasattr(context.cur_line, 'get_exact_lineno'):
+                    tmp = context.cur_line.get_exact_lineno(const_str)
                     if tmp:
-                        lineno = tmp[1]
+                        line_no = tmp[1]
 
-                self.bug_accumulator.append(BugInstance(p_type, priority, filename, lineno, description))
+                self.bug_accumulator.append(BugInstance(p_type, priority, context.cur_patch.name, line_no, description))
 
 
 

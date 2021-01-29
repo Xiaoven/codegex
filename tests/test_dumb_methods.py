@@ -1,3 +1,4 @@
+from patterns.models.context import Context
 from rparser import parse
 from patterns.models.engine import DefaultEngine
 
@@ -177,7 +178,7 @@ params = [
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine(included_filter=('FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector',
+    engine = DefaultEngine(Context(), included_filter=('FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector',
                                             'StringCtorDetector', 'InvalidMinMaxDetector'))
     engine.visit(patch)
     if expected_length > 0:

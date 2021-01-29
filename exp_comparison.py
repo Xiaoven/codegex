@@ -3,6 +3,7 @@ from os import path
 from subprocess import check_output
 import re
 
+from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 from timer import Timer
@@ -32,7 +33,8 @@ def write_file(file_path: str, content: str):
 
 def exec_task(file_dict: dict):
     bug_instance_dict = dict()
-    engine = DefaultEngine()
+    context = Context()
+    engine = DefaultEngine(context)
 
     for subproject, file_list in file_dict.items():
         # generate patch set

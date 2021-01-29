@@ -10,11 +10,12 @@ class DefSerialVersionID(Detector):
         self.pattern = re.compile(r'((?:static|final|\s)*)\b(long|int)\s+serialVersionUID\b')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if 'serialVersionUID' not in linecontent:
+    def match(self, context):
+        line_content = context.cur_line.content
+        if 'serialVersionUID' not in line_content:
             return
 
-        m = self.pattern.search(linecontent.strip())
+        m = self.pattern.search(line_content.strip())
         if m:
             g = m.groups()
             prefix = None
@@ -42,7 +43,7 @@ class DefSerialVersionID(Detector):
 
             if pattern_name:
                 self.bug_accumulator.append(
-                    BugInstance(pattern_name, priority, filename, lineno, message))
+                    BugInstance(pattern_name, priority, context.cur_patch.name, context.cur_line.lineno[1], message))
 
 
 class DefReadResolveMethod(Detector):
@@ -51,11 +52,12 @@ class DefReadResolveMethod(Detector):
             r'((?:static|final|\s)*)\b([^\s]+)\s+readResolve\s*\(\s*\)\s+throws\s+ObjectStreamException')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if any(const not in linecontent for const in ['readResolve', 'throws', 'ObjectStreamException']):
+    def match(self, context):
+        line_content = context.cur_line.content
+        if any(const not in line_content for const in ['readResolve', 'throws', 'ObjectStreamException']):
             return
 
-        m = self.pattern.search(linecontent.strip())
+        m = self.pattern.search(line_content.strip())
         if m:
             g = m.groups()
 
@@ -71,7 +73,8 @@ class DefReadResolveMethod(Detector):
 
             if pattern_name:
                 self.bug_accumulator.append(
-                    BugInstance(pattern_name, priorities.MEDIUM_PRIORITY, filename, lineno, message))
+                    BugInstance(pattern_name, priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                                context.cur_line.lineno[1], message))
 
 
 class DefPrivateMethod(Detector):
@@ -80,12 +83,13 @@ class DefPrivateMethod(Detector):
             r'void\s+(writeObject|readObject|readObjectNoData)\s*\(([\s\w.$]*)\)\s*throws\s+')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if any(key not in linecontent for key in ('void', 'throws')) or all(
-                key not in linecontent for key in ('writeObject', 'readObject', 'readObjectNoData')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        if any(key not in line_content for key in ('void', 'throws')) or all(
+                key not in line_content for key in ('writeObject', 'readObject', 'readObjectNoData')):
             return
 
-        strip_line = linecontent.strip()
+        strip_line = line_content.strip()
         m = self.pattern.search(strip_line)
         if m:
             g = m.groups()
@@ -111,6 +115,7 @@ class DefPrivateMethod(Detector):
             # check bug pattern
             if not strip_line.startswith('private'):
                 self.bug_accumulator.append(
-                    BugInstance('SE_METHOD_MUST_BE_PRIVATE', priorities.MEDIUM_PRIORITY, filename, lineno,
+                    BugInstance('SE_METHOD_MUST_BE_PRIVATE', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                                context.cur_line.lineno[1],
                                 'Method must be private in order for serialization to work.'))
 

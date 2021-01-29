@@ -11,8 +11,9 @@ class FinalizerOnExitDetector(Detector):
         self.pattern = regex.compile(r'\b(\w+)\.runFinalizersOnExit\(')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        m = self.pattern.search(linecontent.strip())
+    def match(self, context):
+        line_content = context.cur_line.content
+        m = self.pattern.search(line_content.strip())
         if m:
             pkg_name = m.groups()[0]
             confidence = priorities.HIGH_PRIORITY
@@ -20,7 +21,7 @@ class FinalizerOnExitDetector(Detector):
                 confidence = priorities.MEDIUM_PRIORITY
 
             self.bug_accumulator.append(
-                BugInstance('DM_RUN_FINALIZERS_ON_EXIT', confidence, filename, lineno,
+                BugInstance('DM_RUN_FINALIZERS_ON_EXIT', confidence, context.cur_patch.name, context.cur_line.lineno[1],
                             'Method invokes dangerous method runFinalizersOnExit')
             )
 
@@ -30,11 +31,13 @@ class RandomOnceDetector(Detector):
         self.pattern = regex.compile(r'new\s+[\w.]*Random(?:(?P<aux1>\((?:[^()]++|(?&aux1))*\)))++\.next\w*\(\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        its = self.pattern.finditer(linecontent.strip())
+    def match(self, context):
+        line_content = context.cur_line.content
+        its = self.pattern.finditer(line_content.strip())
         for m in its:
             self.bug_accumulator.append(
-                BugInstance('DMI_RANDOM_USED_ONLY_ONCE', priorities.HIGH_PRIORITY, filename, lineno,
+                BugInstance('DMI_RANDOM_USED_ONLY_ONCE', priorities.HIGH_PRIORITY, context.cur_patch.name,
+                            context.cur_line.lineno[1],
                             'Random object created and used only once')
             )
 
@@ -44,13 +47,15 @@ class RandomD2IDetector(Detector):
         self.pattern = regex.compile(r'\(\s*int\s*\)\s*(\w+)\.(?:random|nextDouble|nextFloat)\(\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        its = self.pattern.finditer(linecontent.strip())
+    def match(self, context):
+        line_content = context.cur_line.content
+        its = self.pattern.finditer(line_content.strip())
         for m in its:
             obj = m.groups()[0].strip().lower()
             if obj == 'math' or obj == 'r' or 'rand' in obj:
                 self.bug_accumulator.append(
-                    BugInstance('RV_01_TO_INT', priorities.HIGH_PRIORITY, filename, lineno,
+                    BugInstance('RV_01_TO_INT', priorities.HIGH_PRIORITY, context.cur_patch.name,
+                                context.cur_line.lineno[1],
                                 'Random value from 0 to 1 is coerced to the integer 0')
                 )
 
@@ -60,8 +65,9 @@ class StringCtorDetector(Detector):
         self.pattern = regex.compile(r'new\s+String\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        its = self.pattern.finditer(linecontent.strip())
+    def match(self, context):
+        line_content = context.cur_line.content
+        its = self.pattern.finditer(line_content.strip())
         for m in its:
             groups = m.groups()
             assert len(groups) == 2
@@ -78,7 +84,8 @@ class StringCtorDetector(Detector):
                     description = 'Method invokes inefficient new String(String) constructor'
 
             if p_type is not None:
-                self.bug_accumulator.append(BugInstance(p_type, priorities.MEDIUM_PRIORITY, filename, lineno,
+                self.bug_accumulator.append(BugInstance(p_type, priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                                                        context.cur_line.lineno[1],
                                                         description))
                 return
 
@@ -96,11 +103,12 @@ class InvalidMinMaxDetector(Detector):
         self.whitespace = regex.compile(r'\s')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if not all(key in linecontent for key in ('Math', 'min', 'max')):
+    def match(self, context):
+        line_content = context.cur_line.content
+        if not all(key in line_content for key in ('Math', 'min', 'max')):
             return
 
-        its = self.pattern.finditer(linecontent)
+        its = self.pattern.finditer(line_content)
         for m1 in its:
             g1 = m1.groups()
             outer_method = g1[0]
@@ -122,7 +130,7 @@ class InvalidMinMaxDetector(Detector):
 
                 inner_args = arg_str_2.split(',')
                 if len(inner_args) != 2:
-                    log_message(f'[InvalidMinMaxDetector] More than one commas for {linecontent}', 'error')
+                    log_message(f'[InvalidMinMaxDetector] More than one commas for {line_content}', 'error')
                     return
 
                 for arg in inner_args:
@@ -140,5 +148,5 @@ class InvalidMinMaxDetector(Detector):
 
                     if upper_bound < lower_bound:
                         self.bug_accumulator.append(BugInstance('DM_INVALID_MIN_MAX', priorities.HIGH_PRIORITY,
-                                                                filename, lineno,
+                                                                context.cur_patch.name, context.cur_line.lineno[1],
                                                                 'Incorrect combination of Math.max and Math.min'))

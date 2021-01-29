@@ -17,8 +17,10 @@ class DontCatchIllegalMonitorStateException(Detector):
         self.p_catch = re.compile(r'catch\s*\(([^()]+)\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        match = self.p_catch.search(linecontent.strip())
+    def match(self, context):
+        line_content = context.cur_line.content
+        line_no = context.cur_line.lineno[1]
+        match = self.p_catch.search(line_content.strip())
 
         if match:
             params = match.groups()[0]
@@ -26,16 +28,15 @@ class DontCatchIllegalMonitorStateException(Detector):
             for d in defs:
                 exception_class = d.split()[0]
 
-                get_exact_lineno = kwargs.get('get_exact_lineno', None)
-                if get_exact_lineno:
-                    tmp = get_exact_lineno(exception_class)
+                if hasattr(context.cur_line, 'get_exact_lineno'):
+                    tmp = context.cur_line.get_exact_lineno(exception_class)
                     if tmp:
-                        lineno = tmp[1]
+                        line_no = tmp[1]
 
                 if exception_class.endswith('IllegalMonitorStateException'):
                     self.bug_accumulator.append(
                         BugInstance('IMSE_DONT_CATCH_IMSE', priorities.HIGH_PRIORITY,
-                                    filename, lineno,
+                                    context.cur_patch.name, line_no,
                                     'Dubious catching of IllegalMonitorStateException')
                     )
-                    break
+                    return

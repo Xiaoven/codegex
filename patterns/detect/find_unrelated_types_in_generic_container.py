@@ -11,14 +11,14 @@ class SuspiciousCollectionMethodDetector(Detector):
             r'(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*+)\s*\.\s*((?:remove|contains|retain)(?:All)?)\s*\(\s*([\w.]+(?&aux1)*)\s*\)')
         Detector.__init__(self)
 
-    def match(self, linecontent: str, filename: str, lineno: int, **kwargs):
-        if not any(method in linecontent for method in ['remove', 'contains', 'retain']):
+    def match(self, context):
+        line_content = context.cur_line.content
+        if not any(method in line_content for method in ['remove', 'contains', 'retain']):
             return
 
-        its = self.pattern.finditer(linecontent.strip())
+        its = self.pattern.finditer(line_content.strip())
 
         for m in its:
-            g = m.groups()
             g = m.groups()
             obj_1 = g[0]
             method_name = g[2]
@@ -41,7 +41,8 @@ class SuspiciousCollectionMethodDetector(Detector):
 
                 if pattern_type:
                     self.bug_accumulator.append(
-                        BugInstance(pattern_type, priority, filename, lineno,
+                        BugInstance(pattern_type, priority, context.cur_patch.name,
+                                    context.cur_line.lineno[1],
                                     description)
                     )
                     return

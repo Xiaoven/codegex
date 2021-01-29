@@ -1,14 +1,11 @@
-import regex
-
 import cachetools
+import regex
 from cachetools import cached, LRUCache
 
-from config import CONFIG
-from patterns.models.bug_instance import BugInstance
-from patterns.models.context import Context
-from patterns.models.detectors import Detector
-from utils import send, log_message
 from patterns.models import priorities
+from patterns.models.bug_instance import BugInstance
+from patterns.models.detectors import Detector
+from utils import send
 
 _cache = LRUCache(maxsize=500)
 
@@ -24,7 +21,7 @@ class GetResourceDetector(Detector):
 
         self.patch_set, self.extends_dict = None, dict()  # If patch_set is updated, then update extends_dict
 
-    def match(self, context: Context):
+    def match(self, context):
         line_content = context.cur_line.content.strip()
         if not all(method in line_content for method in ['getClass', 'getResource']):
             return
