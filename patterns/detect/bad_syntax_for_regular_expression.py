@@ -67,5 +67,5 @@ class FileSeparatorAsRegexpDetector(Detector):
                     priority = priorities.LOW_PRIORITY
 
                 self.bug_accumulator.append(
-                    BugInstance('RE_BAD_SYNTAX_FOR_REGULAR_EXPRESSION', priority, filename, lineno,
+                    BugInstance('RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION', priority, filename, lineno,
                                 'File.separator used for regular expression'))
