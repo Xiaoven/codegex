@@ -16,13 +16,15 @@ class CheckForSelfComputation(Detector):
         if all(op not in line_content for op in ('&', '|', '^', '-')):
             return
 
+        string_ranges = get_string_ranges(line_content)
+
         its = self.pattern.finditer(line_content)
         for m in its:
             g = m.groups()
             obj_1 = g[0]
             op = g[2]
             obj_2 = g[3]
-            if obj_1 == obj_2 and op in ('&', '|', '^', '-'):
+            if obj_1 == obj_2 and op in ('&', '|', '^', '-') and not in_range(m.start(3), string_ranges):
                 self.bug_accumulator.append(
                     BugInstance('SA_SELF_COMPUTATION', Priorities.MEDIUM_PRIORITY, context.cur_patch.name,
                                 context.cur_line.lineno[1],
@@ -41,18 +43,11 @@ class CheckForSelfComparison(Detector):
 
     def match(self, context):
         line_content = context.cur_line.content
-        generic_type_ranges = get_generic_type_ranges(line_content)
-        string_ranges = get_string_ranges(line_content)
-
-        print('===== test =======')
-        for rng in generic_type_ranges:
-            print(line_content[rng[0]:rng[1]])
-        for rng in string_ranges:
-            print(line_content[rng[0]:rng[1]])
-        print('===== end =======')
 
         hit = False
         if any(op in line_content for op in ('>', '<', '>=', '<=', '==', '!=')):
+            generic_type_ranges = get_generic_type_ranges(line_content)
+            string_ranges = get_string_ranges(line_content)
             its = self.pattern_1.finditer(line_content)
             for m in its:
                 op_offset = m.start(3)  # the start offset of relation_op
