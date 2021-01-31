@@ -5,29 +5,29 @@ from patterns.models.engine import DefaultEngine
 from rparser import parse
 
 params = [
-    # https://github.com/mhagnumdw/bean-info-generator/pull/5/files#diff-71bf0b35fa483782180f548a1a7d6cc4b3822ed12aa4bb86640f80dde9df3077R13
-    (False, 'SA_SELF_COMPUTATION', 'Ideas_2013_11_06.java ',
-     '''@NoWarning("SA_FIELD_SELF_COMPUTATION")
-        public int testUpdate() {
-            return flags ^(short) flags;
-        }''', 0, 1),
-    # https://github.com/spotbugs/spotbugs/blob/3883a7b750fb339577be073bc45e36b6f268777b/spotbugsTestCases/src/java/SelfFieldOperation.java#L25
-    (False, 'SA_SELF_COMPUTATION', 'SelfFieldOperation.java',
-     '''@ExpectWarning("SA_FIELD_SELF_COMPARISON,SA_FIELD_SELF_COMPUTATION")
-        int f() {
-            if (x < x)
-                x = (int) ( y ^ y);
-            if (x != x)
-                y = x | x;
-            if (x >= x)
-                x = (int)(y & y);
-            if (y > y)
-                y = x - x;
-            return x;
-        }''', 8, 3),
-    # DIY
-    (False, 'SA_SELF_COMPUTATION', 'DIY_01.java',
-     '''return capabilities.level - level;''', 0, 1),
+    # # https://github.com/mhagnumdw/bean-info-generator/pull/5/files#diff-71bf0b35fa483782180f548a1a7d6cc4b3822ed12aa4bb86640f80dde9df3077R13
+    # (False, 'SA_SELF_COMPUTATION', 'Ideas_2013_11_06.java ',
+    #  '''@NoWarning("SA_FIELD_SELF_COMPUTATION")
+    #     public int testUpdate() {
+    #         return flags ^(short) flags;
+    #     }''', 0, 1),
+    # # https://github.com/spotbugs/spotbugs/blob/3883a7b750fb339577be073bc45e36b6f268777b/spotbugsTestCases/src/java/SelfFieldOperation.java#L25
+    # (False, 'SA_SELF_COMPUTATION', 'SelfFieldOperation.java',
+    #  '''@ExpectWarning("SA_FIELD_SELF_COMPARISON,SA_FIELD_SELF_COMPUTATION")
+    #     int f() {
+    #         if (x < x)
+    #             x = (int) ( y ^ y);
+    #         if (x != x)
+    #             y = x | x;
+    #         if (x >= x)
+    #             x = (int)(y & y);
+    #         if (y > y)
+    #             y = x - x;
+    #         return x;
+    #     }''', 8, 3),
+    # # DIY
+    # (False, 'SA_SELF_COMPUTATION', 'DIY_01.java',
+    #  '''return capabilities.level - level;''', 0, 1),
     # ---------------- SA_SELF_COMPARISON ----------------------
     (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
      '''@NoWarning("SA_FIELD_SELF_COMPARISON")
@@ -69,7 +69,24 @@ params = [
          Objects.equals(stopOnQuotaReach, throttlingPolicy.stopOnQuotaReach) &&
          Objects.equals(monetizationProperties, throttlingPolicy.monetizationProperties);''', 0, 1),
     #  https://github.com/google/ExoPlayer/pull/8462
-    (False, 'SA_SELF_COMPARISON', '', 'if (capabilities.profile == profile && capabilities.level >= level) { ', 0, 1)
+    (False, 'SA_SELF_COMPARISON', 'Fake_01.java',
+    'if (capabilities.profile == profile && capabilities.level >= level) { ', 0, 1),
+    (False, 'SA_SELF_COMPARISON', 'Fake_02.java', 'private <T> T triggerBeforeConvert(T aggregateRoot) {', 0, 1),
+    (False, 'SA_SELF_COMPARISON', 'Fake_03.java',
+     'public <C, R> R accept(AnalyzedStatementVisitor<C, R> analyzedStatementVisitor, C context) {', 0, 1),
+    (False, 'SA_SELF_COMPARISON', 'Fake_04.java',
+     'public <T> T unwrap(String wrappingToken, Class<T> resultClass) {', 0, 1),
+    (False, 'SA_SELF_COMPARISON', 'Fake_05.java',
+     'private <T> T exec(HttpRequest<Buffer> request, Object body, Class<T> resultClass, int expectedCode) {', 0, 1),
+    (False, 'SA_SELF_COMPARISON', 'Fake_06.java',
+     'ArrayList<ArrayList<RecyclerView.ViewHolder>> mAdditionsList = new ArrayList<>();', 0, 1),
+    (False, 'SA_SELF_COMPARISON', 'Fake_07.java',
+     '''private static final List<String> STEP_NAMES = Arrays.asList("Given a \\"stock\\" of symbol <symbol> and a threshold <threshold>",
+                        "When the stock is traded at price <price>",
+                        "Then the alert status should be status <status>"
+        );''', 0, 1),
+    (False, 'SA_SELF_COMPARISON', 'Fake_08.java',
+     '''private static final List<String> STEP_NAMES = Arrays.asList("Given a stock of symbol <symbol> and a threshold <threshold>''', 0, 1),
 ]
 
 

@@ -106,19 +106,6 @@ class DefaultEngine(BaseEngine):
                 for name, detector in self._detectors.items():
                     detector.match(self.context)
 
-
-                # line_content = hunk.lines[i].content
-                #
-                # for name, detector in self._detectors.items():
-                #     method_dict = dict()
-                #     if isinstance(hunk.lines[i], VirtualStatement):
-                #         method_dict['get_exact_lineno'] = hunk.lines[i].get_exact_lineno
-                #
-                #     if name == 'GetResourceDetector':
-                #         method_dict['local_search'] = self._local_search
-                #
-                #     detector.match(line_content, patch.name, hunk.lines[i].lineno[1], **method_dict)
-
         # collect bug instances
         for detector in list(self._detectors.values()):
             if detector.bug_accumulator:
