@@ -6,7 +6,7 @@ import json
 from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
-from utils import logger, logger_add, TRACE
+from utils import create_missing_dirs
 from timer import Timer
 
 
@@ -102,12 +102,6 @@ def get_modified_patchset(path):
 def run():
     paths = glob.glob(f'{root}/**/*.json', recursive=True)
 
-    # logger name
-    logger.remove(TRACE)
-    cnt = 1
-    trace = logger_add(report_path, f'{cnt}.log')
-    has_bug = False
-
     context = Context()
     context.enable_online_search()
     engine = DefaultEngine(context)
@@ -123,24 +117,24 @@ def run():
         else:
             continue
 
-        if has_bug:
-            logger.remove(trace)
-            cnt += 1
-            trace = logger_add(report_path, f'{cnt}.log')
-            has_bug = False
-
         patchset = get_modified_patchset(p)
         if patchset:
             pr_timer = Timer(repo_name + '-' + pr_id, logger=None)
             pr_timer.start()
             engine.visit(*patchset)
-            if engine.bug_accumulator:
-                engine.report(level='low')
-                has_bug = True
-            pr_timer.stop()
 
-        if has_bug:
-            logger.info(p)
+            bugs = engine.filter_bugs(level='low')
+            if bugs:
+                save_path = f'{report_path}/{repo_name}/{pr_id}'
+                create_missing_dirs(save_path)
+                with open(f'{save_path}/report.json', 'w') as out:
+                    bugs_json = dict()
+                    bugs_json['repo'] = repo_name
+                    bugs_json['id'] = pr_id
+                    bugs_json['total'] = len(bugs)
+                    bugs_json['items'] = [bug.__dict__ for bug in bugs]
+                    json.dump(bugs_json, out)
+            pr_timer.stop()
 
     with open(path.join(report_path, 'timer.json'), 'w') as logfile:
         json.dump(Timer.timers, logfile)
