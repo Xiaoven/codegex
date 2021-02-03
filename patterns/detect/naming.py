@@ -3,6 +3,7 @@ import regex
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
 from patterns.models import priorities
+from utils import get_string_ranges, in_range
 
 GENERIC_REGEX = regex.compile(r'(?P<gen><(?:[^<>]++|(?&gen))*>)')
 CLASS_EXTENDS_REGEX = regex.compile(r'class\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)')
@@ -190,15 +191,35 @@ class ClassNameConventionDetector(Detector):
 class MethodNameConventionDetector(Detector):
     def __init__(self):
         # Extract the method name
-        self.mn_pattern = regex.compile(r'\b\w+[\s.]+(\w+)\s*\(')
+        self.mn_pattern = regex.compile(
+            r'(\b\w+\s+)?(?:\b\w+\s*\.\s*)*(\b\w+)\s*\(\s*(\w+(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+\w+)?')
         Detector.__init__(self)
 
     def match(self, context):
         strip_line = context.cur_line.content.strip()
-        if '(' in strip_line and ')' in strip_line:
+        if '(' in strip_line:
             its = self.mn_pattern.finditer(strip_line)
             for m in its:
-                method_name = m.groups()[0]
+                g = m.groups()
+                pre_token = g[0].strip() if g[0] else g[0]
+                method_name = g[1]
+                args_def = g[2]
+
+                # skip statements like "new Object(...)"
+                if pre_token == 'new':
+                    continue
+                # skip constructor definitions, like "public Object(int i)"
+                if pre_token in ('public', 'private', 'protected', 'static'):
+                    continue
+                # skip constructor definitions without access modifier, like "Object (int i)"
+                if not pre_token and args_def:
+                    continue
+                # skip match within a string
+                string_ranges = get_string_ranges(strip_line)
+                method_name_offset = m.start(2)
+                if in_range(method_name_offset, string_ranges):
+                    continue
+
                 if len(method_name) >= 2 and method_name[0].isalpha() and not method_name[0].islower() and \
                         method_name[1].isalpha() and method_name[1].islower() and '_' not in method_name:
                     priority = priorities.LOW_PRIORITY
@@ -209,3 +230,4 @@ class MethodNameConventionDetector(Detector):
                         BugInstance('NM_METHOD_NAMING_CONVENTION', priority, context.cur_patch.name,
                                     context.cur_line.lineno[1],
                                     'Nm: Method names should start with a lower case letter'))
+                    return
