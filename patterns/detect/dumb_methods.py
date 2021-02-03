@@ -22,7 +22,8 @@ class FinalizerOnExitDetector(Detector):
 
             self.bug_accumulator.append(
                 BugInstance('DM_RUN_FINALIZERS_ON_EXIT', confidence, context.cur_patch.name, context.cur_line.lineno[1],
-                            'Method invokes dangerous method runFinalizersOnExit')
+                            'Method invokes dangerous method runFinalizersOnExit',
+                            sha=context.cur_patch.sha)
             )
 
 
@@ -38,7 +39,8 @@ class RandomOnceDetector(Detector):
             self.bug_accumulator.append(
                 BugInstance('DMI_RANDOM_USED_ONLY_ONCE', priorities.HIGH_PRIORITY, context.cur_patch.name,
                             context.cur_line.lineno[1],
-                            'Random object created and used only once')
+                            'Random object created and used only once',
+                            sha=context.cur_patch.sha)
             )
 
 
@@ -56,7 +58,8 @@ class RandomD2IDetector(Detector):
                 self.bug_accumulator.append(
                     BugInstance('RV_01_TO_INT', priorities.HIGH_PRIORITY, context.cur_patch.name,
                                 context.cur_line.lineno[1],
-                                'Random value from 0 to 1 is coerced to the integer 0')
+                                'Random value from 0 to 1 is coerced to the integer 0',
+                                sha=context.cur_patch.sha)
                 )
 
 
@@ -86,7 +89,7 @@ class StringCtorDetector(Detector):
             if p_type is not None:
                 self.bug_accumulator.append(BugInstance(p_type, priorities.MEDIUM_PRIORITY, context.cur_patch.name,
                                                         context.cur_line.lineno[1],
-                                                        description))
+                                                        description, sha=context.cur_patch.sha))
                 return
 
 
@@ -149,4 +152,5 @@ class InvalidMinMaxDetector(Detector):
                     if upper_bound < lower_bound:
                         self.bug_accumulator.append(BugInstance('DM_INVALID_MIN_MAX', priorities.HIGH_PRIORITY,
                                                                 context.cur_patch.name, context.cur_line.lineno[1],
-                                                                'Incorrect combination of Math.max and Math.min'))
+                                                                'Incorrect combination of Math.max and Math.min',
+                                                                sha=context.cur_patch.sha))

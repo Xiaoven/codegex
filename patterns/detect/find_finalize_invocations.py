@@ -17,7 +17,7 @@ class ExplicitInvDetector(Detector):
             self.bug_accumulator.append(
                 BugInstance('FI_EXPLICIT_INVOCATION', priorities.HIGH_PRIORITY, context.cur_patch.name,
                             context.cur_line.lineno[1],
-                            'Explicit invocation of Object.finalize()')
+                            'Explicit invocation of Object.finalize()', sha=context.cur_patch.sha)
             )
 
 
@@ -33,5 +33,5 @@ class PublicAccessDetector(Detector):
             self.bug_accumulator.append(
                 BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
                             context.cur_line.lineno[1],
-                            'Finalizer should be protected, not public')
+                            'Finalizer should be protected, not public', sha=context.cur_patch.sha)
             )

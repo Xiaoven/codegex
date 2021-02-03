@@ -26,5 +26,5 @@ class NewLineDetector(Detector):
                 self.bug_accumulator.append(
                     BugInstance('VA_FORMAT_STRING_USES_NEWLINE', priorities.MEDIUM_PRIORITY,
                                 context.cur_patch.name, line_no,
-                                'Format string should use %n rather than \\n')
+                                'Format string should use %n rather than \\n', sha=context.cur_patch.sha)
                 )

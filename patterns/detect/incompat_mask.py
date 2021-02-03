@@ -94,7 +94,8 @@ class IncompatMaskDetector(Detector):
                     if tmp:
                         line_no = tmp[1]
 
-                self.bug_accumulator.append(BugInstance(p_type, priority, context.cur_patch.name, line_no, description))
+                self.bug_accumulator.append(BugInstance(p_type, priority, context.cur_patch.name, line_no, description,
+                                                        sha=context.cur_patch.sha))
 
 
 

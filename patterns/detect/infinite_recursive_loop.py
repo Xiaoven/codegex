@@ -21,5 +21,6 @@ class CollectionAddItselfDetector(Detector):
             if g[0] == g[2]:
                 self.bug_accumulator.append(
                     BugInstance('IL_CONTAINER_ADDED_TO_ITSELF', priorities.HIGH_PRIORITY, context.cur_patch.name,
-                                context.cur_line.lineno[1], 'A collection is added to itself')
+                                context.cur_line.lineno[1], 'A collection is added to itself',
+                                sha=context.cur_patch.sha)
                 )

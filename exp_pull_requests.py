@@ -13,6 +13,19 @@ from timer import Timer
 root = 'PullRequests'
 report_path = 'PullRequests/report'
 
+RE_SHA = re.compile(r'https://github\.com/[^/]+/[^/]+/blob/(\w+)/')
+
+
+def _get_sha(blob_url: str):
+    try:
+        m = RE_SHA.search(blob_url)
+        if m:
+            return m.groups()[0]
+
+    except TypeError as e:
+        # "blob_url": null
+        return ''
+
 
 def find_missing_pr():
     paths = glob.glob('PullRequests/java/links/**/*.csv', recursive=True)
@@ -47,36 +60,36 @@ def find_missing_pr():
     print(f'unique link = {len(link_dic)}')
 
 
-def report_diversity():
-    paths = glob.glob(f'{report_path}/*.log', recursive=True)
-    re_pattern_name = re.compile(r'Confidence:([A-Z_0-9]+)$')
-    diversity = dict()
-
-    for p in paths:
-        with open(p, 'r') as file_to_read:
-            for line in file_to_read:
-                m = re_pattern_name.search(line)
-                if m:
-                    pattern_name = m.groups()[0]
-                    if pattern_name in diversity:
-                        diversity[pattern_name] += 1
-                    else:
-                        diversity[pattern_name] = 1
-
-    with open(f'{report_path}/diversity.json', 'w') as outfile:
-        json.dump(diversity, outfile)
+# def report_diversity():
+#     paths = glob.glob(f'{report_path}/*.log', recursive=True)
+#     re_pattern_name = re.compile(r'Confidence:([A-Z_0-9]+)$')
+#     diversity = dict()
+#
+#     for p in paths:
+#         with open(p, 'r') as file_to_read:
+#             for line in file_to_read:
+#                 m = re_pattern_name.search(line)
+#                 if m:
+#                     pattern_name = m.groups()[0]
+#                     if pattern_name in diversity:
+#                         diversity[pattern_name] += 1
+#                     else:
+#                         diversity[pattern_name] = 1
+#
+#     with open(f'{report_path}/diversity.json', 'w') as outfile:
+#         json.dump(diversity, outfile)
 
 
 def sum_time_and_warnings():
-    with open('/Users/audrey/Documents/GitHub/rbugs/PullRequests/report/diversity.json', 'r') as f:
+    with open('/PullRequests/report/diversity.json', 'r') as f:
         jfile = json.load(f)
         sum = 0
         for k, v in jfile.items():
-            if k not in ("SA_SELF_COMPARISON", "VA_FORMAT_STRING_USES_NEWLINE","SA_SELF_COMPUTATION"):
+            if k not in ("SA_SELF_COMPARISON", "VA_FORMAT_STRING_USES_NEWLINE", "SA_SELF_COMPUTATION"):
                 sum += v
         print(f'sum of diversity = {sum}')
 
-    with open('/Users/audrey/Documents/GitHub/rbugs/PullRequests/report/timer.json', 'r') as f:
+    with open('/PullRequests/report/timer.json', 'r') as f:
         jfile = json.load(f)
         sum = 0
         for k, v in jfile.items():
@@ -95,6 +108,8 @@ def get_modified_patchset(path):
                 if 'patch' in file and file['status'] != 'removed':
                     patch = parse(file['patch'], name=name)
                     patch.type = file['status']
+                    if 'blob_url' in file:
+                        patch.sha = _get_sha(file['blob_url'])
                     patchset.append(patch)
     return patchset
 

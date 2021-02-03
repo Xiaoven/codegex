@@ -50,7 +50,7 @@ class BadMonthDetector(Detector):
             if month < 0 or month > 11:
                 self.bug_accumulator.append(BugInstance('DMI_BAD_MONTH', priority, context.cur_patch.name,
                                                         context.cur_line.lineno[1],
-                                                        'Bad constant value for month.'))
+                                                        'Bad constant value for month.', sha=context.cur_patch.sha))
 
                 
 class ShiftAddPriorityDetector(Detector):
@@ -80,7 +80,8 @@ class ShiftAddPriorityDetector(Detector):
 
             self.bug_accumulator.append(BugInstance('BSHIFT_WRONG_ADD_PRIORITY', priority, context.cur_patch.name,
                                                     context.cur_line.lineno[1],
-                                                    'Possible bad parsing of shift operation.'))
+                                                    'Possible bad parsing of shift operation.',
+                                                    sha=context.cur_patch.sha))
 
 
 class OverwrittenIncrementDetector(Detector):
@@ -105,6 +106,6 @@ class OverwrittenIncrementDetector(Detector):
                     self.bug_accumulator.append(
                         BugInstance('DLS_OVERWRITTEN_INCREMENT', priorities.HIGH_PRIORITY,
                                     context.cur_patch.name, context.cur_line.lineno[1],
-                                    "DLS: Overwritten increment")
+                                    "DLS: Overwritten increment", sha=context.cur_patch.sha)
                     )
                     break

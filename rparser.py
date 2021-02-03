@@ -88,6 +88,7 @@ class Patch:
         self.name = ''
         self.hunks = []
         self.type = None
+        self.sha = ''
 
     def __iter__(self):
         for h in self.hunks:

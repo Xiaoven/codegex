@@ -69,7 +69,8 @@ class FindRoughConstantsDetector(Detector):
                     tmp = context.cur_line.get_exact_lineno(m)
                     if tmp:
                         line_no = tmp[1]
-                bug_ins = RoughConstantValueBugInstance("CNT_ROUGH_CONSTANT_VALUE", p, context.cur_patch.name, line_no)
+                bug_ins = RoughConstantValueBugInstance("CNT_ROUGH_CONSTANT_VALUE", p, context.cur_patch.name, line_no,
+                                                        sha=context.cur_patch.sha)
                 bug_ins.gen_description(float_const, bad_const)
                 self.bug_accumulator.append(bug_ins)
 

@@ -39,7 +39,7 @@ class GetResourceDetector(Detector):
                 self.bug_accumulator.append(
                     BugInstance('UI_INHERITANCE_UNSAFE_GETRESOURCE', priority, context.cur_patch.name,
                                 context.cur_line.lineno[1],
-                                'Usage of GetResource may be unsafe if class is extended')
+                                'Usage of GetResource may be unsafe if class is extended', sha=context.cur_patch.sha)
                 )
 
     @cached(cache=_cache, key=lambda self, simple_name, context: cachetools.keys.hashkey(simple_name))
