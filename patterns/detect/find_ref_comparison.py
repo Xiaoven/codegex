@@ -36,7 +36,7 @@ class EqualityDetector(Detector):
                 self.bug_accumulator.append(
                     BugInstance('RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN', priorities.MEDIUM_PRIORITY,
                                 context.cur_patch.name, context.cur_line.lineno[1],
-                                "Suspicious reference comparison of Boolean values")
+                                "Suspicious reference comparison of Boolean values", sha=context.cur_patch.sha)
                 )
                 break
             else:
@@ -52,7 +52,7 @@ class EqualityDetector(Detector):
                     self.bug_accumulator.append(
                         BugInstance('ES_COMPARING_STRINGS_WITH_EQ', priorities.MEDIUM_PRIORITY,
                                     context.cur_patch.name, context.cur_line.lineno[1],
-                                    "Suspicious reference comparison of String objects"))
+                                    "Suspicious reference comparison of String objects", sha=context.cur_patch.sha))
                     break
 
 
@@ -69,6 +69,6 @@ class CallToNullDetector(Detector):
             self.bug_accumulator.append(
                 BugInstance('EC_NULL_ARG', priorities.MEDIUM_PRIORITY,
                             context.cur_patch.name, context.cur_line.lineno[1],
-                            "Call to equals(null)")
+                            "Call to equals(null)", sha=context.cur_patch.sha)
             )
             return

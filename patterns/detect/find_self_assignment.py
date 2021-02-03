@@ -20,7 +20,7 @@ class CheckForSelfAssignment(Detector):
                     self.bug_accumulator.append(
                         BugInstance('SA_SELF_ASSIGNMENT', Priorities.HIGH_PRIORITY, context.cur_patch.name,
                                     context.cur_line.lineno[1],
-                                    'SA: Self assignment of field or variable')
+                                    'SA: Self assignment of field or variable', sha=context.cur_patch.sha)
                     )
 
 
@@ -39,5 +39,5 @@ class CheckForSelfDoubleAssignment(Detector):
                     self.bug_accumulator.append(
                         BugInstance('SA_DOUBLE_ASSIGNMENT', Priorities.HIGH_PRIORITY, context.cur_patch.name,
                                     context.cur_line.lineno[1],
-                                    'SA: Double assignment of field or local variable')
+                                    'SA: Double assignment of field or local variable', sha=context.cur_patch.sha)
                     )

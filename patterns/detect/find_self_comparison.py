@@ -47,7 +47,7 @@ class CheckForSelfComputation(Detector):
                 self.bug_accumulator.append(
                     BugInstance('SA_SELF_COMPUTATION', Priorities.MEDIUM_PRIORITY, context.cur_patch.name,
                                 context.cur_line.lineno[1],
-                                'Nonsensical self computation involving a variable or field')
+                                'Nonsensical self computation involving a variable or field', sha=context.cur_patch.sha)
                 )
                 return
 
@@ -110,5 +110,5 @@ class CheckForSelfComparison(Detector):
             self.bug_accumulator.append(
                 BugInstance('SA_SELF_COMPARISON', Priorities.MEDIUM_PRIORITY, context.cur_patch.name,
                             context.cur_line.lineno[1],
-                            'Self comparison of value or field with itself')
+                            'Self comparison of value or field with itself', sha=context.cur_patch.sha)
             )

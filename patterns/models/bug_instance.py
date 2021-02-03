@@ -8,9 +8,10 @@ confidence_map = {
 
 
 class BugInstance:
-    def __init__(self, pattern_type: str, priority: int, file_name: str, line_no: int, description=''):
+    def __init__(self, pattern_type: str, priority: int, file_name: str, line_no: int, description='', sha=''):
         self.type = pattern_type
         self.file_name = file_name
+        self.file_sha = sha
         self.line_no = line_no
         self.priority = priority
         self.description = description

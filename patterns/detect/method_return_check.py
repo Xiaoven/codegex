@@ -16,5 +16,5 @@ class NotThrowDetector(Detector):
             self.bug_accumulator.append(
                 BugInstance('RV_EXCEPTION_NOT_THROWN', priorities.MEDIUM_PRIORITY,
                             context.cur_patch.name, context.cur_line.lineno[1],
-                            "Exception created and dropped rather than thrown")
+                            "Exception created and dropped rather than thrown", sha=context.cur_patch.sha)
             )

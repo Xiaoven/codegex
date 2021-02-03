@@ -34,7 +34,7 @@ class SimpleSuperclassNameDetector(Detector):
                     self.bug_accumulator.append(
                         BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', priorities.HIGH_PRIORITY,
                                     context.cur_patch.name, context.cur_line.lineno[1],
-                                    'Class names shouldn’t shadow simple name of superclass')
+                                    'Class names shouldn’t shadow simple name of superclass', sha=context.cur_patch.sha)
                     )
 
 
@@ -69,7 +69,8 @@ class SimpleInterfaceNameDetector(Detector):
                     self.bug_accumulator.append(
                         BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', priorities.MEDIUM_PRIORITY,
                                     context.cur_patch.name, context.cur_line.lineno[1],
-                                    'Class or interface names shouldn’t shadow simple name of implemented interface')
+                                    'Class or interface names shouldn’t shadow simple name of implemented interface',
+                                    sha=context.cur_patch.sha)
                     )
 
 
@@ -89,7 +90,8 @@ class HashCodeNameDetector(Detector):
         if m:
             self.bug_accumulator.append(BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY,
                                                     context.cur_patch.name, context.cur_line.lineno[1],
-                                                    "Class defines hashcode(); should it be hashCode()?"))
+                                                    "Class defines hashcode(); should it be hashCode()?",
+                                                    sha=context.cur_patch.sha))
 
 
 class ToStringNameDetector(Detector):
@@ -108,7 +110,7 @@ class ToStringNameDetector(Detector):
             self.bug_accumulator.append(
                 BugInstance('NM_LCASE_TOSTRING', priorities.HIGH_PRIORITY, context.cur_patch.name,
                             context.cur_line.lineno[1],
-                            'Class defines tostring(); should it be toString()?'))
+                            'Class defines tostring(); should it be toString()?', sha=context.cur_patch.sha))
 
 
 class EqualNameDetector(Detector):
@@ -127,7 +129,8 @@ class EqualNameDetector(Detector):
         if m:
             self.bug_accumulator.append(BugInstance('NM_BAD_EQUAL', priorities.HIGH_PRIORITY, context.cur_patch.name,
                                                     context.cur_line.lineno[1],
-                                                    'Class defines equal(Object); should it be equals(Object)?'))
+                                                    'Class defines equal(Object); should it be equals(Object)?',
+                                                    sha=context.cur_patch.sha))
 
 
 class FieldNameConventionDetector(Detector):
@@ -158,7 +161,8 @@ class FieldNameConventionDetector(Detector):
                         self.bug_accumulator.append(
                             BugInstance('NM_FIELD_NAMING_CONVENTION', priorities.LOW_PRIORITY, context.cur_patch.name,
                                         context.cur_line.lineno[1],
-                                        'Nm: Field names should start with a lower case letter'))
+                                        'Nm: Field names should start with a lower case letter',
+                                        sha=context.cur_patch.sha))
 
 
 class ClassNameConventionDetector(Detector):
@@ -185,7 +189,8 @@ class ClassNameConventionDetector(Detector):
                     self.bug_accumulator.append(
                         BugInstance('NM_CLASS_NAMING_CONVENTION', priority, context.cur_patch.name,
                                     context.cur_line.lineno[1],
-                                    'Nm: Class names should start with an upper case letter'))
+                                    'Nm: Class names should start with an upper case letter',
+                                    sha=context.cur_patch.sha))
 
 
 class MethodNameConventionDetector(Detector):
@@ -229,5 +234,6 @@ class MethodNameConventionDetector(Detector):
                     self.bug_accumulator.append(
                         BugInstance('NM_METHOD_NAMING_CONVENTION', priority, context.cur_patch.name,
                                     context.cur_line.lineno[1],
-                                    'Nm: Method names should start with a lower case letter'))
+                                    'Nm: Method names should start with a lower case letter',
+                                    sha=context.cur_patch.sha))
                     return

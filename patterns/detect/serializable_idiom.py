@@ -43,7 +43,8 @@ class DefSerialVersionID(Detector):
 
             if pattern_name:
                 self.bug_accumulator.append(
-                    BugInstance(pattern_name, priority, context.cur_patch.name, context.cur_line.lineno[1], message))
+                    BugInstance(pattern_name, priority, context.cur_patch.name, context.cur_line.lineno[1], message,
+                                sha=context.cur_patch.sha))
 
 
 class DefReadResolveMethod(Detector):
@@ -74,7 +75,7 @@ class DefReadResolveMethod(Detector):
             if pattern_name:
                 self.bug_accumulator.append(
                     BugInstance(pattern_name, priorities.MEDIUM_PRIORITY, context.cur_patch.name,
-                                context.cur_line.lineno[1], message))
+                                context.cur_line.lineno[1], message, sha=context.cur_patch.sha))
 
 
 class DefPrivateMethod(Detector):
@@ -117,5 +118,6 @@ class DefPrivateMethod(Detector):
                 self.bug_accumulator.append(
                     BugInstance('SE_METHOD_MUST_BE_PRIVATE', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
                                 context.cur_line.lineno[1],
-                                'Method must be private in order for serialization to work.'))
+                                'Method must be private in order for serialization to work.',
+                                sha=context.cur_patch.sha))
 
