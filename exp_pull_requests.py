@@ -81,7 +81,7 @@ def find_missing_pr():
 
 
 def sum_time_and_warnings():
-    with open('/PullRequests/report_bk/diversity.json', 'r') as f:
+    with open('/PullRequests/report/diversity.json', 'r') as f:
         jfile = json.load(f)
         sum = 0
         for k, v in jfile.items():
@@ -89,7 +89,7 @@ def sum_time_and_warnings():
                 sum += v
         print(f'sum of diversity = {sum}')
 
-    with open('/PullRequests/report_bk/timer.json', 'r') as f:
+    with open('/PullRequests/report/timer.json', 'r') as f:
         jfile = json.load(f)
         sum = 0
         for k, v in jfile.items():
