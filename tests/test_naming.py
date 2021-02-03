@@ -147,16 +147,16 @@ params = [
     # }''', 0, 1),
     #     (False, 'NM_BAD_EQUAL', 'Main_13.java', '''boolean equal( Object o ){''', 1, 1),
     #     (False, 'NM_BAD_EQUAL', 'Main_14.java', '''static boolean equal(Object o )''', 1, 1),
-    #     # ------------------------ NM_METHOD_NAMING_CONVENTION ------------------------
-    #     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_15.java', '''private boolean MethodName(Obejct o){''', 1, 1),
-    #     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_16.java', '''boolean methodName(Obejct o){''', 0, 1),
-    #     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_17.java', '''void MethodName()
-    #     {''', 1, 1),
-    #     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_23.java', '''void AM(){''', 0, 1),
-    #     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_24.java', '''void A(){''', 0, 1),
-    #     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_25.java', '''void Me(){''', 1, 1),
-    #     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_26.java', '''void Me_hello(){''', 0, 1),
-    #     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_27.java', '''b.MethodName()''', 1, 1),
+        # ------------------------ NM_METHOD_NAMING_CONVENTION ------------------------
+        (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_15.java', '''private boolean MethodName(Obejct o){''', 1, 1),
+        (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_16.java', '''boolean methodName(Obejct o){''', 0, 1),
+        (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_17.java', '''void MethodName()
+        {''', 1, 1),
+        (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_23.java', '''void AM(){''', 0, 1),
+        (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_24.java', '''void A(){''', 0, 1),
+        (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_25.java', '''void Me(){''', 1, 1),
+        (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_26.java', '''void Me_hello(){''', 0, 1),
+        (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_27.java', '''b.MethodName()''', 1, 1),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_28.java',
      'File jeiConfigurationDir = new File(FMLPaths.CONFIGDIR.get().toFile(), ModIds.JEI_ID);', 0, 1),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_29.java', 'new Thread(() -> {', 0, 1),
