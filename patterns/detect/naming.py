@@ -163,6 +163,7 @@ class FieldNameConventionDetector(Detector):
                                         context.cur_line.lineno[1],
                                         'Nm: Field names should start with a lower case letter',
                                         sha=context.cur_patch.sha))
+                        return
 
 
 class ClassNameConventionDetector(Detector):
@@ -197,7 +198,7 @@ class MethodNameConventionDetector(Detector):
     def __init__(self):
         # Extract the method name
         self.mn_pattern = regex.compile(
-            r'(\b\w+\s+)?(?:\b\w+\s*\.\s*)*(\b\w+)\s*\(\s*(\w+(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+\w+)?')
+            r'(\b\w+\s+)?(?:\b\w+\s*\.\s*)*(\b\w+)\s*\(\s*((?:(?!new)\w)+(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+\w+)?')
         Detector.__init__(self)
 
     def match(self, context):
@@ -216,13 +217,16 @@ class MethodNameConventionDetector(Detector):
                 # skip constructor definitions, like "public Object(int i)"
                 if pre_token in ('public', 'private', 'protected', 'static'):
                     continue
-                # skip constructor definitions without access modifier, like "Object (int i)"
-                if not pre_token and args_def:
+                # skip constructor definitions without access modifier, like "Object (int i)", "Object() {"
+                if not pre_token and (args_def or strip_line.endswith('{')):
                     continue
-                # skip match within a string
+                # skip match within string
                 string_ranges = get_string_ranges(strip_line)
                 method_name_offset = m.start(2)
                 if in_range(method_name_offset, string_ranges):
+                    continue
+                # skip annotations
+                if method_name_offset - 1 >= 0 and strip_line[method_name_offset - 1] == '@':
                     continue
 
                 if len(method_name) >= 2 and method_name[0].isalpha() and not method_name[0].islower() and \
