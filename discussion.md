@@ -221,4 +221,78 @@ TestUtil.testCall(db, "return custom.answer(42,3.14,'foo',{a:1},[1],true,date(),
 
     - using `\b`
 
-    
+
+
+# Filter Rules
+
+## Regular Expression Opposite
+
+>   ((?!REGULAR_EXPRESSION_HERE).)*
+
+### NM_METHOD_NAMING_CONVENTION
+
+**目的**: 为了避免匹配 `new Constructor()` 
+
+**正则**：
+
+```regexp
+(\b\w+\s+)?(?:\b\w+\s*\.\s*)*(\b\w+)\s*\(\s*((?:(?!new)\w)+(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+\w+)?
+```
+
+说明：有两处的 `\w+` 需要避免匹配  `new Constructor()` ，上述正则只在后面一处用了 `(?:(?!new)\w)+`。之后会考虑是否把前一处也改了，目前不改的原因是担心会增加正则的复杂度，需要执行更多steps才能完成匹配
+
+**例子**：
+
+```java
+TrackSelector trackSelector = new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));  // 不匹配
+```
+
+## Capturing group to get extra information
+
+出现 0 或 1 次的 capturing group
+
+>   (REGULAR_EXPRESSION_HERE)?
+
+### NM_METHOD_NAMING_CONVENTION
+
+**正则**：
+
+```regexp
+(\b\w+\s+)?(?:\b\w+\s*\.\s*)*(\b\w+)\s*\(\s*((?:(?!new)\w)+(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+\w+)?
+```
+
+中的 `(\b\w+\s+)?`
+
+**目的**：获取 target 前后的 token，来帮助 filter，因为一个正则需要适应多个应用场景。例如，上述正则需要能识别一下形式的 method name
+
+-   ```
+    methodName(...);
+    obj.methodName(...);
+    obj.m1(...).methodName(...);  // 每个method之间可以换行
+    public void methodName(int i)  // 方法定义
+    ```
+
+所以需要 methodName 前后的 token 信息来帮助过滤以下几种 FPs
+
+```java
+			  # skip statements like "new Object(...)"
+                if pre_token == 'new':
+                    continue
+                # skip constructor definitions, like "public Object(int i)"
+                if pre_token in ('public', 'private', 'protected', 'static'):
+                    continue
+                # skip constructor definitions without access modifier, like "Object (int i)", "Object() {"
+                if not pre_token and (args_def or strip_line.endswith('{')):
+                    continue
+                # skip match within string
+                string_ranges = get_string_ranges(strip_line)
+                method_name_offset = m.start(2)
+                if in_range(method_name_offset, string_ranges):
+                    continue
+                # skip annotations
+                if method_name_offset - 1 >= 0 and strip_line[method_name_offset - 1] == '@':
+                    continue
+```
+
+
+
