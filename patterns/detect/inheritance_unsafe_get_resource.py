@@ -4,7 +4,7 @@ from cachetools import cached, LRUCache
 
 from patterns.models import priorities
 from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector
+from patterns.models.detectors import Detector, online_search
 from utils import send
 
 _cache = LRUCache(maxsize=500)
@@ -67,12 +67,11 @@ class GetResourceDetector(Detector):
             if context:
                 query = f'https://api.github.com/search/code?q=%22extends+{simple_name}%22+in:file' \
                         f'+language:Java+repo:{repo_name}'
-                resp = send(query, token, 3)
+                resp_json = online_search(query, token, search_parent=True, repo_name=repo_name)
 
-                if resp:
-                    jresp = resp.json()
-                    if 'total_count' in jresp:
-                        if jresp['total_count'] > 0:
+                if resp_json:
+                    if 'total_count' in resp_json:
+                        if resp_json['total_count'] > 0:
                             return priorities.MEDIUM_PRIORITY
                         else:
                             return None
