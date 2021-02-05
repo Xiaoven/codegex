@@ -4,6 +4,7 @@ from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 
+
 params = [
     # From other repository: https://github.com/tesshucom/jpsonic/commit/04425589726efad5532e5828326f2de38e643cb1
     (True, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'AirsonicSpringLiquibase.java',
@@ -169,43 +170,16 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
                     new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));''',
      0, 1),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_37.java', 'TheBloodskyMassacreEffect() {', 0, 1),
-
-    # ------------------------ NM_FIELD_NAMING_CONVENTION ------------------------
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_40.java', '''this.Field = field;''', 1, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_41.java', '''this.FIELD = field;''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_42.java', '''this.My_FIELD''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_43.java',
-     '''public class SpringLiquibase extends liquibase.integration.spring.CLASS{''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_44.java', '''@InterfaceAudience.Public''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_45.java', '''b = a.get();''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_46.java', '''b = obj1.FieldOne.field;''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_47.java', '''b = obj1.get().Field;''', 1, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_48.java',
-     'final DownloadManager.Request request = new DownloadManager.Request(uri)', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_49.java',
-     'Constants.PinCodeMode pinCodeMode = (Constants.PinCodeMode) obj.getMode();', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_50.java',
-     'if (obj instanceof Main.Inner){', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_51.java',
-     'LOG.debug("ContainerID: {} already exists in Map.Key :{}.", value, key);', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_52.java',
-     '''.append("         AND c.IsActive='Y') AND ")''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_52.java',
-     'if (instanceConfig.getFunctionDetails().getRuntime() == Function.FunctionDetails.Runtime.GO) {', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_53.java',
-     'final int type = data.getIntExtra(RESULT_TYPEID, OfflineMap.OfflineMapType.DEFAULT);', 0, 1),
 ]
 
 
 @pytest.mark.parametrize('is_patch,pattern_type,file_name,patch_str,expected_length,line_no', params)
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
-    patch = parse(patch_str, is_patch)
-    patch.name = file_name
+    patch = parse(patch_str, is_patch=is_patch, name=file_name)
 
     engine = DefaultEngine(Context(), included_filter=[
         'SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector', 'HashCodeNameDetector', 'ToStringNameDetector',
         'EqualNameDetector', 'ClassNameConventionDetector', 'MethodNameConventionDetector',
-        'FieldNameConventionDetector',
     ])
     engine.visit(patch)
 
@@ -215,7 +189,3 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
         assert engine.bug_accumulator[0].type == pattern_type
     else:
         assert len(engine.bug_accumulator) == 0
-
-# def test_field_name_search_01():
-#     # the type of `Benefit` is enum
-#     line = 'super(Outcome.Benefit);'

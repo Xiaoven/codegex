@@ -5,7 +5,6 @@ from cachetools import cached, LRUCache
 from patterns.models import priorities
 from patterns.models.bug_instance import BugInstance
 from patterns.models.detectors import Detector, online_search
-from utils import send
 
 _cache = LRUCache(maxsize=500)
 
