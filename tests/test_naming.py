@@ -4,6 +4,7 @@ from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 
+
 params = [
     # From other repository: https://github.com/tesshucom/jpsonic/commit/04425589726efad5532e5828326f2de38e643cb1
     (True, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'AirsonicSpringLiquibase.java',
@@ -47,7 +48,6 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     (False, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'ICUCollationKeywordFieldMapper.java',
      '''public class ICUCollationKeywordFieldMapper extends FieldMapper {
         public static final String CONTENT_TYPE = "icu_collation_keyword";
-
         public static class Builder extends FieldMapper.Builder {
             final Parameter<Boolean> indexed = Parameter.indexParam(m -> toType(m).indexed, true);
             final Parameter<Boolean> hasDocValues = Parameter.docValuesParam(m -> toType(m).hasDocValues, true);''', 0,
@@ -66,59 +66,59 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     # DIY
     (False, 'NM_LCASE_HASHCODE', 'Main_01.java',
      '''public class Main {
-                int hashcode(){
-                    return 1;
-                }
-            }''', 1, 2),
+                    int hashcode(){
+                        return 1;
+                    }
+                }''', 1, 2),
     # DIY
     (False, 'NM_LCASE_HASHCODE', 'Main_02.java',
      '''public class Main {
-                public int hashcode(){
-                    return 1;
-                }
-            }''', 1, 2),
+                    public int hashcode(){
+                        return 1;
+                    }
+                }''', 1, 2),
     # DIY
     (False, 'NM_LCASE_HASHCODE', 'Main_03.java',
      '''public class Main {
-                protected int hashcode(){
-                    return 1;
-                }
-            }''', 1, 2),
+                    protected int hashcode(){
+                        return 1;
+                    }
+                }''', 1, 2),
 
     (False, 'NM_LCASE_HASHCODE', 'Main_04.java',
      '''public final int hashcode(){
-                        return 1;
-                    }''', 1, 1),
+                            return 1;
+                        }''', 1, 1),
     (False, 'NM_LCASE_HASHCODE', 'Main_05.java',
      '''public int hashcode(int i){
-                        return i;
-                    }''', 0, 1),
+                            return i;
+                        }''', 0, 1),
     (False, 'NM_LCASE_HASHCODE', 'Main_06.java',
      '''    private int hashcode(){
-                    return i;
-                }''', 0, 1),
+                        return i;
+                    }''', 0, 1),
     # ------------------------ NM_LCASE_TOSTRING ------------------------
     # DIY
     (False, 'NM_LCASE_TOSTRING', 'Main_07.java',
      '''public class Main {
-                String tostring(){
-                    return 1;
-                }
-            }''', 1, 2),
+                    String tostring(){
+                        return 1;
+                    }
+                }''', 1, 2),
     # DIY
     (False, 'NM_LCASE_TOSTRING', 'Main_08.java',
      '''public class Main {
-                public String tostring(){
-                    return 1;
-                }
-            }''', 1, 2),
+                    public String tostring(){
+                        return 1;
+                    }
+                }''', 1, 2),
     # DIY
     (False, 'NM_LCASE_TOSTRING', 'Main_09.java',
      '''public class Main {
-                protected String tostring(){
-                    return 1;
-                }
-            }''', 1, 2),
+                    protected String tostring(){
+                        return 1;
+                    }
+                }''', 1, 2),
     (False, 'NM_LCASE_TOSTRING', 'Main_10.java',
      '''     public static final String tostring(){''', 1, 1),
     # ------------------------ NM_BAD_EQUAL ------------------------
@@ -126,17 +126,6 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal(String s){''', 0, 1),
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal( Object o ){''', 1, 1),
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''static boolean equal(Object o )''', 1, 1),
-
-    # ------------------------ NM_FIELD_NAMING_CONVENTION ------------------------
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_40.java', '''this.Field = field;''', 1, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_41.java', '''this.FIELD = field;''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_42.java', '''this.My_FIELD''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_43.java',
-     '''public class SpringLiquibase extends liquibase.integration.spring.CLASS{''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_44.java', '''@InterfaceAudience.Public''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_45.java', '''b = a.get();''', 0, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_46.java', '''b = obj1.FieldOne.field;''', 1, 1),
-    (False, 'NM_FIELD_NAMING_CONVENTION', 'Main_47.java', '''b = obj1.get().field;''', 0, 1),
 
     # ------------------------ NM_CLASS_NAMING_CONVENTION ------------------------
     (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_19.java', '''class hashCODEnoEQUALS{
@@ -186,13 +175,11 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
 
 @pytest.mark.parametrize('is_patch,pattern_type,file_name,patch_str,expected_length,line_no', params)
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
-    patch = parse(patch_str, is_patch)
-    patch.name = file_name
+    patch = parse(patch_str, is_patch=is_patch, name=file_name)
 
     engine = DefaultEngine(Context(), included_filter=[
         'SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector', 'HashCodeNameDetector', 'ToStringNameDetector',
         'EqualNameDetector', 'ClassNameConventionDetector', 'MethodNameConventionDetector',
-        'FieldNameConventionDetector',
     ])
     engine.visit(patch)
 

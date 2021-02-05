@@ -133,39 +133,6 @@ class EqualNameDetector(Detector):
                                                     sha=context.cur_patch.sha))
 
 
-class FieldNameConventionDetector(Detector):
-    def __init__(self):
-        # Extract the field name
-        self.fn_pattern = regex.compile(r'(\b\w(?:[\w.]|(?P<aux1>\((?:[^()]++|(?&aux1))*\)))*)\.(\w+)\s*([^\s\w])')
-        Detector.__init__(self)
-
-    def match(self, context):
-        strip_line = context.cur_line.content.strip()
-        if not any(key in strip_line for key in ('import', 'class', '@', 'interface')) and '.' in strip_line:
-            its = self.fn_pattern.finditer(strip_line)
-            for m in its:
-                field_names = list()
-
-                g = m.groups()
-                if g[3] not in ('(', '{', '<'):
-                    field_names.append(g[2])
-                pre = g[0].split('.')
-                if len(pre) >= 2:
-                    for i in range(1, len(pre)):
-                        if '(' not in pre[i] and ')' not in pre[i]:
-                            field_names.append(pre[i])
-
-                for field_name in field_names:
-                    if len(field_name) >= 2 and field_name[0].isalpha() and not field_name[0].islower() and \
-                            field_name[1].isalpha() and field_name[1].islower() and '_' not in field_name:
-                        self.bug_accumulator.append(
-                            BugInstance('NM_FIELD_NAMING_CONVENTION', priorities.LOW_PRIORITY, context.cur_patch.name,
-                                        context.cur_line.lineno[1],
-                                        'Nm: Field names should start with a lower case letter',
-                                        sha=context.cur_patch.sha))
-                        return
-
-
 class ClassNameConventionDetector(Detector):
     def __init__(self):
         # Match class name
