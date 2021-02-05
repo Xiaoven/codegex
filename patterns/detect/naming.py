@@ -1,3 +1,5 @@
+import json
+
 import regex
 
 from patterns.models.detectors import Detector
@@ -8,6 +10,7 @@ from utils import get_string_ranges, in_range
 GENERIC_REGEX = regex.compile(r'(?P<gen><(?:[^<>]++|(?&gen))*>)')
 CLASS_EXTENDS_REGEX = regex.compile(r'class\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)')
 INTERFACE_EXTENDS_REGEX = regex.compile(r'interface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)')
+FINAL_VAR_REGEX = regex.compile(r'\bfinal\s+[\w\s]+(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+(\w+)\s*=')
 
 
 class SimpleSuperclassNameDetector(Detector):
@@ -139,6 +142,7 @@ class FieldNameConventionDetector(Detector):
         self.fn_pattern = regex.compile(
             r'(instanceof\s+)?(\b\w(?:[\w.]|(?P<aux1>\((?:[^()]++|(?&aux1))*\)))*)\.(\w+)\s*([^\s\w])(\s+\w)?')
         Detector.__init__(self)
+        self.patch_set, self.final_var_dict = None, dict()  # If patch_set is updated, then update self.final_var_dict
 
     def match(self, context):
         strip_line = context.cur_line.content.strip()
@@ -147,7 +151,7 @@ class FieldNameConventionDetector(Detector):
             string_ranges = get_string_ranges(strip_line)
             for m in its:
                 g = m.groups()
-
+                dot_string = g[1]
                 if g[0]:  # skip `instanceof OuterClass.InnerClass`
                     continue
 
@@ -163,22 +167,46 @@ class FieldNameConventionDetector(Detector):
                 if in_range(m.start(4), string_ranges):  # skip match within string
                     continue
 
-                # # dot string before field name
-                # pre = g[1].split('.')
-                # pre_names = list()
-                # if len(pre) >= 2:
-                #     for i in range(1, len(pre)):
-                #         if '(' not in pre[i] and ')' not in pre[i]:
-                #             pre_names.append(pre[i])
-
                 if len(field_name) >= 2 and field_name[0].isalpha() and not field_name[0].islower() and \
                         field_name[1].isalpha() and field_name[1].islower() and '_' not in field_name:
+                    # check if patch_set is updated
+                    if context.patch_set != self.patch_set:
+                        self.patch_set = context.patch_set
+                        self._init_final_var_dict()
+
+                    if context.local_search():
+                        file_names = self._local_search(field_name)
+                        if file_names:
+                            return  # field name is final
                     self.bug_accumulator.append(
-                        BugInstance('NM_FIELD_NAMING_CONVENTION', priorities.LOW_PRIORITY, context.cur_patch.name,
+                        BugInstance('NM_FIELD_NAMING_CONVENTION', priorities.IGNORE_PRIORITY, context.cur_patch.name,
                                     context.cur_line.lineno[1],
                                     'Nm: Field names should start with a lower case letter',
                                     sha=context.cur_patch.sha))
                     return
+
+    def _init_final_var_dict(self):
+        self.final_var_dict.clear()
+        if not self.patch_set:
+            return
+        for patch in self.patch_set:
+            for hunk in patch:
+                for line in hunk:
+                    if line.prefix == '-':
+                        continue
+                    if 'final' in line.content:
+                        m = FINAL_VAR_REGEX.search(line.content)
+                        if m:
+                            var_name = m.groups()[1]
+                            file_name_list = self.final_var_dict[
+                                var_name] if var_name in self.final_var_dict else list()
+                            if patch.name not in file_name_list:
+                                file_name_list.append(patch.name)
+                            self.final_var_dict[var_name] = file_name_list
+
+    def _local_search(self, field_name: str, dot_string='', cur_patch_name=''):
+        # TODO: use more information from dot_string and cur_patch_name
+        return self.final_var_dict.get(field_name, None)
 
 
 class ClassNameConventionDetector(Detector):
