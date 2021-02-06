@@ -59,3 +59,12 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
         assert engine.bug_accumulator[0].type == pattern_type
     else:
         assert len(engine.bug_accumulator) == 0
+
+
+# DIY
+def test_local_search():
+    patch = parse('''PrintStream out = new PrintStream();
+    out.format(\"Payload:\\n%s\", new String(payload)));''', is_patch=False)
+    engine = DefaultEngine(Context(), included_filter=['NewLineDetector'])
+    engine.visit(patch)
+    assert len(engine.filter_bugs(level='medium')) == 1
