@@ -16,17 +16,39 @@ String.format("Payload:\n%s" , new Object[1]);
 
 [SpotBugs](https://github.com/spotbugs/spotbugs/blob/07bf864b83083c467e29f1b2de58a2cf5aa5c0d6/spotbugs/src/main/java/edu/umd/cs/findbugs/detect/FormatStringChecker.java#L107-L113)
 
-- java.util.Formatter.format()
-- java.lang.String.format()
-- *Writer.format()
+```java
+if ((m == null || m.isVarArgs())
+    && sig.indexOf("Ljava/lang/String;[Ljava/lang/Object;)") >= 0
+    && ("java/util/Formatter".equals(cl) && "format".equals(nm) || "java/lang/String".equals(cl)
+            && "format".equals(nm) || "java/io/PrintStream".equals(cl) && "format".equals(nm)
+            || "java/io/PrintStream".equals(cl) && "printf".equals(nm) || cl.endsWith("Writer")
+                    && "format".equals(nm) || cl.endsWith("Writer") && "printf".equals(nm)) || cl.endsWith("Logger")
+                            && nm.endsWith("fmt")) {
+
+    if (formatString.indexOf('\n') >= 0) {
+        bugReporter.reportBug(new BugInstance(this, "VA_FORMAT_STRING_USES_NEWLINE", NORMAL_PRIORITY)
+```
+
+- java.lang.String
+    - `static String	format(Locale l, String format, Object... args)`
+    - `static String	format(String format, Object... args)`
+- java.util.Formatter (interface)
+    - `Formatter	format(Locale l, String format, Object... args)`
+    - `Formatter	format(String format, Object... args)`
 - java.io.PrintStream.format()
+    - `PrintStream	format(Locale l, String format, Object... args)`
+    - `PrintStream	format(String format, Object... args)`
 - java.io.PrintStream.printf()
+    - `PrintStream	printf(Locale l, String format, Object... args)`
+    - `PrintStream	printf(String format, Object... args)`
+- *Writer.format()
 - \*Writer.printf()
 - \*Logger.fmt()
 
-1. 提取 `String.format(Locale l, String format, Object... args)`  和 `String.format(String format, Object... args)` 调用中的 format 部分
+1. 检查方法名字，提取 caller 名字和括号中的参数
 
-2. 检查 format 部分是否包含 `\n` 字符
+2. 检查参数内的 string 部分是否包含 `\n` 字符. 在 Java 里可以直接检查 `indexOf('\n')`，
+   但用 python 实现时，发现string里的`\n`会被表示为 `\\n`
 
 
 
