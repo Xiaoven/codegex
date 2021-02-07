@@ -1,6 +1,7 @@
 from patterns.models import priorities
 from patterns.models.detectors import Detector
 from patterns.models.bug_instance import BugInstance
+from utils import get_string_ranges, in_range
 import re
 
 import math
@@ -60,9 +61,12 @@ class FindRoughConstantsDetector(Detector):
     def match(self, context):
         line_content = context.cur_line.content
         line_no = context.cur_line.lineno[1]
-        its = self.regexp.findall(line_content)
+        its = self.regexp.finditer(line_content)
+        string_ranges = get_string_ranges(line_content)
         for m in its:
-            float_const = float(m)
+            if in_range(m.start(0), string_ranges):
+                continue
+            float_const = float(m.group(0))
             p, bad_const = check_const(float_const)
             if p < priorities.IGNORE_PRIORITY:
                 if hasattr(context.cur_line, 'get_exact_lineno'):
@@ -73,6 +77,7 @@ class FindRoughConstantsDetector(Detector):
                                                         sha=context.cur_patch.sha)
                 bug_ins.gen_description(float_const, bad_const)
                 self.bug_accumulator.append(bug_ins)
+                return
 
 
 class RoughConstantValueBugInstance(BugInstance):
