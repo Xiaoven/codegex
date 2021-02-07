@@ -43,6 +43,18 @@ params = [
     (True, 'VA_FORMAT_STRING_USES_NEWLINE', 'Fake_02.java',
      "@@ -280,7 +280,7 @@ private void setIntegerValue(final String projectAttributeValue,\n			value.setIntegerValue(Long.valueOf(projectAttributeValue));\n		} catch (NumberFormatException e) {\n			logWriter.printf(\"[WARN] Failed to set an integer value\\n\");",
      1, 282),
+    (False, 'VA_FORMAT_STRING_USES_NEWLINE', 'Fake_03.java',
+     '''if (expectedSha.equals(sha) == false) {
+            final String exceptionMessage = String.format(
+                Locale.ROOT,
+                "SHA has changed! Expected %s for %s but got %s."
+                    + "\\nThis usually indicates a corrupt dependency cache or artifacts changed upstream."
+                    + "\\nEither wipe your cache, fix the upstream artifact, or delete %s and run updateShas",
+                expectedSha,
+                jarName,
+                sha,
+                shaFile
+            );''', 1, 5),
 ]
 
 
