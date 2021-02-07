@@ -37,7 +37,7 @@ class NewLineDetector(Detector):
                     if method_name == 'format' and (obj_name == 'String' or obj_name_lower.endswith('formatter')
                                                     or obj_name_lower.endswith('writer')):
                         priority = priorities.MEDIUM_PRIORITY
-                    elif method_name == 'printf' and (obj_name == 'System.out.' or obj_name_lower.endswith('writer')):
+                    elif method_name == 'printf' and (obj_name == 'System.out' or obj_name_lower.endswith('writer')):
                         priority = priorities.MEDIUM_PRIORITY
                     elif method_name == 'fmt' and obj_name_lower.endswith('logger'):
                         priority = priorities.MEDIUM_PRIORITY
