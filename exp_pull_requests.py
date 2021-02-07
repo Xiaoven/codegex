@@ -10,7 +10,7 @@ from utils import create_missing_dirs
 from timer import Timer
 
 
-root = 'PullRequests'
+root = 'PullRequests/java/files'
 report_path = 'PullRequests/report'
 
 RE_SHA = re.compile(r'https://github\.com/[^/]+/[^/]+/blob/(\w+)/')
@@ -37,7 +37,7 @@ def find_missing_pr():
     for p in paths:
         with open(p, 'r') as f:
             for line in f:
-                link = line.strip().split(',')[0]
+                link = line.strip()
                 if link:
                     total_link_cnt += 1
 
@@ -60,24 +60,23 @@ def find_missing_pr():
     print(f'unique link = {len(link_dic)}')
 
 
-# def report_diversity():
-#     paths = glob.glob(f'{report_path}/*.log', recursive=True)
-#     re_pattern_name = re.compile(r'Confidence:([A-Z_0-9]+)$')
-#     diversity = dict()
-#
-#     for p in paths:
-#         with open(p, 'r') as file_to_read:
-#             for line in file_to_read:
-#                 m = re_pattern_name.search(line)
-#                 if m:
-#                     pattern_name = m.groups()[0]
-#                     if pattern_name in diversity:
-#                         diversity[pattern_name] += 1
-#                     else:
-#                         diversity[pattern_name] = 1
-#
-#     with open(f'{report_path}/diversity.json', 'w') as outfile:
-#         json.dump(diversity, outfile)
+def report_diversity():
+    paths = glob.glob(f'{report_path}/**/report.json', recursive=True)
+    diversity = dict()
+
+    for p in paths:
+        with open(p, 'r') as file_to_read:
+            file_json = json.load(file_to_read)
+            items = file_json['items'] if 'items' in file_json else list()
+            for bug_instance in items:
+                pattern_name = bug_instance['type']
+                if pattern_name in diversity:
+                    diversity[pattern_name] += 1
+                else:
+                    diversity[pattern_name] = 1
+
+    with open(f'{report_path}/diversity.json', 'w') as outfile:
+        json.dump(diversity, outfile)
 
 
 def sum_time_and_warnings():
@@ -115,7 +114,7 @@ def get_modified_patchset(path):
 
 
 def run():
-    paths = glob.glob(f'{root}/**/*.json', recursive=True)
+    paths = glob.glob(f'{root}/**/files.json', recursive=True)
 
     context = Context()
     context.enable_online_search()
