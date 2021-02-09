@@ -10,3 +10,4 @@ spotbugs-excludeFilter.xml
 student_exp/
 PullRequests
 spotbugs-includeFilter.xml
+*.zip
