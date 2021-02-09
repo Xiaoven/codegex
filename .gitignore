@@ -9,3 +9,4 @@ comparison_exp/
 spotbugs-excludeFilter.xml
 student_exp/
 PullRequests
+spotbugs-includeFilter.xml
