@@ -116,7 +116,7 @@ def run():
     paths = glob.glob(f'{root}/**/files.json', recursive=True)
 
     context = Context()
-    context.enable_online_search()
+    # context.enable_online_search()
     engine = DefaultEngine(context)
 
     re_repo = re.compile(r'PullRequests/java/files/(.+?)/pulls/(\d+)')
@@ -154,4 +154,7 @@ def run():
 
 
 if __name__ == '__main__':
+    # find_missing_pr()
+    # report_diversity()
+    # sum_time_and_warnings()
     run()

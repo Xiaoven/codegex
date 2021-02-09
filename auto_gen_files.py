@@ -1,6 +1,7 @@
 import re
 import os
 
+
 def snake_to_camel(word):
     return ''.join(x.capitalize() for x in word.split('_'))
 
@@ -19,7 +20,7 @@ if __name__ == '__main__':
         if not os.path.isfile(path):
             continue
 
-        strip_filename = filename[:-3]   # Remove '.py'
+        strip_filename = filename[:-3]  # Remove '.py'
 
         camel_name = snake_to_camel(strip_filename)
         file_names.append(camel_name)
@@ -46,14 +47,29 @@ if __name__ == '__main__':
     print('[Number of patterns]', len(all_pattern_set))
     print('[Number of Detectors]', len(detector_names))
 
+    # print visitors
+    visitors = list()
+    for name in file_names:
+        if name == 'FindSelfAssignment':
+            visitors.append('FindFieldSelfAssignment')
+            visitors.append('FindLocalSelfAssignment2')
+        elif name == 'FindSelfComparison':
+            visitors.append('FindSelfComparison')
+            visitors.append('FindSelfComparison2')
+        elif name == 'FindBadCast':
+            visitors.append('FindBadCast2')
+        else:
+            visitors.append(name)
+    print(','.join(visitors))
+
     with open('gen_detectors.py', 'w') as f:
         if import_list:
             f.writelines(import_list)
         if detector_names:
             f.write('\nDETECTOR_DICT = {\n    ' + ',\n    '.join(detector_names) + '\n}')
 
-    # with open('spotbugs-includeFilter.xml', 'w') as f:
-    #     f.write('<FindBugsFilter>\n')
-    #     for pattern in all_pattern_set:
-    #         f.write(f'\t<Match>\n\t\t<Bug pattern="{pattern}"/>\n\t</Match>\n')
-    #     f.write('</FindBugsFilter>')
+    with open('spotbugs-includeFilter.xml', 'w') as f:
+        f.write('<FindBugsFilter>\n')
+        for pattern in all_pattern_set:
+            f.write(f'\t<Match>\n\t\t<Bug pattern="{pattern}"/>\n\t</Match>\n')
+        f.write('</FindBugsFilter>')
