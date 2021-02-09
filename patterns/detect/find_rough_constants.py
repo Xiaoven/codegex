@@ -83,5 +83,5 @@ class FindRoughConstantsDetector(Detector):
 class RoughConstantValueBugInstance(BugInstance):
     def gen_description(self, constant: float, bad_constant: BadConstant):
         self.constant = constant
-        self.bad_constant = bad_constant
-        self.description = 'Rough value of %s found: %s' % (bad_constant.replacement, str(constant))
+        self.replacement = bad_constant.replacement
+        self.description = 'Rough value of %s found: %s' % (self.replacement, str(constant))
