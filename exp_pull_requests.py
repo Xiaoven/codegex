@@ -80,15 +80,14 @@ def report_diversity():
 
 
 def sum_time_and_warnings():
-    with open('/PullRequests/report/diversity.json', 'r') as f:
+    with open(f'{report_path}/diversity.json', 'r') as f:
         jfile = json.load(f)
         sum = 0
         for k, v in jfile.items():
-            if k not in ("SA_SELF_COMPARISON", "VA_FORMAT_STRING_USES_NEWLINE", "SA_SELF_COMPUTATION"):
-                sum += v
+            sum += v
         print(f'sum of diversity = {sum}')
 
-    with open('/PullRequests/report/timer.json', 'r') as f:
+    with open(f'{report_path}/timer.json', 'r') as f:
         jfile = json.load(f)
         sum = 0
         for k, v in jfile.items():
