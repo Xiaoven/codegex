@@ -53,7 +53,7 @@ user_agent = 'Mozilla/5.0 ven(Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (K
              'Chrome/69.0.3497.100 Safari/537.36 '
 
 
-def send(url, token='', max_retry=1, sleep_time=12):
+def send(url, token='', max_retry=1, sleep_time=2):
     time.sleep(BASE_SLEEP_TIME)
 
     headers = {'User-Agent': user_agent}
@@ -69,8 +69,9 @@ def send(url, token='', max_retry=1, sleep_time=12):
         # only retry when exception happens
         if max_retry <= 0:
             return None
-        time.sleep(sleep_time + BASE_SLEEP_TIME)
-        return send(url, token, max_retry - 1)
+        cur_sleep_time = sleep_time + BASE_SLEEP_TIME
+        time.sleep(cur_sleep_time)
+        return send(url, token, max_retry - 1, sleep_time=cur_sleep_time)
 
 
 # ===========================================
