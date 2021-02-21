@@ -76,6 +76,13 @@ params = [
      '''    private static final String ASYNCAPI_JSON_HYPERSCHEMA = "{\\n" +
              "      \\"enum\\": [\\n" +''', 0, 1),
 
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Assert01.java',
+     '''    void check(int num){
+        assert -1 == num;
+    }''', 0, 0),
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Assert01.java',
+     'assert !collation.isDefault();', 0, 0),
+
 ]
 
 

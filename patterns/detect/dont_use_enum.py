@@ -8,8 +8,8 @@ from utils import get_string_ranges, in_range
 
 class DontUseEnumDetector(Detector):
     def __init__(self):
-        self.p_identifier = regex.compile(r'\b\w+\b(?:\s+|(\s*\.\s*)?)(enum|assert)\s*(?(1)[^\w$\s]|\()')
-        self.p = regex.compile(r'\b(?:enum|assert)\s*[^\w$\s(]')
+        self.p_identifier = regex.compile(r'\b\w+\b(?:\s+|(\s*\.\s*)?)\b(enum|assert)\b\s*(?(1)[^\w$\s]|\()')
+        self.p = regex.compile(r'\b(?:enum|assert)\b\s*[^\w$\s(!-]')
         Detector.__init__(self)
 
     def match(self, context):
