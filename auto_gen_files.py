@@ -47,6 +47,8 @@ if __name__ == '__main__':
     print('[Number of patterns]', len(all_pattern_set))
     print('[Number of Detectors]', len(detector_names))
 
+    print(all_pattern_set)
+
     # print visitors
     visitors = list()
     for name in file_names:
