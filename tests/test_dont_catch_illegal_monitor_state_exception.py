@@ -22,7 +22,8 @@ params = [
     (False, 'IMSE_DONT_CATCH_IMSE', 'Fake.java',
         '''
         } catch (IOException io, 
-                    java.lang.IllegalMonitorStateException imse) {
+                    java.lang.IllegalMonitorStateException imse, 
+                    OtherException e) {
                         log.error("Error notifying waiting listeners: {}", imse.getCause());
                 }
         ''', 1, 3),

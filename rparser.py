@@ -67,16 +67,40 @@ class VirtualStatement(Line):
         self.sub_lines.extend(vt_stmt.sub_lines)
         self.content += vt_stmt.content
 
-    def get_exact_lineno(self, key):
-        '''
-        Get exact line number
-        :param key: match result to help find the exact line
-        :return: line no
-        '''
+    def get_exact_lineno_by_keyword(self, key: str):
+        """
+        Get exact line number by keyword
+        :param key: keyword string
+        :return: lineno of Line object, or None if fail
+        """
         for line in self.sub_lines:
             if key in line.content or line.content in key:
                 return line.lineno
         return None
+
+    def get_exact_lineno_by_offset(self, offset: int, if_strip=False):
+        """
+        Get exact line number by offset in line content
+        :param offset: offset in line content string
+        :param if_strip: if true, left strip the first sub-line and right strip the last sub-line
+        :return: lineno of Line object, or None for invalid offset
+        """
+        size = len(self.sub_lines)
+        i = 0
+        while i < size:
+            if i == 0 and if_strip:
+                offset -= len(self.sub_lines[i].content.lstrip())
+            elif i == size - 1 and if_strip:
+                offset -= len(self.sub_lines[i].content.rstrip())
+            else:
+                offset -= len(self.sub_lines[i].content)
+
+            if offset <= 0:
+                return self.sub_lines[i].lineno
+
+            i += 1
+        return None
+
 
 
 class Patch:

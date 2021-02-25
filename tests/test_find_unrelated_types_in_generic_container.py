@@ -1,5 +1,4 @@
 import pytest
-from patterns.detect.find_unrelated_types_in_generic_container import SuspiciousCollectionMethodDetector
 from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse

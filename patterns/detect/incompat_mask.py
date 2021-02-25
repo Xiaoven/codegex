@@ -1,7 +1,7 @@
-from patterns.models.detectors import Detector
+from patterns.models.detectors import Detector, get_exact_lineno
 from patterns.models.bug_instance import BugInstance
 from patterns.models import priorities
-from utils import convert_str_to_int
+from utils import convert_str_to_int, get_string_ranges, in_range
 
 import regex
 
@@ -14,13 +14,15 @@ class IncompatMaskDetector(Detector):
 
     def match(self, context):
         line_content = context.cur_line.content
-        line_no = context.cur_line.lineno[1]
         if not any(bitop in line_content for bitop in ('&', '|')) and \
                 not any(op in line_content for op in ('>', '<', '>=', '<=', '==', '!=')):
             return
 
-        its = self.regexpSign.finditer(line_content.strip())
+        its = self.regexpSign.finditer(line_content)
+        string_ranges = get_string_ranges(line_content)
         for m in its:
+            if in_range(m.start(0), string_ranges):
+                continue
             g = m.groups()
             operand_1 = g[0]
             bitop = g[2]
@@ -88,12 +90,7 @@ class IncompatMaskDetector(Detector):
                     description = 'The expression of the form (e & 0) to 0 will always compare equal.'
 
             if p_type is not None:
-                # get exact lineno
-                if hasattr(context.cur_line, 'get_exact_lineno'):
-                    tmp = context.cur_line.get_exact_lineno(const_str)
-                    if tmp:
-                        line_no = tmp[1]
-
+                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
                 self.bug_accumulator.append(BugInstance(p_type, priority, context.cur_patch.name, line_no, description,
                                                         sha=context.cur_patch.sha))
 

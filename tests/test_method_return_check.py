@@ -1,6 +1,5 @@
 import pytest
 
-from patterns.detect.method_return_check import NotThrowDetector
 from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse

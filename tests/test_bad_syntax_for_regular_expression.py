@@ -66,7 +66,8 @@ params = [
      'Pattern.compile(File.separator, Pattern.DOTALL | Pattern.LITERAL);', 0, 1, None),
     # DIY
     (False, 'RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION', 'DIY_03.java',
-     '''Pattern.matches(File.separator, "hh");''', 1, 1, HIGH_PRIORITY),
+     '''Pattern.matches(
+            File.separator, "hh");''', 1, 2, HIGH_PRIORITY),
 ]
 
 

@@ -2,12 +2,14 @@ import regex
 
 from patterns.models import priorities
 from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector
+from patterns.models.detectors import Detector, get_exact_lineno
+from utils import get_string_ranges, in_range
 
 
 class EqualsClassNameDetector(Detector):
     def __init__(self):
-        self.pattern = regex.compile(r'\b((?:[\w\.$"]|(?:\(\s*\)))+)\s*\.\s*equals(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
+        self.pattern = regex.compile(
+            r'\b((?:[\w\.$"]|(?:\(\s*\)))+)\s*\.\s*equals(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
         Detector.__init__(self)
 
     def match(self, context):
@@ -16,7 +18,10 @@ class EqualsClassNameDetector(Detector):
             return
 
         its = self.pattern.finditer(line_content)
+        string_ranges = get_string_ranges(line_content)
         for m in its:
+            if in_range(m.start(2), string_ranges):  # m.start(2) is offset of the naming group
+                continue
             g = m.groups()
             before_equals = g[0]
             after_equals = g[-1].strip()
@@ -35,8 +40,9 @@ class EqualsClassNameDetector(Detector):
                     comparing_class_name = True
 
             if comparing_class_name:
+                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('EQ_COMPARING_CLASS_NAMES', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
-                                context.cur_line.lineno[1],
-                                'Equals method compares class names rather than class objects',
+                                line_no, 'Equals method compares class names rather than class objects',
                                 sha=context.cur_patch.sha))
+                return

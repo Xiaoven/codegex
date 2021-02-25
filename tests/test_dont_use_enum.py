@@ -15,7 +15,7 @@ params = [
      '''public Main01.java{
     public enum Day {
     SUNDAY, MONDAY, TUESDAY, WEDNESDAY,
-    THURSDAY, FRIDAY, SATURDAY 
+    THURSDAY, FRIDAY, SATURDAY
     }
 }
      ''', 0, 1),
@@ -31,14 +31,14 @@ params = [
     }
 }
      ''', 1, 2),
-    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main03.java',
+    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main04.java',
      '''public Main04.java{
     private String assert(int num1, int num2){
         return null;
     }
 }
      ''', 1, 2),
-    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main03.java',
+    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main05.java',
      '''public Main05.java{
     void test05(int num1, int num2){
         System.out.println(assert(num1=num2));
@@ -48,26 +48,43 @@ params = [
     ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main06.java',
      '''public enum Color
      ''', 0, 1),
-    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main06.java',
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main07.java',
      '''int enum;
      ''', 1, 1),
-    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main06.java',
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main08.java',
      '''if ( enum > 0){ ... }
      ''', 1, 1),
-    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main06.java',
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main09.java',
      '''enum = 10;
      ''', 1, 1),
-    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main06.java',
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main10.java',
      '''if( 3 < assert)
      ''', 1, 1),
-    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main06.java',
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Main11.java',
      '''while(assert && a)
      ''', 1, 1),
-    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main03.java',
+    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main12.java',
      '''assert (a > 0);''', 0, 1),
-    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main03.java',
+    ('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', 'Main13.java',
      '''a.enum(expression)''', 1, 1),
+
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'StringRange01.java',
+     '        typeMapping.put("enum", "NSString");', 0, 1),
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'StringRange02.java',
+     'Log.d(TAG, "Ignore enum-property: " + evName + "=" + dbName + ": " + ignored.toString());', 0, 1),
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'StringRange03.java',
+     '''    private static final String ASYNCAPI_JSON_HYPERSCHEMA = "{\\n" +
+             "      \\"enum\\": [\\n" +''', 0, 1),
+
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Assert01.java',
+     '''    void check(int num){
+        assert -1 == num;
+    }''', 0, 0),
+    ('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', 'Assert01.java',
+     'assert !collation.isDefault();', 0, 0),
+
 ]
+
 
 @pytest.mark.parametrize('pattern_type,file_name,patch_str,expected_length,line_no', params)
 def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):

@@ -1,8 +1,9 @@
 import regex
 
-from patterns.models.detectors import Detector
+from patterns.models.detectors import Detector, get_exact_lineno
 from patterns.models.bug_instance import BugInstance
 from patterns.models import priorities
+from utils import get_string_ranges, in_range
 
 
 class SuspiciousCollectionMethodDetector(Detector):
@@ -16,9 +17,11 @@ class SuspiciousCollectionMethodDetector(Detector):
         if not any(method in line_content for method in ['remove', 'contains', 'retain']):
             return
 
-        its = self.pattern.finditer(line_content.strip())
-
+        its = self.pattern.finditer(line_content)
+        string_ranges = get_string_ranges(line_content)
         for m in its:
+            if in_range(m.start(0), string_ranges):
+                continue
             g = m.groups()
             obj_1 = g[0]
             method_name = g[2]
@@ -40,8 +43,9 @@ class SuspiciousCollectionMethodDetector(Detector):
                     priority = priorities.HIGH_PRIORITY
 
                 if pattern_type:
+                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
                     self.bug_accumulator.append(
-                        BugInstance(pattern_type, priority, context.cur_patch.name, context.cur_line.lineno[1],
-                                    description, sha=context.cur_patch.sha)
+                        BugInstance(pattern_type, priority, context.cur_patch.name, line_no, description,
+                                    sha=context.cur_patch.sha)
                     )
                     return
