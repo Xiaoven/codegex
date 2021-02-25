@@ -1,8 +1,9 @@
 import re
 
-from patterns.models.detectors import Detector
+from patterns.models.detectors import Detector, get_exact_lineno
 from patterns.models.bug_instance import BugInstance
 from patterns.models import priorities
+from utils import get_string_ranges, in_range
 
 
 class DefSerialVersionID(Detector):
@@ -15,8 +16,11 @@ class DefSerialVersionID(Detector):
         if 'serialVersionUID' not in line_content:
             return
 
-        m = self.pattern.search(line_content.strip())
+        m = self.pattern.search(line_content)
         if m:
+            string_ranges = get_string_ranges(line_content)
+            if in_range(m.start(0), string_ranges):
+                return
             g = m.groups()
             prefix = None
             g1 = g[0].strip()
@@ -42,8 +46,9 @@ class DefSerialVersionID(Detector):
                 message = "serialVersionUID isn't long."
 
             if pattern_name:
+                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
                 self.bug_accumulator.append(
-                    BugInstance(pattern_name, priority, context.cur_patch.name, context.cur_line.lineno[1], message,
+                    BugInstance(pattern_name, priority, context.cur_patch.name, line_no, message,
                                 sha=context.cur_patch.sha))
 
 
@@ -58,10 +63,13 @@ class DefReadResolveMethod(Detector):
         if any(const not in line_content for const in ['readResolve', 'throws', 'ObjectStreamException']):
             return
 
-        m = self.pattern.search(line_content.strip())
+        m = self.pattern.search(line_content)
         if m:
-            g = m.groups()
+            string_ranges = get_string_ranges(line_content)
+            if in_range(m.start(0), string_ranges):
+                return
 
+            g = m.groups()
             pattern_name = None
             message = None
 
@@ -73,9 +81,10 @@ class DefReadResolveMethod(Detector):
                 message = 'The readResolve method must not be declared as a static method.'
 
             if pattern_name:
+                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
                 self.bug_accumulator.append(
-                    BugInstance(pattern_name, priorities.MEDIUM_PRIORITY, context.cur_patch.name,
-                                context.cur_line.lineno[1], message, sha=context.cur_patch.sha))
+                    BugInstance(pattern_name, priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no, message,
+                                sha=context.cur_patch.sha))
 
 
 class DefPrivateMethod(Detector):
@@ -93,6 +102,10 @@ class DefPrivateMethod(Detector):
         strip_line = line_content.strip()
         m = self.pattern.search(strip_line)
         if m:
+            string_ranges = get_string_ranges(line_content)
+            if in_range(m.start(0), string_ranges):
+                return
+
             g = m.groups()
             method_name = g[0]
             param_str = g[1].strip()
@@ -115,9 +128,9 @@ class DefPrivateMethod(Detector):
 
             # check bug pattern
             if not strip_line.startswith('private'):
+                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('SE_METHOD_MUST_BE_PRIVATE', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
-                                context.cur_line.lineno[1],
-                                'Method must be private in order for serialization to work.',
+                                line_no, 'Method must be private in order for serialization to work.',
                                 sha=context.cur_patch.sha))
 

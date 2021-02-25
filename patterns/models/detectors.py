@@ -1,4 +1,5 @@
 from patterns.models.context import Context
+from rparser import Line, VirtualStatement
 from utils import send
 
 
@@ -27,6 +28,32 @@ def online_search(query: str, token='', search_parent=False, repo_name=''):
                 return resp
     return None
 
+
+def get_exact_lineno(target, line: Line, is_strip=False, keyword_mode=False):
+    """
+    Return the exact line number according to target in line
+    :param target: an integer less than the length of line content under default mode,
+                    or keyword string under keyword mode
+    :param line: a simple line object or a virtual statement object
+    :param is_strip: if true, left strip the first sub-line and right strip the last sub-line
+    :param keyword_mode: if false, the default offset mode is on, otherwise, the keyword mode is on
+    :return: the exact lineno
+    """
+    if isinstance(line, VirtualStatement):
+        if keyword_mode:
+            tmp = line.get_exact_lineno_by_keyword(target)
+        else:
+            tmp = line.get_exact_lineno_by_offset(target, is_strip)
+
+        if tmp:
+            return tmp
+        else:
+            # Return the lineno of the last sub-line
+            # to ensure all content of the virtual statement is shown in code review of pull requests
+            delta = len(line.sub_lines) - 1
+            return line.lineno[0] + delta, line.lineno[1] + delta
+    else:
+        return line.lineno
 
 
 class Detector:

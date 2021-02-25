@@ -1,13 +1,13 @@
 import regex
 
-from patterns.models.detectors import Detector
+from patterns.models.detectors import Detector, get_exact_lineno
 from patterns.models.bug_instance import BugInstance
 from patterns.models import priorities
 from utils import get_string_ranges, in_range
 
 GENERIC_REGEX = regex.compile(r'(?P<gen><(?:[^<>]++|(?&gen))*>)')
-CLASS_EXTENDS_REGEX = regex.compile(r'class\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)')
-INTERFACE_EXTENDS_REGEX = regex.compile(r'interface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)')
+CLASS_EXTENDS_REGEX = regex.compile(r'\bclass\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)')
+INTERFACE_EXTENDS_REGEX = regex.compile(r'\binterface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)')
 
 
 class SimpleSuperclassNameDetector(Detector):
@@ -22,18 +22,22 @@ class SimpleSuperclassNameDetector(Detector):
         if not all(key in line_content for key in ('class', 'extends')):
             return
 
-        m = self.pattern.search(line_content.strip())
+        m = self.pattern.search(line_content)
         if m:
+            string_ranges = get_string_ranges(line_content)
+            if in_range(m.start(0), string_ranges):
+                return
             g = m.groups()
             class_name = g[0]
             super_classes = GENERIC_REGEX.sub('', g[2])  # remove <...>
             super_classes_list = [name.rsplit('.', 1)[-1].strip() for name in super_classes.split(',')]
 
             if class_name in super_classes_list:
-                if len(line_content) == len(line_content.lstrip()):
+                if len(line_content) == len(line_content.lstrip()):  # if do not have leading space
+                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', priorities.HIGH_PRIORITY,
-                                    context.cur_patch.name, context.cur_line.lineno[1],
+                                    context.cur_patch.name, line_no,
                                     'Class names shouldn’t shadow simple name of superclass', sha=context.cur_patch.sha)
                     )
 
@@ -52,13 +56,17 @@ class SimpleInterfaceNameDetector(Detector):
     def match(self, context):
         line_content = context.cur_line.content
         if all(key in line_content for key in ('class', 'implements')):
-            m = self.pattern1.search(line_content.strip())
+            m = self.pattern1.search(line_content)
         elif all(key in line_content for key in ('interface', 'extends')):
-            m = self.pattern2.search(line_content.strip())
+            m = self.pattern2.search(line_content)
         else:
             return
 
         if m:
+            string_ranges = get_string_ranges(line_content)
+            if in_range(m.start(0), string_ranges):
+                return
+
             g = m.groups()
             class_name = g[0]
             super_interfaces = GENERIC_REGEX.sub('', g[-1])  # remove <...>
@@ -66,9 +74,10 @@ class SimpleInterfaceNameDetector(Detector):
 
             if class_name in super_interface_list:
                 if len(line_content) == len(line_content.lstrip()):
+                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', priorities.MEDIUM_PRIORITY,
-                                    context.cur_patch.name, context.cur_line.lineno[1],
+                                    context.cur_patch.name, line_no,
                                     'Class or interface names shouldn’t shadow simple name of implemented interface',
                                     sha=context.cur_patch.sha)
                     )
@@ -77,60 +86,66 @@ class SimpleInterfaceNameDetector(Detector):
 class HashCodeNameDetector(Detector):
     def __init__(self):
         # Check hashcode method exists
-        self.pattern = regex.compile(r'^[\w\s]*?\bint\s+hashcode\s*\(\s*\)')
+        self.pattern = regex.compile(r'\bint\s+hashcode\s*\(\s*\)')
         Detector.__init__(self)
 
     def match(self, context):
         line_content = context.cur_line.content
-        strip_line = line_content.strip()
-        if strip_line.startswith('private') or any(key not in line_content for key in ('int', 'hashcode')):
+        if line_content.strip().startswith('private') or any(key not in line_content for key in ('int', 'hashcode')):
             return
 
-        m = self.pattern.match(strip_line)
+        m = self.pattern.search(line_content)
         if m:
-            self.bug_accumulator.append(BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY,
-                                                    context.cur_patch.name, context.cur_line.lineno[1],
-                                                    "Class defines hashcode(); should it be hashCode()?",
-                                                    sha=context.cur_patch.sha))
+            string_ranges = get_string_ranges(line_content)
+            if in_range(m.start(0), string_ranges):
+                return
+            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+            self.bug_accumulator.append(
+                BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
+                            "Class defines hashcode(); should it be hashCode()?", sha=context.cur_patch.sha))
 
 
 class ToStringNameDetector(Detector):
     def __init__(self):
         # Check hashcode method exists
-        self.pattern = regex.compile(r'^[\w\s]*?\bString\s+tostring\s*\(\s*\)')
+        self.pattern = regex.compile(r'\bString\s+tostring\s*\(\s*\)')
         Detector.__init__(self)
 
     def match(self, context):
         line_content = context.cur_line.content
-        strip_line = line_content.strip()
-        if strip_line.startswith('private') or any(key not in line_content for key in ('String', 'tostring')):
+        if line_content.strip().startswith('private') or any(key not in line_content for key in ('String', 'tostring')):
             return
-        m = self.pattern.search(strip_line)
+        m = self.pattern.search(line_content)
         if m:
+            string_ranges = get_string_ranges(line_content)
+            if in_range(m.start(0), string_ranges):
+                return
+            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
             self.bug_accumulator.append(
-                BugInstance('NM_LCASE_TOSTRING', priorities.HIGH_PRIORITY, context.cur_patch.name,
-                            context.cur_line.lineno[1],
+                BugInstance('NM_LCASE_TOSTRING', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
                             'Class defines tostring(); should it be toString()?', sha=context.cur_patch.sha))
 
 
 class EqualNameDetector(Detector):
     def __init__(self):
         # Check hashcode method exists
-        self.pattern = regex.compile(r'^[\w\s]*?\bboolean\s+equal\s*\(\s*Object\s+[\w$]+\s*\)')
+        self.pattern = regex.compile(r'\bboolean\s+equal\s*\(\s*Object\s+[\w$]+\s*\)')
         Detector.__init__(self)
 
     def match(self, context):
         line_content = context.cur_line.content
-        strip_line = line_content.strip()
-        if strip_line.startswith('private') or 'equals' in line_content \
+        if line_content.strip().startswith('private') or 'equals' in line_content \
                 or any(key not in line_content for key in ('boolean', 'equal')):
             return
-        m = self.pattern.search(strip_line)
+        m = self.pattern.search(line_content)
         if m:
-            self.bug_accumulator.append(BugInstance('NM_BAD_EQUAL', priorities.HIGH_PRIORITY, context.cur_patch.name,
-                                                    context.cur_line.lineno[1],
-                                                    'Class defines equal(Object); should it be equals(Object)?',
-                                                    sha=context.cur_patch.sha))
+            string_ranges = get_string_ranges(line_content)
+            if in_range(m.start(0), string_ranges):
+                return
+            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+            self.bug_accumulator.append(
+                BugInstance('NM_BAD_EQUAL', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
+                            'Class defines equal(Object); should it be equals(Object)?', sha=context.cur_patch.sha))
 
 
 class ClassNameConventionDetector(Detector):
@@ -140,10 +155,14 @@ class ClassNameConventionDetector(Detector):
         Detector.__init__(self)
 
     def match(self, context):
-        strip_line = context.cur_line.content.strip()
-        if 'class ' in strip_line and '{' in strip_line:
-            its = self.cn_pattern.finditer(strip_line)
+        line_content = context.cur_line.content
+        if 'class ' in line_content and '{' in line_content:
+            its = self.cn_pattern.finditer(line_content)
+            string_ranges = get_string_ranges(line_content)
             for m in its:
+                if in_range(m.start(0), string_ranges):
+                    continue
+
                 class_name = m.groups()[0]
                 if "Proto$" in class_name:
                     return
@@ -151,12 +170,12 @@ class ClassNameConventionDetector(Detector):
                 # /spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L389
                 if '_' not in class_name:
                     priority = priorities.LOW_PRIORITY
-                    if any(access in strip_line for access in ('public', 'protected')):
+                    if any(access in line_content for access in ('public', 'protected')):
                         priority = priorities.MEDIUM_PRIORITY
 
+                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
                     self.bug_accumulator.append(
-                        BugInstance('NM_CLASS_NAMING_CONVENTION', priority, context.cur_patch.name,
-                                    context.cur_line.lineno[1],
+                        BugInstance('NM_CLASS_NAMING_CONVENTION', priority, context.cur_patch.name, line_no,
                                     'Nm: Class names should start with an upper case letter',
                                     sha=context.cur_patch.sha))
 
@@ -169,10 +188,13 @@ class MethodNameConventionDetector(Detector):
         Detector.__init__(self)
 
     def match(self, context):
-        strip_line = context.cur_line.content.strip()
-        if '(' in strip_line:
-            its = self.mn_pattern.finditer(strip_line)
+        line_content = context.cur_line.content
+        if '(' in line_content:
+            its = self.mn_pattern.finditer(line_content)
+            string_ranges = get_string_ranges(line_content)
             for m in its:
+                if in_range(m.start(0), string_ranges):
+                    continue
                 g = m.groups()
                 pre_token = g[0].strip() if g[0] else g[0]
                 method_name = g[1]
@@ -185,26 +207,22 @@ class MethodNameConventionDetector(Detector):
                 if pre_token in ('public', 'private', 'protected', 'static'):
                     continue
                 # skip constructor definitions without access modifier, like "Object (int i)", "Object() {"
-                if not pre_token and (args_def or strip_line.endswith('{')):
-                    continue
-                # skip match within string
-                string_ranges = get_string_ranges(strip_line)
-                method_name_offset = m.start(2)
-                if in_range(method_name_offset, string_ranges):
+                if not pre_token and (args_def or line_content.rstrip().endswith('{')):
                     continue
                 # skip annotations
-                if method_name_offset - 1 >= 0 and strip_line[method_name_offset - 1] == '@':
+                method_name_offset = m.start(2)
+                if method_name_offset - 1 >= 0 and line_content[method_name_offset - 1] == '@':
                     continue
 
                 if len(method_name) >= 2 and method_name[0].isalpha() and not method_name[0].islower() and \
                         method_name[1].isalpha() and method_name[1].islower() and '_' not in method_name:
                     priority = priorities.LOW_PRIORITY
-                    if any(access in strip_line for access in ('public', 'protected')):
+                    if any(access in line_content for access in ('public', 'protected')):
                         priority = priorities.MEDIUM_PRIORITY
 
+                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
                     self.bug_accumulator.append(
-                        BugInstance('NM_METHOD_NAMING_CONVENTION', priority, context.cur_patch.name,
-                                    context.cur_line.lineno[1],
+                        BugInstance('NM_METHOD_NAMING_CONVENTION', priority, context.cur_patch.name, line_no,
                                     'Nm: Method names should start with a lower case letter',
                                     sha=context.cur_patch.sha))
                     return

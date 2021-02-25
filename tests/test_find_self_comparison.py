@@ -12,7 +12,7 @@ params = [
             return flags ^(short) flags;
         }''', 0, 1),
     # https://github.com/spotbugs/spotbugs/blob/3883a7b750fb339577be073bc45e36b6f268777b/spotbugsTestCases/src/java/SelfFieldOperation.java#L25
-    (False, 'SA_SELF_COMPUTATION', 'SelfFieldOperation.java',
+    (False, 'SA_SELF_COMPUTATION', 'SelfFieldOperation_01.java',
      '''@ExpectWarning("SA_FIELD_SELF_COMPARISON,SA_FIELD_SELF_COMPUTATION")
         int f() {
             if (x < x)
@@ -24,7 +24,7 @@ params = [
             if (y > y)
                 y = x - x;
             return x;
-        }''', 8, 3),
+        }''', 8, 4),
     # DIY
     (False, 'SA_SELF_COMPUTATION', 'DIY_01.java',
      '''return capabilities.level - level;''', 0, 1),
@@ -37,7 +37,7 @@ params = [
     (False, 'SA_SELF_COMPUTATION', 'DIY_05.java',
      ' return i | i & j;', 0, 1),
     # ---------------- SA_SELF_COMPARISON ----------------------
-    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation_02.java',
      '''@NoWarning("SA_FIELD_SELF_COMPARISON")
         public boolean test() {
             boolean result = false;
@@ -46,30 +46,30 @@ params = [
             result |= flags == (byte) flags;
             return result;
         }''', 0, 3),
-    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation_03.java',
      '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
         public boolean testTP() {
             boolean result = false;
             result |= flags == flags;
             return result;
         }''', 1, 4),
-    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation_04.java',
      '''@ExpectWarning(value="SA_FIELD_SELF_COMPARISON", confidence = Confidence.LOW)
     boolean volatileFalsePositive() {
         return z == z;
     }''', 1, 3),
-    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation_05.java',
      '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
         boolean e() {
             return a.equals(a);
         }''', 1, 3),
-    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation_06.java',
      '''@ExpectWarning("SA_FIELD_SELF_COMPARISON")
         int c() {
             return a.compareTo(a);
         }
     ''', 1, 3),
-    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation.java',
+    (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation_07.java',
      ''' Objects.equals(requestCount, throttlingPolicy.requestCount) &&
          Objects.equals(unitTime, throttlingPolicy.unitTime) &&
          Objects.equals(timeUnit, throttlingPolicy.timeUnit) &&

@@ -7,12 +7,12 @@ from rparser import parse
 params = [
     (False, 'EQ_COMPARING_CLASS_NAMES', '',
      '''if (auth.getClass().getName().equals(
-                        "complication.auth.DefaultAthenticationHandler")) {''', 1, 1),
+                        "complication.auth.DefaultAthenticationHandler")) {''', 1, 2),
     (False, 'EQ_COMPARING_CLASS_NAMES', '',
      '''if (x.getClass().getName().equals(y.getClass().getName() )) {''', 1, 1),
     (False, 'EQ_COMPARING_CLASS_NAMES', '',
      '''if (Objects.equals( "complication.auth.DefaultAthenticationHandler",
-                            auth.getClass().getName())){''', 1, 1),
+                            auth.getClass().getName())){''', 1, 2),
 ]
 
 

@@ -1,7 +1,7 @@
 import regex
 
 from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector
+from patterns.models.detectors import Detector, get_exact_lineno
 import patterns.models.priorities as Priorities
 from utils import get_generic_type_ranges, get_string_ranges, in_range
 
@@ -28,7 +28,6 @@ class CheckForSelfComputation(Detector):
             return
 
         string_ranges = get_string_ranges(line_content)
-
         its = self.pattern.finditer(line_content)
         for m in its:
             g = m.groups()
@@ -44,9 +43,9 @@ class CheckForSelfComputation(Detector):
                     continue
                 if op_behind in self._op_precedence_dict and self._is_precedent(op_behind, op):
                     continue
+                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
                 self.bug_accumulator.append(
-                    BugInstance('SA_SELF_COMPUTATION', Priorities.MEDIUM_PRIORITY, context.cur_patch.name,
-                                context.cur_line.lineno[1],
+                    BugInstance('SA_SELF_COMPUTATION', Priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no,
                                 'Nonsensical self computation involving a variable or field', sha=context.cur_patch.sha)
                 )
                 return
@@ -65,6 +64,7 @@ class CheckForSelfComparison(Detector):
         string_ranges = get_string_ranges(line_content)
 
         hit = False
+        match_end = None
         if any(op in line_content for op in ('>', '<', '>=', '<=', '==', '!=')):
             generic_type_ranges = get_generic_type_ranges(line_content)
             its = self.pattern_1.finditer(line_content)
@@ -82,6 +82,7 @@ class CheckForSelfComparison(Detector):
                         continue
 
                     hit = True
+                    match_end = m.end(0) - 1
                     break
 
         if not hit and any(method in line_content for method in ('equals', 'compareTo', 'endsWith', 'startsWith',
@@ -98,17 +99,19 @@ class CheckForSelfComparison(Detector):
 
                 if before_method == after_method:
                     hit = True
+                    match_end = m.end(0) - 1
                     break
                 else:
                     elements = after_method.split(',')
 
                     if len(elements) == 2 and elements[0] == elements[1]:
                         hit = True
+                        match_end = m.end(0) - 1
                         break
 
         if hit:
+            line_no = get_exact_lineno(match_end, context.cur_line)[1]
             self.bug_accumulator.append(
-                BugInstance('SA_SELF_COMPARISON', Priorities.MEDIUM_PRIORITY, context.cur_patch.name,
-                            context.cur_line.lineno[1],
+                BugInstance('SA_SELF_COMPARISON', Priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no,
                             'Self comparison of value or field with itself', sha=context.cur_patch.sha)
             )

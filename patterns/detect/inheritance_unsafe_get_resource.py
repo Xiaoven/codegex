@@ -4,7 +4,8 @@ from cachetools import cached, LRUCache
 
 from patterns.models import priorities
 from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector, online_search
+from patterns.models.detectors import Detector, online_search, get_exact_lineno
+from utils import get_string_ranges, in_range
 
 _cache = LRUCache(maxsize=500)
 
@@ -21,12 +22,16 @@ class GetResourceDetector(Detector):
         self.patch_set, self.extends_dict = None, dict()  # If patch_set is updated, then update extends_dict
 
     def match(self, context):
-        line_content = context.cur_line.content.strip()
+        line_content = context.cur_line.content
         if not all(method in line_content for method in ['getClass', 'getResource']):
             return
 
-        m = self.pattern.search(line_content)
-        if m:
+        its = self.pattern.finditer(line_content)
+        string_ranges = get_string_ranges(line_content)
+        for m in its:
+            if in_range(m.start(0), string_ranges):
+                continue
+
             obj_name = m.groups()[0]
             if not obj_name or obj_name == 'this':
                 simple_name = context.cur_patch.name.rstrip('.java').rsplit('/', 1)[-1]  # default class name is the filename
@@ -35,11 +40,13 @@ class GetResourceDetector(Detector):
                 if priority is None:
                     return
 
+                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('UI_INHERITANCE_UNSAFE_GETRESOURCE', priority, context.cur_patch.name,
-                                context.cur_line.lineno[1],
+                                line_no,
                                 'Usage of GetResource may be unsafe if class is extended', sha=context.cur_patch.sha)
                 )
+                return
 
     @cached(cache=_cache, key=lambda self, simple_name, context: cachetools.keys.hashkey(simple_name))
     def decide_priority(self, simple_name, context):

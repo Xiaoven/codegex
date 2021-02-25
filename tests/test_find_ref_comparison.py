@@ -82,7 +82,7 @@ params = [
         || collectionClassName.startsWith("java.util.Collections$Unmodifiable")) {
     // skip
     return;
-}''', 1, 1),
+}''', 1, 3),
     # FP: nanohttpd/websocket/src/test/java/org/nanohttpd/junit/protocols/websockets/WebSocketResponseHandlerTest.java
     ('ES_COMPARING_STRINGS_WITH_EQ', 'WebSocketResponseHandlerTest.java',
      '''@@ -1,0 +1,0 @@
