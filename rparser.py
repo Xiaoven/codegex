@@ -241,16 +241,22 @@ def _parse_hunk(stream, hunk=None):
     # if a common_statement meets a del_statement, the first 'False' will be 'True',
     # similar relationship to the second 'False' and add_statement
     incomplete_common_statement = [False, False]
+    all_lines_start_with_star = True
 
     for line in StringIO(stream):
         if '/*' in line and '*/' in line:
             line = re.sub(r'/\*.*\*/', '', line)
 
+        strip_content = line[1:] if line.startswith("-") or line.startswith("+") else line
+        strip_content = strip_content.strip()
+        if strip_content and not strip_content.startswith("*"):
+            all_lines_start_with_star = False
+
+
         # -------------------------- Del line -----------------------------
         if line.startswith("-"):
             cnt_dict['linessrc'] += 1
             line_obj = Line(line, (cnt_dict['linessrc'], -1))
-            strip_line_content = line_obj.content.strip()
 
             if common_statement:
                 incomplete_common_statement[0] = True
@@ -499,14 +505,15 @@ def _parse_hunk(stream, hunk=None):
         elif not common_statement and (incomplete_common_statement[0] or incomplete_common_statement[1]):
             incomplete_common_statement[0], incomplete_common_statement[1] = False, False
 
-    if common_statement:
-        _add_virtual_statement_to_hunk(common_statement, hunk)
+    if not all_lines_start_with_star:
+        if common_statement:
+            _add_virtual_statement_to_hunk(common_statement, hunk)
 
-    if del_statement:
-        _add_virtual_statement_to_hunk(del_statement, hunk, '-')
+        if del_statement:
+            _add_virtual_statement_to_hunk(del_statement, hunk, '-')
 
-    if add_statement:
-        _add_virtual_statement_to_hunk(add_statement, hunk, '+')
+        if add_statement:
+            _add_virtual_statement_to_hunk(add_statement, hunk, '+')
 
     return hunk
 

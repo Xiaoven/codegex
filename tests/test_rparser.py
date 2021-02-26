@@ -438,3 +438,30 @@ def test_10():
       * Gets the current process ID
 ''')
     assert len(patch.hunks[0].lines) == 6
+
+
+# https://api.github.com/repos/checkstyle/checkstyle/pulls/9246/files
+def test_11():
+    patch = parse('''@@ -89,53 +89,112 @@
+  * <pre>
+  * &lt;module name=&quot;RequireThis&quot;/&gt;
+  * </pre>
++ * <p>Example:</p>
++ * <pre>
++ * public class Test {
++ *   private int a;
++ *   private int b;
++ *
++ *   public Test(int a) {
++ *     // overlapping by constructor argument
++ *     this.a = a;       // OK, this keyword used
++ *     b = 0;            // OK, no overlap
++ *     foo(5);           // OK
++ *   }
++ * }
++ * </pre>
+  * <p>
+- * To configure to check the {@code this} qualifier for fields only:
++ * To configure the check for fields only:
+  * </p>''')
+    assert len(patch.hunks[0].lines) == 0
