@@ -55,6 +55,8 @@ params = [
                 sha,
                 shaFile
             );''', 1, 5),
+    (False, 'VA_FORMAT_STRING_USES_NEWLINE', 'Fake_04.java',
+     'warningMsg += String.format(\"\\\\n%s) %s: %s\", ++count, idName, resultId);', 0, 0),
 ]
 
 

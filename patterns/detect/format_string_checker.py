@@ -11,6 +11,7 @@ class NewLineDetector(Detector):
         self.pre_part = regex.compile(r'(\b\w[\w.]*)\s*\.\s*(format|printf|\w*fmt)\s*\(')
         self.params_part = regex.compile(r'(?P<aux>\(((?:[^()]++|(?&aux))*)\))')
         self.var_def_regex = regex.compile(r'\b(Formatter|PrintStream|\w*Writer|\w*Logger)\s+(\w+)\s*[;=]')
+        self.newline_regex = regex.compile(r'[^\\](\\n)')
         self.patch, self.interesting_vars = None, dict()
         Detector.__init__(self)
 
@@ -27,13 +28,16 @@ class NewLineDetector(Detector):
                 obj_name = g[0]
                 method_name = g[1]
 
-                m_2 = self.params_part.match(line_content[m.end(0) - 1:])
+                offset = m.end(0)-1
+                m_2 = self.params_part.match(line_content[offset:])
                 if m_2:
-                    params = m_2.groups()[1]
+                    params = m_2.group(2)
+                    offset += m_2.start(2)
                 else:
                     params = line_content[m.end(0):]
                 # Check if strings within params contains '\\n' which only occurs in a string
-                if '\\n' in params:
+                its_newline = self.newline_regex.finditer(params)
+                for m_newline in its_newline:
                     # Adjust priority
                     priority = priorities.LOW_PRIORITY
                     obj_name_lower = obj_name.lower()
@@ -51,7 +55,7 @@ class NewLineDetector(Detector):
                             priority = priorities.MEDIUM_PRIORITY
 
                     # get exact line number
-                    line_no = get_exact_lineno('\\n', context.cur_line, keyword_mode=True)[1]
+                    line_no = get_exact_lineno(offset+m_newline.start(1), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('VA_FORMAT_STRING_USES_NEWLINE', priority, context.cur_patch.name, line_no,
                                     'Format string should use %n rather than \\n', sha=context.cur_patch.sha)
