@@ -23,7 +23,7 @@ class CollectionAddItselfDetector(Detector):
                 continue
             g = m.groups()
             if g[0] == g[2]:
-                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('IL_CONTAINER_ADDED_TO_ITSELF', priorities.HIGH_PRIORITY, context.cur_patch.name,
                                 line_no, 'A collection is added to itself', sha=context.cur_patch.sha)

@@ -27,7 +27,7 @@ class BooleanAssignmentDetector(Detector):
             conditions = m_1.group(2)
             m_2 = self.assignment.search(conditions)
             if m_2:
-                line_no = get_exact_lineno(m_1.end(2)-1, context.cur_line)[1]
+                line_no = get_exact_lineno(m_1.end(2), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT', priorities.HIGH_PRIORITY, context.cur_patch.name,
                                 line_no, 'Method assigns boolean literal in boolean expression',

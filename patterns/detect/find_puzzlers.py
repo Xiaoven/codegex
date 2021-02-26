@@ -27,7 +27,7 @@ class BadMonthDetector(Detector):
             if m:
                 if in_range(m.start(0), string_ranges):
                     return
-                offset = m.end(0)-1
+                offset = m.end(0)
                 fire = True
                 g = m.groups()
                 instance_name = g[0]
@@ -39,7 +39,7 @@ class BadMonthDetector(Detector):
                 if m:
                     if in_range(m.start(0), string_ranges):
                         return
-                    offset = m.end(0)-1
+                    offset = m.end(0)
                     g = m.groups()
 
                     # TODO: find object type of instance_name by local search
@@ -53,7 +53,7 @@ class BadMonthDetector(Detector):
             if m:
                 if in_range(m.start(0), string_ranges):
                     return
-                offset = m.end(0)-1
+                offset = m.end(0)
                 fire = True
                 month = int(m.groups()[0])
 
@@ -91,7 +91,7 @@ class ShiftAddPriorityDetector(Detector):
 
                 if const == 8:
                     priority = priorities.MEDIUM_PRIORITY
-            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+            line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('BSHIFT_WRONG_ADD_PRIORITY', priority, context.cur_patch.name, line_no,
                             'Possible bad parsing of shift operation.', sha=context.cur_patch.sha))
@@ -118,7 +118,7 @@ class OverwrittenIncrementDetector(Detector):
                 # 四种可能的匹配 '++a', '--a', 'a++', 'a--'
                 pattern_inc = regex.compile(r'\+\+\s*{}|--\s*{}|{}\s*\+\+|{}\s*--'.format(op_1, op_1, op_1, op_1))
                 if pattern_inc.search(op_2):
-                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                    line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('DLS_OVERWRITTEN_INCREMENT', priorities.HIGH_PRIORITY, context.cur_patch.name,
                                     line_no, "DLS: Overwritten increment", sha=context.cur_patch.sha)

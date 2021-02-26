@@ -24,7 +24,7 @@ class FinalizerOnExitDetector(Detector):
             if pkg_name == 'System' or 'Runtime':
                 confidence = priorities.MEDIUM_PRIORITY
 
-            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+            line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('DM_RUN_FINALIZERS_ON_EXIT', confidence, context.cur_patch.name, line_no,
                             'Method invokes dangerous method runFinalizersOnExit', sha=context.cur_patch.sha)
@@ -175,7 +175,7 @@ class InvalidMinMaxDetector(Detector):
                         lower_bound = const_1
 
                     if upper_bound < lower_bound:
-                        line_no = get_exact_lineno(m1.end(0)-1, context.cur_line)[1]
+                        line_no = get_exact_lineno(m1.end(0), context.cur_line)[1]
                         self.bug_accumulator.append(
                             BugInstance('DM_INVALID_MIN_MAX', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
                                         'Incorrect combination of Math.max and Math.min', sha=context.cur_patch.sha))

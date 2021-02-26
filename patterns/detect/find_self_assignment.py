@@ -21,7 +21,7 @@ class CheckForSelfAssignment(Detector):
                     return
                 g = m.groups()
                 if g[0] == g[1]:
-                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                    line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('SA_SELF_ASSIGNMENT', Priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
                                     'SA: Self assignment of field or variable', sha=context.cur_patch.sha)
@@ -40,7 +40,7 @@ class CheckForSelfDoubleAssignment(Detector):
             if m:
                 g = m.groups()
                 if g[0] == g[1]:
-                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                    line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('SA_DOUBLE_ASSIGNMENT', Priorities.HIGH_PRIORITY, context.cur_patch.name,
                                     line_no,

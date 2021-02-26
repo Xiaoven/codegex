@@ -40,7 +40,7 @@ class GetResourceDetector(Detector):
                 if priority is None:
                     return
 
-                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('UI_INHERITANCE_UNSAFE_GETRESOURCE', priority, context.cur_patch.name,
                                 line_no,

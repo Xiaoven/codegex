@@ -32,7 +32,7 @@ def online_search(query: str, token='', search_parent=False, repo_name=''):
 def get_exact_lineno(target, line: Line, is_strip=False, keyword_mode=False):
     """
     Return the exact line number according to target in line
-    :param target: an integer less than the length of line content under default mode,
+    :param target: an integer less than or equal to the length of line content under default mode,
                     or keyword string under keyword mode
     :param line: a simple line object or a virtual statement object
     :param is_strip: if true, left strip the first sub-line and right strip the last sub-line

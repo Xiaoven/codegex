@@ -68,7 +68,7 @@ class FindRoughConstantsDetector(Detector):
             float_const = float(m.group(0))
             p, bad_const = check_const(float_const)
             if p < priorities.IGNORE_PRIORITY:
-                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 bug_ins = RoughConstantValueBugInstance("CNT_ROUGH_CONSTANT_VALUE", p, context.cur_patch.name, line_no,
                                                         sha=context.cur_patch.sha)
                 bug_ins.gen_description(float_const, bad_const)
