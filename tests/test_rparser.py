@@ -406,3 +406,35 @@ def test_09():
 ''')
 
     assert len(patch.hunks[0].lines) == 5
+
+
+# oshi/oshi/pulls/1526
+def test_10():
+    patch = parse('''@@ -174,8 +312,40 @@
+      *         or processes with a state of {@link OSProcess.State#INVALID} if a
+      *         process terminates during iteration.
++     * @deprecated Use {@link #getChildProcesses(int, Predicate, Comparator, int)}
++     *             with sorting constants from {@link ProcessSorting}.
++     */
++    @Deprecated
++    default List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
++        return getChildProcesses(parentPid, null, ProcessSorting.convertSortToComparator(sort), limit);
++    }
++
++    /**
++     * Gets currently running child processes of provided parent PID, optionally
++     * filtering, sorting, and limited to the top "N".
++     * @param limit
++     *            Max number of results to return, or 0 to return all results
++     * @return A list of {@link oshi.software.os.OSProcess} objects representing the
++     *         currently running child processes of the provided PID, optionally
++     *         filtered, sorted, and limited to the specified number.
+      */
+-    List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort);
++    List<OSProcess> getChildProcesses(int parentPid, Predicate<OSProcess> filter, Comparator<OSProcess> sort,
++            int limit);
+ 
+     /**
+      * Gets the current process ID
+''')
+    assert len(patch.hunks[0].lines) == 6
