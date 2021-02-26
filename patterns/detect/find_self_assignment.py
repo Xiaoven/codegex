@@ -8,7 +8,8 @@ from utils import in_range, get_string_ranges
 
 class CheckForSelfAssignment(Detector):
     def __init__(self):
-        self.pattern = regex.compile(r'(\b\w[\w.]*)\s*=\s*(\w[\w.]*)\s*;')
+        self.pattern = regex.compile(
+            r'(\b\w(?:[\w.]|(?P<aux1>\((?:[^()]++|(?&aux1))*\)))*)\s*=\s*(\w(?:[\w.]|(?&aux1))*)\s*;')
         Detector.__init__(self)
 
     def match(self, context):
@@ -20,7 +21,7 @@ class CheckForSelfAssignment(Detector):
                 if in_range(m.start(0), string_ranges):
                     return
                 g = m.groups()
-                if g[0] == g[1]:
+                if g[0] == g[2]:
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('SA_SELF_ASSIGNMENT', Priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
@@ -30,7 +31,8 @@ class CheckForSelfAssignment(Detector):
 
 class CheckForSelfDoubleAssignment(Detector):
     def __init__(self):
-        self.pattern = regex.compile(r'\b(\w[\w.]*)\s*=\s*(\w[\w.]*)\s*=[^=]')
+        self.pattern = regex.compile(
+            r'\b(\w(?:[\w.]|(?P<aux1>\((?:[^()]++|(?&aux1))*\)))*)\s*=\s*(\w(?:[\w.]|(?&aux1))*)\s*=[^=]')
         Detector.__init__(self)
 
     def match(self, context):
@@ -39,7 +41,7 @@ class CheckForSelfDoubleAssignment(Detector):
             m = self.pattern.search(line_content)
             if m:
                 g = m.groups()
-                if g[0] == g[1]:
+                if g[0] == g[2]:
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('SA_DOUBLE_ASSIGNMENT', Priorities.HIGH_PRIORITY, context.cur_patch.name,

@@ -19,6 +19,7 @@ params = [
     # DIY
     (False, 'SA_SELF_ASSIGNMENT', 'Test01.java', '''int foo = foo;''', 1, 1),
     (False, 'SA_SELF_ASSIGNMENT', 'Test02.java', '''this.foo = foo;''', 0, 1),
+    (False, 'SA_DOUBLE_ASSIGNMENT', 'FP_01.java', '''this.getGameSetup().whitePlayer = whitePlayer;''', 0, 0),
 
     # --------------- SA_DOUBLE_ASSIGNMENT ---------------
     # https://github.com/shweta1021/jenkins/commit/7aa09f4674f41b8514da2acee531a1d01d1d3071
@@ -36,6 +37,7 @@ params = [
     (False, 'SA_DOUBLE_ASSIGNMENT', 'Test04.java', '''this.foo = foo = 10;''', 0, 1),
     (False, 'SA_DOUBLE_ASSIGNMENT', 'Test05.java', '''boolean foo = False;
 foo = foo == True;''', 0, 1),
+    (False, 'SA_DOUBLE_ASSIGNMENT', 'Test06.java', '''this.getGameSetup().whitePlayer = whitePlayer = 17;''', 0, 0),
 ]
 
 
