@@ -29,7 +29,7 @@ class StaticDateFormatDetector(Detector):
                 return
             class_name = groups[1]
             field_name = groups[2]
-            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+            line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             if class_name.endswith('DateFormat'):
                 self.bug_accumulator.append(
                     BugInstance('STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE',

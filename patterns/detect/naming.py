@@ -34,7 +34,7 @@ class SimpleSuperclassNameDetector(Detector):
 
             if class_name in super_classes_list:
                 if len(line_content) == len(line_content.lstrip()):  # if do not have leading space
-                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                    line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', priorities.HIGH_PRIORITY,
                                     context.cur_patch.name, line_no,
@@ -74,7 +74,7 @@ class SimpleInterfaceNameDetector(Detector):
 
             if class_name in super_interface_list:
                 if len(line_content) == len(line_content.lstrip()):
-                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                    line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', priorities.MEDIUM_PRIORITY,
                                     context.cur_patch.name, line_no,
@@ -99,7 +99,7 @@ class HashCodeNameDetector(Detector):
             string_ranges = get_string_ranges(line_content)
             if in_range(m.start(0), string_ranges):
                 return
-            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+            line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('NM_LCASE_HASHCODE', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
                             "Class defines hashcode(); should it be hashCode()?", sha=context.cur_patch.sha))
@@ -120,7 +120,7 @@ class ToStringNameDetector(Detector):
             string_ranges = get_string_ranges(line_content)
             if in_range(m.start(0), string_ranges):
                 return
-            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+            line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('NM_LCASE_TOSTRING', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
                             'Class defines tostring(); should it be toString()?', sha=context.cur_patch.sha))
@@ -142,7 +142,7 @@ class EqualNameDetector(Detector):
             string_ranges = get_string_ranges(line_content)
             if in_range(m.start(0), string_ranges):
                 return
-            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+            line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('NM_BAD_EQUAL', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
                             'Class defines equal(Object); should it be equals(Object)?', sha=context.cur_patch.sha))
@@ -173,7 +173,7 @@ class ClassNameConventionDetector(Detector):
                     if any(access in line_content for access in ('public', 'protected')):
                         priority = priorities.MEDIUM_PRIORITY
 
-                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                    line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('NM_CLASS_NAMING_CONVENTION', priority, context.cur_patch.name, line_no,
                                     'Nm: Class names should start with an upper case letter',
@@ -220,7 +220,7 @@ class MethodNameConventionDetector(Detector):
                     if any(access in line_content for access in ('public', 'protected')):
                         priority = priorities.MEDIUM_PRIORITY
 
-                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                    line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('NM_METHOD_NAMING_CONVENTION', priority, context.cur_patch.name, line_no,
                                     'Nm: Method names should start with a lower case letter',

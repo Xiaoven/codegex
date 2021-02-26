@@ -43,7 +43,7 @@ class SuspiciousCollectionMethodDetector(Detector):
                     priority = priorities.HIGH_PRIORITY
 
                 if pattern_type:
-                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                    line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance(pattern_type, priority, context.cur_patch.name, line_no, description,
                                     sha=context.cur_patch.sha)

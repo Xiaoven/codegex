@@ -25,7 +25,7 @@ class FindBadCastDetector(Detector):
             g = m.groups()
 
             if g[0] != 'Object' and 'Arrays.asList' not in line_content:
-                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY', priorities.HIGH_PRIORITY, context.cur_patch.name,
                                 line_no, "BC: Impossible downcast of toArray() result", sha=context.cur_patch.sha)

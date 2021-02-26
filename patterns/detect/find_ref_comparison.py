@@ -33,7 +33,7 @@ class EqualityDetector(Detector):
         for m in its:
             if in_range(m.end(1), string_ranges):  # near '==' or '!=', since the operators can be a string
                 continue
-            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+            line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
 
             op_1 = m.groups()[0]  # m.groups()[1] is the result of named pattern
             op_2 = m.groups()[2]
@@ -75,7 +75,7 @@ class CallToNullDetector(Detector):
         for m in its:
             if in_range(m.start(0), string_ranges):
                 continue
-            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+            line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('EC_NULL_ARG', priorities.MEDIUM_PRIORITY,
                             context.cur_patch.name, line_no,

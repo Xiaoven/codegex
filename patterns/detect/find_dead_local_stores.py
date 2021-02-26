@@ -28,7 +28,7 @@ class FindDeadLocalIncrementInReturn(Detector):
             if var_name.startswith('$'):
                 priority = Priorities.LOW_PRIORITY
 
-            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+            line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('DLS_DEAD_LOCAL_INCREMENT_IN_RETURN', priority, context.cur_patch.name,
                             line_no, 'Useless increment in return statement', sha=context.cur_patch.sha)

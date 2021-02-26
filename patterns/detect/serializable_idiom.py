@@ -46,7 +46,7 @@ class DefSerialVersionID(Detector):
                 message = "serialVersionUID isn't long."
 
             if pattern_name:
-                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance(pattern_name, priority, context.cur_patch.name, line_no, message,
                                 sha=context.cur_patch.sha))
@@ -81,7 +81,7 @@ class DefReadResolveMethod(Detector):
                 message = 'The readResolve method must not be declared as a static method.'
 
             if pattern_name:
-                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance(pattern_name, priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no, message,
                                 sha=context.cur_patch.sha))
@@ -128,7 +128,7 @@ class DefPrivateMethod(Detector):
 
             # check bug pattern
             if not strip_line.startswith('private'):
-                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('SE_METHOD_MUST_BE_PRIVATE', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
                                 line_no, 'Method must be private in order for serialization to work.',

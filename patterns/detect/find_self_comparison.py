@@ -43,7 +43,7 @@ class CheckForSelfComputation(Detector):
                     continue
                 if op_behind in self._op_precedence_dict and self._is_precedent(op_behind, op):
                     continue
-                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('SA_SELF_COMPUTATION', Priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no,
                                 'Nonsensical self computation involving a variable or field', sha=context.cur_patch.sha)
@@ -82,7 +82,7 @@ class CheckForSelfComparison(Detector):
                         continue
 
                     hit = True
-                    match_end = m.end(0) - 1
+                    match_end = m.end(0)
                     break
 
         if not hit and any(method in line_content for method in ('equals', 'compareTo', 'endsWith', 'startsWith',
@@ -99,14 +99,14 @@ class CheckForSelfComparison(Detector):
 
                 if before_method == after_method:
                     hit = True
-                    match_end = m.end(0) - 1
+                    match_end = m.end(0)
                     break
                 else:
                     elements = after_method.split(',')
 
                     if len(elements) == 2 and elements[0] == elements[1]:
                         hit = True
-                        match_end = m.end(0) - 1
+                        match_end = m.end(0)
                         break
 
         if hit:

@@ -18,7 +18,7 @@ class NotThrowDetector(Detector):
             string_ranges = get_string_ranges(line_content)
             if in_range(m.start(0), string_ranges):
                 return
-            line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+            line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('RV_EXCEPTION_NOT_THROWN', priorities.MEDIUM_PRIORITY,
                             context.cur_patch.name, line_no,

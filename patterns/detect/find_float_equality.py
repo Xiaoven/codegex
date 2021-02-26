@@ -24,7 +24,7 @@ class FloatEqualityDetector(Detector):
                 op_1 = m.groups()[0]  # m.groups()[1] is the result of named pattern
                 op_2 = m.groups()[2]
                 if any(op in ('Float.NaN', 'Double.NaN') for op in (op_1, op_2)):
-                    line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                    line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('FE_TEST_IF_EQUAL_TO_NOT_A_NUMBER', priorities.HIGH_PRIORITY,
                                     context.cur_patch.name, line_no,

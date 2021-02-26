@@ -90,7 +90,7 @@ class IncompatMaskDetector(Detector):
                     description = 'The expression of the form (e & 0) to 0 will always compare equal.'
 
             if p_type is not None:
-                line_no = get_exact_lineno(m.end(0)-1, context.cur_line)[1]
+                line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(BugInstance(p_type, priority, context.cur_patch.name, line_no, description,
                                                         sha=context.cur_patch.sha))
 
