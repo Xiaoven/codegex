@@ -147,6 +147,9 @@ def _check_statement_end(line: str):
     """
     strip_line = line.strip()
 
+    if strip_line.startswith('*'):  # skip possible lines in multi-line comments
+        return False
+
     if (not strip_line) or re_stmt_end.search(strip_line) or re_annotation.match(strip_line) \
             or strip_line.endswith('*/') or strip_line.startswith('//'):
         return True
@@ -238,10 +241,17 @@ def _parse_hunk(stream, hunk=None):
     # if a common_statement meets a del_statement, the first 'False' will be 'True',
     # similar relationship to the second 'False' and add_statement
     incomplete_common_statement = [False, False]
+    all_lines_start_with_star = True
 
     for line in StringIO(stream):
         if '/*' in line and '*/' in line:
             line = re.sub(r'/\*.*\*/', '', line)
+
+        strip_content = line[1:] if line.startswith("-") or line.startswith("+") else line
+        strip_content = strip_content.strip()
+        if strip_content and not strip_content.startswith("*"):
+            all_lines_start_with_star = False
+
 
         # -------------------------- Del line -----------------------------
         if line.startswith("-"):
@@ -260,29 +270,31 @@ def _parse_hunk(stream, hunk=None):
                 del_statement = VirtualStatement(line_obj)
                 # then goto reset common_statement
             elif del_multi_comment:
+                if not del_statement and common_statement:
+                    del_statement = copy.deepcopy(common_statement)
+
                 if _check_multiline_comment_end(line_obj.content):
-                    if not del_statement and common_statement:
-                        del_statement = copy.deepcopy(common_statement)
                     _finish_vt_statement(line_obj, del_statement, hunk, '-')
                     del_statement = None
                     del_multi_comment = False
                 else:
-                    if not del_statement and common_statement:
-                        del_statement = copy.deepcopy(common_statement)
                     del_statement.append_sub_line(line_obj)  # then goto reset common_statement
             elif not del_multi_comment and _check_multiline_comment_end(line_obj.content):
                 _skip_started_incomplete_multi_line_comments(line_obj, hunk)
                 del_statement = None
+                if common_statement:
+                    add_multi_comment = True
             elif _check_statement_end(line_obj.content):  # whether line is a complete statement or not
                 # trim blank line or single-line comments
                 trim_useless_content(line_obj)
                 if not line_obj.content:
                     continue  # skip blank line or single line comments
 
-                if not (common_statement or del_statement):
-                    hunk.dellines.append(len(hunk.lines))
-                    hunk.lines.append(line_obj)
-                    continue
+                if not del_statement:
+                    if (common_statement and add_multi_comment) or not common_statement:
+                        hunk.dellines.append(len(hunk.lines))
+                        hunk.lines.append(line_obj)
+                        continue
                 # line_obj belongs to a del_statement
                 if not del_statement and common_statement:
                     del_statement = copy.deepcopy(common_statement)
@@ -315,28 +327,30 @@ def _parse_hunk(stream, hunk=None):
                 add_statement = VirtualStatement(line_obj)
                 # then goto reset common_statement
             elif add_multi_comment:
+                if not add_statement and common_statement:
+                    add_statement = copy.deepcopy(common_statement)
+
                 if _check_multiline_comment_end(line_obj.content):
-                    if not add_statement and common_statement:
-                        add_statement = copy.deepcopy(common_statement)
                     _finish_vt_statement(line_obj, add_statement, hunk, '+')
                     add_statement = None
                     add_multi_comment = False
                 else:
-                    if not add_statement and common_statement:
-                        add_statement = copy.deepcopy(common_statement)
                     add_statement.append_sub_line(line_obj)  # then goto reset common_statement
             elif not add_multi_comment and _check_multiline_comment_end(line_obj.content):
                 _skip_started_incomplete_multi_line_comments(line_obj, hunk)
                 add_statement = None
+                if common_statement:
+                    del_multi_comment = True
             elif _check_statement_end(line_obj.content):
                 trim_useless_content(line_obj)
                 if not line_obj.content:
                     continue  # skip blank line or single line comments
 
-                if not (common_statement or add_statement):
-                    hunk.addlines.append(len(hunk.lines))
-                    hunk.lines.append(line_obj)
-                    continue
+                if not add_statement:
+                    if (common_statement and del_multi_comment) or not common_statement:
+                        hunk.addlines.append(len(hunk.lines))
+                        hunk.lines.append(line_obj)
+                        continue
 
                 # line_obj belongs to a add_statement
                 if common_statement and not add_statement:
@@ -491,14 +505,15 @@ def _parse_hunk(stream, hunk=None):
         elif not common_statement and (incomplete_common_statement[0] or incomplete_common_statement[1]):
             incomplete_common_statement[0], incomplete_common_statement[1] = False, False
 
-    if common_statement:
-        _add_virtual_statement_to_hunk(common_statement, hunk)
+    if not all_lines_start_with_star:
+        if common_statement:
+            _add_virtual_statement_to_hunk(common_statement, hunk)
 
-    if del_statement:
-        _add_virtual_statement_to_hunk(del_statement, hunk, '-')
+        if del_statement:
+            _add_virtual_statement_to_hunk(del_statement, hunk, '-')
 
-    if add_statement:
-        _add_virtual_statement_to_hunk(add_statement, hunk, '+')
+        if add_statement:
+            _add_virtual_statement_to_hunk(add_statement, hunk, '+')
 
     return hunk
 

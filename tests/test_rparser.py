@@ -406,3 +406,62 @@ def test_09():
 ''')
 
     assert len(patch.hunks[0].lines) == 5
+
+
+# oshi/oshi/pulls/1526
+def test_10():
+    patch = parse('''@@ -174,8 +312,40 @@
+      *         or processes with a state of {@link OSProcess.State#INVALID} if a
+      *         process terminates during iteration.
++     * @deprecated Use {@link #getChildProcesses(int, Predicate, Comparator, int)}
++     *             with sorting constants from {@link ProcessSorting}.
++     */
++    @Deprecated
++    default List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
++        return getChildProcesses(parentPid, null, ProcessSorting.convertSortToComparator(sort), limit);
++    }
++
++    /**
++     * Gets currently running child processes of provided parent PID, optionally
++     * filtering, sorting, and limited to the top "N".
++     * @param limit
++     *            Max number of results to return, or 0 to return all results
++     * @return A list of {@link oshi.software.os.OSProcess} objects representing the
++     *         currently running child processes of the provided PID, optionally
++     *         filtered, sorted, and limited to the specified number.
+      */
+-    List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort);
++    List<OSProcess> getChildProcesses(int parentPid, Predicate<OSProcess> filter, Comparator<OSProcess> sort,
++            int limit);
+ 
+     /**
+      * Gets the current process ID
+''')
+    assert len(patch.hunks[0].lines) == 6
+
+
+# https://api.github.com/repos/checkstyle/checkstyle/pulls/9246/files
+def test_11():
+    patch = parse('''@@ -89,53 +89,112 @@
+  * <pre>
+  * &lt;module name=&quot;RequireThis&quot;/&gt;
+  * </pre>
++ * <p>Example:</p>
++ * <pre>
++ * public class Test {
++ *   private int a;
++ *   private int b;
++ *
++ *   public Test(int a) {
++ *     // overlapping by constructor argument
++ *     this.a = a;       // OK, this keyword used
++ *     b = 0;            // OK, no overlap
++ *     foo(5);           // OK
++ *   }
++ * }
++ * </pre>
+  * <p>
+- * To configure to check the {@code this} qualifier for fields only:
++ * To configure the check for fields only:
+  * </p>''')
+    assert len(patch.hunks[0].lines) == 0
