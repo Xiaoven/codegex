@@ -186,6 +186,12 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
                     "Ranking NBA",
                     "Help the bookseller!"
             };''', 0, 0),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_41.java',
+     '''    StorageObserver(
+            @NonNull MutationOutbox mutationOutbox,
+             @NonNull QueryPredicateProvider queryPredicateProvider) {''', 0, 0),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_42.java',
+     'Resume() {}', 0, 0),
 ]
 
 

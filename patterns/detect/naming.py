@@ -210,7 +210,8 @@ class MethodNameConventionDetector(Detector):
                 if pre_token in ('public', 'private', 'protected', 'static'):
                     continue
                 # skip constructor definitions without access modifier, like "Object (int i)", "Object() {"
-                if not pre_token and (args_def or line_content.rstrip().endswith('{')):
+                if not pre_token and (args_def or line_content.rstrip().endswith('{')
+                                      or line_content.rstrip().endswith('}')):
                     continue
 
                 if len(method_name) >= 2 and method_name[0].isalpha() and not method_name[0].islower() and \
