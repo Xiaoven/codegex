@@ -15,8 +15,10 @@ params =[
     (False, 'QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT', 'DIY_01.java',
      '''if ( a == b && value = false) {''', 1, 1),
     # https://github.com/spotbugs/spotbugs/issues/1149
-    (False, 'QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT', 'DIY_01.java',
-     '''if (scanning = b == true)''', 0, 1),
+    (False, 'QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT', 'DIY_02.java',
+     '''if (scanning = b == true)''', 0, 0),
+    (False, 'QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT', 'DIY_03.java',
+     '''if (content.contains("table.MotionDetect[0].Enable=true")) {''', 0, 0),
 ]
 
 

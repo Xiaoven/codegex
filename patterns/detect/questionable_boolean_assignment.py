@@ -9,7 +9,7 @@ from utils import get_string_ranges, in_range
 class BooleanAssignmentDetector(Detector):
     def __init__(self):
         self.extract = regex.compile(r'\b(?:if|while)\s*(?P<aux>\(((?:[^()]++|(?&aux))*)\))')
-        self.assignment = regex.compile(r'\b[\w$]+\s*=\s*(?:true|false)\b')
+        self.assignment = regex.compile(r'\b\w+\s*=\s*(?:true|false)\b')
         Detector.__init__(self)
 
     def match(self, context):
@@ -21,12 +21,15 @@ class BooleanAssignmentDetector(Detector):
         m_1 = self.extract.search(line_content)
         if m_1:
             string_ranges = get_string_ranges(line_content)
-            if in_range(m_1.start(0), string_ranges):
-                return
 
             conditions = m_1.group(2)
+            offset = m_1.start(2)
             m_2 = self.assignment.search(conditions)
             if m_2:
+                offset += m_2.start(0)
+                if in_range(offset, string_ranges):
+                    return
+
                 line_no = get_exact_lineno(m_1.end(2), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT', priorities.HIGH_PRIORITY, context.cur_patch.name,
