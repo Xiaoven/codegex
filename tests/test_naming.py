@@ -58,10 +58,10 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
         /**
          * When this response will expire as a timestamp in milliseconds since epoch.
          */
-        long getExpirationTime();''', 0, 1),
+        long getExpirationTime();''', 0, 0),
     # RxJava/src/main/java/io/reactivex/rxjava3/observers/BaseTestConsumer.java
     (False, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'BaseTestConsumer.java',
-     '''public abstract class BaseTestConsumer<T, U extends BaseTestConsumer<T, U>> {''', 0, 1),
+     '''public abstract class BaseTestConsumer<T, U extends BaseTestConsumer<T, U>> {''', 0, 0),
     # ------------------------ NM_LCASE_HASHCODE ------------------------
     # DIY
     (False, 'NM_LCASE_HASHCODE', 'Main_01.java',
@@ -92,11 +92,11 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     (False, 'NM_LCASE_HASHCODE', 'Main_05.java',
      '''public int hashcode(int i){
                             return i;
-                        }''', 0, 1),
+                        }''', 0, 0),
     (False, 'NM_LCASE_HASHCODE', 'Main_06.java',
      '''    private int hashcode(){
                         return i;
-                    }''', 0, 1),
+                    }''', 0, 0),
     # ------------------------ NM_LCASE_TOSTRING ------------------------
     # DIY
     (False, 'NM_LCASE_TOSTRING', 'Main_07.java',
@@ -122,54 +122,70 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
     (False, 'NM_LCASE_TOSTRING', 'Main_10.java',
      '''     public static final String tostring(){''', 1, 1),
     # ------------------------ NM_BAD_EQUAL ------------------------
-    (False, 'NM_BAD_EQUAL', 'Main_11.java', '''private boolean equal(Obejct o){''', 0, 1),
-    (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal(String s){''', 0, 1),
+    (False, 'NM_BAD_EQUAL', 'Main_11.java', '''private boolean equal(Obejct o){''', 0, 0),
+    (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal(String s){''', 0, 0),
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''boolean equal( Object o ){''', 1, 1),
     (False, 'NM_BAD_EQUAL', 'Main_12.java', '''static boolean equal(Object o )''', 1, 1),
 
     # ------------------------ NM_CLASS_NAMING_CONVENTION ------------------------
-    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_19.java', '''class hashCODEnoEQUALS{
-    }''', 1, 1),
-    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_20.java', '''class hash_CODEnoEQUALS{
-    }''', 0, 1),
-    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_21.java', '''class className$className extends PreorderVisitor implements Detector {
-    }''', 1, 1),
-    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_22.java', '''class helloProto$ extends PreorderVisitor implements Detector {
-    }''', 0, 1),
-    (False, 'NM_BAD_EQUAL', 'Main_13.java', '''boolean equal( Object o ){''', 1, 1),
-    (False, 'NM_BAD_EQUAL', 'Main_14.java', '''static boolean equal(Object o )''', 1, 1),
+    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_19.java', '''class hashCODEnoEQUALS{''', 1, 1),
+    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_20.java', '''class hash_CODEnoEQUALS{''', 0, 0),
+    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_21.java',
+     'class className$className extends PreorderVisitor implements Detector {', 1, 1),
+    (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_22.java',
+     'class helloProto$ extends PreorderVisitor implements Detector {', 0, 0),
     # ------------------------ NM_METHOD_NAMING_CONVENTION ------------------------
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_15.java', '''private boolean MethodName(Obejct o){''', 1, 1),
-    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_16.java', '''boolean methodName(Obejct o){''', 0, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_16.java', '''boolean methodName(Obejct o){''', 0, 0),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_17.java', '''void MethodName()
         {''', 1, 1),
-    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_23.java', '''void AM(){''', 0, 1),
-    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_24.java', '''void A(){''', 0, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_23.java', '''void AM(){''', 0, 0),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_24.java', '''void A(){''', 0, 0),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_25.java', '''void Me(){''', 1, 1),
-    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_26.java', '''void Me_hello(){''', 0, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_26.java', '''void Me_hello(){''', 0, 0),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_27.java', '''b.MethodName()''', 1, 1),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_28.java',
-     'File jeiConfigurationDir = new File(FMLPaths.CONFIGDIR.get().toFile(), ModIds.JEI_ID);', 0, 1),
-    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_29.java', 'new Thread(() -> {', 0, 1),
+     'File jeiConfigurationDir = new File(FMLPaths.CONFIGDIR.get().toFile(), ModIds.JEI_ID);', 0, 0),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_29.java', 'new Thread(() -> {', 0, 0),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_30.java', '''new AlertDialog.Builder(QuizInstructionsActivity.this)
                                 .setTitle("Not right time!")
                                 .setMessage("Start time: " + zdt1 + "\n" + "End time: " + zdt2)
                                 .setIcon(android.R.drawable.ic_dialog_alert)
-                                .show();''', 0, 1),
+                                .show();''', 0, 0),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_31.java',
      '''Assert.check(args[0] instanceof StringNode, "In computing AssertError, a non-string expression (" + args[0]
-        + ") was used as the err " + "of an AssertError(err, exp).");''', 0, 1),
+        + ") was used as the err " + "of an AssertError(err, exp).");''', 0, 0),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_32.java',
-     'public ClientLifecycleHandler(NetworkHandler networkHandler, Textures textures) {', 0, 1),
+     'public ClientLifecycleHandler(NetworkHandler networkHandler, Textures textures) {', 0, 0),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_33.java',
-     ' public JsonTest() {', 0, 1),
-    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_34.java', '@SuppressWarnings("rawtypes")', 0, 1),
+     ' public JsonTest() {', 0, 0),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_34.java', '@SuppressWarnings("rawtypes")', 0, 0),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_35.java', 'playBtn.setOnClickListener(new View.OnClickListener() {',
      0, 1),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_36.java', '''TrackSelector trackSelector =
                     new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));''',
      0, 1),
-    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_37.java', 'TheBloodskyMassacreEffect() {', 0, 1),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_37.java', 'TheBloodskyMassacreEffect() {', 0, 0),
+    # https://github.com/MinecraftForge/MinecraftForge/pull/7621/files
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_38.java',
+     '@Mod.EventBusSubscriber(modid = MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)', 0, 0),
+    # https://github.com/Alisios/2020-05-otus-spring-Platunova/pull/15/files
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_39.java',
+     '''public void add(@RequestBody
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody( description = "Сектор компании для записи в БД", required = true,
+                             content = @Content(schema = @Schema(implementation = StockType.class),
+                                     mediaType = "application/json"))''', 0, 0),
+    # https://github.com/Lv-567-TAQC/CodeWars567/pull/168/files
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_40.java',
+     '''case 6:
+            return new String[]{
+                    "Build a pile of Cubes",
+                    "Easy balance checking",
+                    "Floating-point Approximation (I)",   // 估计是这里
+                    "Rainfall",
+                    "Ranking NBA",
+                    "Help the bookseller!"
+            };''', 0, 0),
 ]
 
 

@@ -184,7 +184,7 @@ class MethodNameConventionDetector(Detector):
     def __init__(self):
         # Extract the method name
         self.mn_pattern = regex.compile(
-            r'(\b\w+\s+)?(?:\b\w+\s*\.\s*)*(\b\w+)\s*\(\s*((?:(?!new)\w)+(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+\w+)?')
+            r'@?(\b\w+\s+)?(?:\b\w+\s*\.\s*)*(\b\w+)\s*\(\s*((?:(?!new)\w)+(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+\w+)?')
         Detector.__init__(self)
 
     def match(self, context):
@@ -193,6 +193,9 @@ class MethodNameConventionDetector(Detector):
             its = self.mn_pattern.finditer(line_content)
             string_ranges = get_string_ranges(line_content)
             for m in its:
+                # skip annotations
+                if line_content[m.start(0)] == '@':
+                    continue
                 if in_range(m.start(0), string_ranges):
                     continue
                 g = m.groups()
@@ -208,10 +211,6 @@ class MethodNameConventionDetector(Detector):
                     continue
                 # skip constructor definitions without access modifier, like "Object (int i)", "Object() {"
                 if not pre_token and (args_def or line_content.rstrip().endswith('{')):
-                    continue
-                # skip annotations
-                method_name_offset = m.start(2)
-                if method_name_offset - 1 >= 0 and line_content[method_name_offset - 1] == '@':
                     continue
 
                 if len(method_name) >= 2 and method_name[0].isalpha() and not method_name[0].islower() and \
