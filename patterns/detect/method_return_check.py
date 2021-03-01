@@ -9,7 +9,7 @@ from utils import get_string_ranges, in_range
 class NotThrowDetector(Detector):
     def __init__(self):
         super().__init__()
-        self.pattern = regex.compile(r'^\s*new\s+(\w+?)(?:Exception|Error)\s*\(')
+        self.pattern = regex.compile(r'^\s*new\s+(\w+?)(?:Exception|Error)\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))\s*;')
 
     def match(self, context):
         line_content = context.cur_line.content
