@@ -48,8 +48,8 @@ params = [
     ('DLS_OVERWRITTEN_INCREMENT', 'Main_01.java',
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
-        int var = 5;
-        var = var++;
+        int a = 3;
+        a = a - -;
     }
 }
      ''', 1, 4),
@@ -58,7 +58,7 @@ params = [
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
         int a=5;
-        a = ++a;
+        a = a + +;
     }
 }
      ''', 1, 4),
@@ -66,7 +66,7 @@ params = [
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
         int a=5;
-        a=2 + ++a;
+        a=1 - a++;
     }
 }
      ''', 1, 4),
@@ -74,7 +74,7 @@ params = [
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
         int a=5;
-        a=++a - ++a;
+        a=a + + + 5;
     }
 }
      ''', 1, 4),
@@ -82,34 +82,33 @@ params = [
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
         int a=5, b;
-        a=++b * ++a;
+        a=b / a - -;
     }
 }
      ''', 1, 4),
-    ('DLS_OVERWRITTEN_INCREMENT', 'Main_06.java',
+    # fp: https://github.com/Xiaoven/rbugs/issues/132
+    ('DLS_OVERWRITTEN_INCREMENT', 'Main_09.java',
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
-        int a=5;
-        a= a / ++a;
+        card.order = order++;
     }
 }
-     ''', 1, 4),
-        ('DLS_OVERWRITTEN_INCREMENT', 'Main_06.java',
+     ''', 0, 1),
+    ('DLS_OVERWRITTEN_INCREMENT', 'Main_10.java',
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
-        int a=5;
-        a= a / --a;
+        int s = status++;
     }
 }
-     ''', 1, 4),
-    ('DLS_OVERWRITTEN_INCREMENT', 'Main_05.java',
+     ''', 0, 1),
+    ('DLS_OVERWRITTEN_INCREMENT', 'Main_11.java',
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
-        int a=5, b;
-        a=++b * --a;
+        final int numFinished = ++verticesFinished;
+        final int numFinished = ++numFinishedVertices;
     }
 }
-     ''', 1, 4)
+     ''', 0, 1),
 ]
 
 
