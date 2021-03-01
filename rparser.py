@@ -121,7 +121,7 @@ class Patch:
 
 # --------------------------------------------------------------------------------------
 re_stmt_end = re.compile(r'[;{}](\s*//[^\n]*)?$')
-re_annotation = re.compile(r'^@[\w\_$]+(?:\(.*\))?')
+re_annotation = re.compile(r'^@[\w\_$]+(?:\(.*\))?$')
 
 
 def trim_useless_content(line_obj: Line):
