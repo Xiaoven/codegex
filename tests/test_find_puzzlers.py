@@ -49,7 +49,7 @@ params = [
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
         int a = 3;
-        a = a - -;
+        a = a --;
     }
 }
      ''', 1, 4),
@@ -58,7 +58,7 @@ params = [
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
         int a=5;
-        a = a + +;
+        a = a ++;
     }
 }
      ''', 1, 4),
@@ -74,7 +74,7 @@ params = [
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
         int a=5;
-        a=a + + + 5;
+        a=a ++ + 5;
     }
 }
      ''', 1, 4),
@@ -82,7 +82,7 @@ params = [
      '''public class DLS_OVERWRITTEN_INCREMENT {
     void test(){
         int a=5, b;
-        a=b / a - -;
+        a=b / a --;
     }
 }
      ''', 1, 4),
