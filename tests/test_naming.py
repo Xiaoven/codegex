@@ -192,6 +192,14 @@ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future
              @NonNull QueryPredicateProvider queryPredicateProvider) {''', 0, 0),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_42.java',
      'Resume() {}', 0, 0),
+    # https://github.com/CERN/apvs/pull/846
+    (True, 'NM_METHOD_NAMING_CONVENTION', 'Main_43.java',
+     '''@@ -16,9 +16,9 @@
+public enum Ternary implements Serializable, IsSerializable {
+	True("True"), False("False"), Unknown("Unknown");''', 0, 0),
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_44.java',
+     ''' public enum headerMenuData {
+    Home("Home"),''', 0, 0),
 ]
 
 
