@@ -101,7 +101,7 @@ class OverwrittenIncrementDetector(Detector):
     def __init__(self):
         # 提取'='左右操作数
         self.pattern = regex.compile(
-            r'(\b[\w+$]+)\s*=([\w\s+\-*\/]+)'
+            r'(\b[\w.+$]+)\s*=([\w.\s+\-*\/]+)\s*;'
         )
         Detector.__init__(self)
 
@@ -113,10 +113,12 @@ class OverwrittenIncrementDetector(Detector):
             for m in its:
                 if in_range(m.start(0), string_ranges):
                     continue
-                op_1 = m.groups()[0].strip()  # m.groups()[1] is the result of named pattern
-                op_2 = m.groups()[1].strip()
-                # 四种可能的匹配 '++a', '--a', 'a++', 'a--'
-                pattern_inc = regex.compile(r'\+\+\s*{}|--\s*{}|{}\s*\+\+|{}\s*--'.format(op_1, op_1, op_1, op_1))
+                op_1 = m.groups()[0]
+                op_2 = m.groups()[1]
+
+                # 两种可能的匹配 'a++', 'a--'
+                pattern_inc = regex.compile(r'\b{}\s*\+\+|\b{}\s*--'.format(op_1, op_1))
+
                 if pattern_inc.search(op_2):
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
