@@ -113,7 +113,7 @@ class CheckForSelfComparison(Detector):
                     hit = True
                     match_end = m.end(0)
                     break
-                else:
+                elif after_method != '","':
                     elements = after_method.split(',')
 
                     if len(elements) == 2 and elements[0] == elements[1]:

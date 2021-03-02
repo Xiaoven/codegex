@@ -106,6 +106,14 @@ params = [
      "if (email.length()-email.indexOf('.')-1 <= 1){", 0, 0),
     (False, 'SA_SELF_COMPARISON', 'Fake_12.java',
      "if (c >= c*b){", 0, 0),
+    (False, 'SA_SELF_COMPARISON', 'Fake_13.java',
+     'await().atMost(atMost, TimeUnit.SECONDS).until(() -> tmpDir.toFile().listFiles().length == length);', 0, 0),
+    # https://github.com/DurankGts/CodenameOne/pull/40/files
+    (False, 'SA_SELF_COMPARISON', 'CodenameOne.java',
+     'mergeMode = inputPath.contains(",") || mergedFile != null;', 0, 0),
+    # https://github.com/sunjincheng121/incubator-iotdb/blob/9d40954fdcbe67bf20fed063208b31b23d5650dd/cli/src/main/java/org/apache/iotdb/tool/ExportCsv.java#L343
+    (False, 'SA_SELF_COMPARISON', 'incubator_iotdb.java',
+     '} else if (value.contains(",")) {', 0, 0),
 ]
 
 
