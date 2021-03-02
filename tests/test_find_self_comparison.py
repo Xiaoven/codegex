@@ -10,7 +10,7 @@ params = [
      '''@NoWarning("SA_FIELD_SELF_COMPUTATION")
         public int testUpdate() {
             return flags ^(short) flags;
-        }''', 0, 1),
+        }''', 0, 0),
     # https://github.com/spotbugs/spotbugs/blob/3883a7b750fb339577be073bc45e36b6f268777b/spotbugsTestCases/src/java/SelfFieldOperation.java#L25
     (False, 'SA_SELF_COMPUTATION', 'SelfFieldOperation_01.java',
      '''@ExpectWarning("SA_FIELD_SELF_COMPARISON,SA_FIELD_SELF_COMPUTATION")
@@ -27,15 +27,15 @@ params = [
         }''', 8, 4),
     # DIY
     (False, 'SA_SELF_COMPUTATION', 'DIY_01.java',
-     '''return capabilities.level - level;''', 0, 1),
+     '''return capabilities.level - level;''', 0, 0),
     (False, 'SA_SELF_COMPUTATION', 'DIY_02.java',
-     '    $(".lolkek").shouldNotBe(and("visible&visible", visible, visible));    // visible&visible', 0, 1),
+     '    $(".lolkek").shouldNotBe(and("visible&visible", visible, visible));    // visible&visible', 0, 0),
     (False, 'SA_SELF_COMPUTATION', 'DIY_03.java',
-     'final AtomicReference<String> latest = new AtomicReference<>("2015-01-01-00-00-00");', 0, 1),
+     'final AtomicReference<String> latest = new AtomicReference<>("2015-01-01-00-00-00");', 0, 0),
     (False, 'SA_SELF_COMPUTATION', 'DIY_04.java',
-     'long expectUnacked = msgOutCounter - (i - i % cumulativeInterval);', 0, 1),
+     'long expectUnacked = msgOutCounter - (i - i % cumulativeInterval);', 0, 0),
     (False, 'SA_SELF_COMPUTATION', 'DIY_05.java',
-     ' return i | i & j;', 0, 1),
+     ' return i | i & j;', 0, 0),
     # ---------------- SA_SELF_COMPARISON ----------------------
     (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation_02.java',
      '''@NoWarning("SA_FIELD_SELF_COMPARISON")
@@ -75,26 +75,37 @@ params = [
          Objects.equals(timeUnit, throttlingPolicy.timeUnit) &&
          Objects.equals(tierPlan, throttlingPolicy.tierPlan) &&
          Objects.equals(stopOnQuotaReach, throttlingPolicy.stopOnQuotaReach) &&
-         Objects.equals(monetizationProperties, throttlingPolicy.monetizationProperties);''', 0, 1),
+         Objects.equals(monetizationProperties, throttlingPolicy.monetizationProperties);''', 0, 0),
     #  https://github.com/google/ExoPlayer/pull/8462
     (False, 'SA_SELF_COMPARISON', 'Fake_01.java',
-    'if (capabilities.profile == profile && capabilities.level >= level) { ', 0, 1),
-    (False, 'SA_SELF_COMPARISON', 'Fake_02.java', 'private <T> T triggerBeforeConvert(T aggregateRoot) {', 0, 1),
+    'if (capabilities.profile == profile && capabilities.level >= level) { ', 0, 0),
+    (False, 'SA_SELF_COMPARISON', 'Fake_02.java', 'private <T> T triggerBeforeConvert(T aggregateRoot) {', 0, 0),
     (False, 'SA_SELF_COMPARISON', 'Fake_03.java',
-     'public <C, R> R accept(AnalyzedStatementVisitor<C, R> analyzedStatementVisitor, C context) {', 0, 1),
+     'public <C, R> R accept(AnalyzedStatementVisitor<C, R> analyzedStatementVisitor, C context) {', 0, 0),
     (False, 'SA_SELF_COMPARISON', 'Fake_04.java',
-     'public <T> T unwrap(String wrappingToken, Class<T> resultClass) {', 0, 1),
+     'public <T> T unwrap(String wrappingToken, Class<T> resultClass) {', 0, 0),
     (False, 'SA_SELF_COMPARISON', 'Fake_05.java',
-     'private <T> T exec(HttpRequest<Buffer> request, Object body, Class<T> resultClass, int expectedCode) {', 0, 1),
+     'private <T> T exec(HttpRequest<Buffer> request, Object body, Class<T> resultClass, int expectedCode) {', 0, 0),
     (False, 'SA_SELF_COMPARISON', 'Fake_06.java',
-     'ArrayList<ArrayList<RecyclerView.ViewHolder>> mAdditionsList = new ArrayList<>();', 0, 1),
+     'ArrayList<ArrayList<RecyclerView.ViewHolder>> mAdditionsList = new ArrayList<>();', 0, 0),
     (False, 'SA_SELF_COMPARISON', 'Fake_07.java',
      '''private static final List<String> STEP_NAMES = Arrays.asList("Given a \\"stock\\" of symbol <symbol> and a threshold <threshold>",
                         "When the stock is traded at price <price>",
                         "Then the alert status should be status <status>"
-        );''', 0, 1),
+        );''', 0, 0),
     (False, 'SA_SELF_COMPARISON', 'Fake_08.java',
-     '''private static final List<String> STEP_NAMES = Arrays.asList("Given a stock of symbol <symbol> and a threshold <threshold>''', 0, 1),
+     'private static final List<String> STEP_NAMES = Arrays.asList("Given a stock of symbol <symbol> and a threshold <threshold>', 0, 0),
+    # https://github.com/PowerOlive/Mysplash/pull/1/files
+    (False, 'SA_SELF_COMPARISON', 'Mysplash.java',
+     'return newModel instanceof AppObject && ((AppObject) newModel).iconId == iconId;', 0, 0),
+    (False, 'SA_SELF_COMPARISON', 'Fake_09.java',
+     'if (disjunction.get(t).variable == variable)', 0, 0),
+    (False, 'SA_SELF_COMPARISON', 'Fake_10.java',
+     'if (this.matriz[fila][col].valor == valor){', 0, 0),
+    (False, 'SA_SELF_COMPARISON', 'Fake_11.java',
+     "if (email.length()-email.indexOf('.')-1 <= 1){", 0, 0),
+    (False, 'SA_SELF_COMPARISON', 'Fake_12.java',
+     "if (c >= c*b){", 0, 0),
 ]
 
 
