@@ -77,6 +77,18 @@ class CheckForSelfComparison(Detector):
                 relation_op = g[2]
                 obj_2 = g[3]
                 if obj_1 == obj_2:
+                    # check the first non-empty character before object 1
+                    pre_substring = line_content[: m.start(0)].strip()
+                    if pre_substring and not pre_substring[-1].isalpha() and \
+                            pre_substring[-1] not in ('(', '&', '|', '=', '>', '<'):
+                        continue
+
+                    # check the last non-empty character after object 2
+                    latter_substring = line_content[m.end(0):].strip()
+                    if latter_substring and not latter_substring[0].isalpha() and \
+                            latter_substring[0] not in (')', ';', '|', '=', '>', '<'):
+                        continue
+
                     # check if in generic type range
                     if relation_op in ('<', '>') and in_range(op_offset, generic_type_ranges):
                         continue
@@ -101,7 +113,7 @@ class CheckForSelfComparison(Detector):
                     hit = True
                     match_end = m.end(0)
                     break
-                else:
+                elif after_method != '","':
                     elements = after_method.split(',')
 
                     if len(elements) == 2 and elements[0] == elements[1]:
