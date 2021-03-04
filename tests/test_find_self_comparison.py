@@ -44,6 +44,10 @@ params = [
      'int imm5Encoding = (index << eSize.bytes() | eSize.bytes()) << ASIMDImm5Offset;', 0, 0),
     (False, 'SA_SELF_COMPUTATION', 'DIY_06.java',
      'immTwice = immTwice | immTwice << 32;', 0, 0),
+    (False, 'SA_SELF_COMPUTATION', 'DIY_07.java',
+     'return i | j & j;', 0, 0),
+    (False, 'SA_SELF_COMPUTATION', 'DIY_08.java',
+     'return i | j & j | z;', 0, 0),
     # ---------------- SA_SELF_COMPARISON ----------------------
     (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation_02.java',
      '''@NoWarning("SA_FIELD_SELF_COMPARISON")
