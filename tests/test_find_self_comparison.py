@@ -36,6 +36,14 @@ params = [
      'long expectUnacked = msgOutCounter - (i - i % cumulativeInterval);', 0, 0),
     (False, 'SA_SELF_COMPUTATION', 'DIY_05.java',
      ' return i | i & j;', 0, 0),
+    # https://github.com/Vardan2020/VardanHomeWork/pull/20/files
+    (False, 'SA_SELF_COMPUTATION', 'VardanHomeWork.java',
+     'if (a > b & b>c) {', 0, 0),
+    # https://github.com/oracle/graal/pull/3183/files
+    (False, 'SA_SELF_COMPUTATION', 'graal.java',
+     'int imm5Encoding = (index << eSize.bytes() | eSize.bytes()) << ASIMDImm5Offset;', 0, 0),
+    (False, 'SA_SELF_COMPUTATION', 'DIY_06.java',
+     'immTwice = immTwice | immTwice << 32;', 0, 0),
     # ---------------- SA_SELF_COMPARISON ----------------------
     (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation_02.java',
      '''@NoWarning("SA_FIELD_SELF_COMPARISON")

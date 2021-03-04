@@ -9,12 +9,16 @@ from utils import get_generic_type_ranges, get_string_ranges, in_range
 class CheckForSelfComputation(Detector):
     def __init__(self):
         self.pattern = regex.compile(
-            r'([|^&-*/%]?)\s*(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*)\s*([|^&-])\s*([\w.]+(?&aux1)*)\s*([|^&-*/%]?)')
+            r'(\b\w(?:[\w.]|(?P<aux1>\((?:[^()]++|(?&aux1))*\)))*)\s*([|^&-])\s*(\w(?:[\w.]|(?&aux1))*)')
         Detector.__init__(self)
 
         self._op_precedence_dict = {
-            '*': 5, '/': 5, '%': 5,
-            '-': 4,
+            '~': 9, '!': 9,
+            '*': 8, '/': 8, '%': 8,
+            '-': 7, '+': 7,
+            '>>': 6, '>>>': 6, '<<': 6,
+            '>': 5, '>=': 5, '<': 5, '<=': 5,
+            '!=': 4, '==': 4,
             '&': 3, '^': 2, '|': 1,
         }
 
@@ -31,17 +35,29 @@ class CheckForSelfComputation(Detector):
         its = self.pattern.finditer(line_content)
         for m in its:
             g = m.groups()
-            op_front = g[0]
-            obj_1 = g[1]
-            op = g[3]
-            op_offset = m.start(4)
-            obj_2 = g[4]
-            op_behind = g[5]
+            obj_1 = g[0]
+            op = g[2]
+            op_offset = m.start(3)
+            obj_2 = g[3]
             if obj_1 == obj_2 and op in ('&', '|', '^', '-') and not in_range(op_offset, string_ranges):
+                pre_substring = line_content[:m.start(0)].rstrip()
+                op_front = None
+                if pre_substring[-2:] in self._op_precedence_dict:
+                    op_front = pre_substring[-2:]
+                elif pre_substring[-1] in self._op_precedence_dict:
+                    op_front = pre_substring[-1]
+
+                after_substring = line_content[m.end(0):].lstrip()
+                op_behind = None
+                if after_substring[:2] in self._op_precedence_dict:
+                    op_behind = after_substring[:2]
+                elif after_substring[0] in self._op_precedence_dict:
+                    op_behind = after_substring[0]
+
                 # Check operator precedence to avoid false positives
-                if op_front in self._op_precedence_dict and self._is_precedent(op_front, op):
+                if op_front and self._is_precedent(op_front, op):
                     continue
-                if op_behind in self._op_precedence_dict and self._is_precedent(op_behind, op):
+                if op_behind and self._is_precedent(op_behind, op):
                     continue
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
