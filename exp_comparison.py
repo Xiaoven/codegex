@@ -8,7 +8,8 @@ from patterns.models.engine import DefaultEngine
 from rparser import parse
 from timer import Timer
 
-BASE_PATH = '/home/xiaowen/Project/rbugs_experiments/github-repos'
+# BASE_PATH = '/home/xiaowen/Project/rbugs_experiments/github-repos'
+BASE_PATH = '/Users/audrey/Documents/GitHub/rbugs/comparison'
 LOG_PATH = 'comparison_exp'
 
 TASK_MAIN = 'task_main'
@@ -41,8 +42,7 @@ def exec_task(file_dict: dict):
         patchset = []
         for file_path in file_list:
             with open(file_path, 'r') as f:
-                patch = parse(f.read(), is_patch=False)
-                patch.name = file_path
+                patch = parse(f.read(), is_patch=False, name=file_path)
                 patchset.append(patch)
 
         # run detectors
