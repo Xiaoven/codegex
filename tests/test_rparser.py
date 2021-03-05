@@ -465,3 +465,35 @@ def test_11():
 + * To configure the check for fields only:
   * </p>''')
     assert len(patch.hunks[0].lines) == 0
+
+
+# src/main/java/fr/alasdiablo/janoeo/world/gen/feature/OresFeatures.java
+def test_12():
+    patch = parse('''@@ -231,7 +234,7 @@ public static void initDenseOre() {
+                     FREQUENCY_CONFIG.DENSE_COPPER_ORE_COUNT.get(),
+                     FREQUENCY_CONFIG.DENSE_COPPER_ORE_BOTTOM.get(),
+                     FREQUENCY_CONFIG.DENSE_COPPER_ORE_TOP.get()
+-            );
++            );*/
+     }
+ 
+     /**
+''')
+    assert len(patch.hunks[0].lines) == 2
+
+
+# sistemafinanciero/src/main/java/ec/ups/edu/sistemafinanciero/dao/TransaccionDAO.java
+def test_13():
+    patch = parse('''@@ -40,7 +42,9 @@ public boolean insert(Transaccion transaccion) throws SQLException {
+     	.setParameter(10, transaccion.getSladoActual())
+ 		.setParameter(11, transaccion.getCajero().getId())
+ 		.setParameter(12, transaccion.getCliente().getIdClienteLong())
+-		.executeUpdate();
++		.executeUpdate();*/
++		em.persist(transaccion);
++		em.flush();
+ 		return true;
+ 	}
+ 	/**
+''')
+    assert len(patch.hunks[0].lines) == 5

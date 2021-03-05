@@ -282,7 +282,7 @@ def _parse_hunk(stream, hunk=None):
             elif not del_multi_comment and _check_multiline_comment_end(line_obj.content):
                 _skip_started_incomplete_multi_line_comments(line_obj, hunk)
                 del_statement = None
-                if common_statement:
+                if common_statement and not incomplete_common_statement[1]:
                     add_multi_comment = True
             elif _check_statement_end(line_obj.content):  # whether line is a complete statement or not
                 # trim blank line or single-line comments
@@ -339,7 +339,7 @@ def _parse_hunk(stream, hunk=None):
             elif not add_multi_comment and _check_multiline_comment_end(line_obj.content):
                 _skip_started_incomplete_multi_line_comments(line_obj, hunk)
                 add_statement = None
-                if common_statement:
+                if common_statement and not incomplete_common_statement[0]:
                     del_multi_comment = True
             elif _check_statement_end(line_obj.content):
                 trim_useless_content(line_obj)
