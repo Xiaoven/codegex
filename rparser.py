@@ -32,10 +32,10 @@ class Hunk:
 
 
 class Line:
-    def __init__(self, content, lineno=(-1, -1)):  # lineno的第一位是src里的lineno,第二位是tgt里的lineno
+    def __init__(self, content, lineno=(-1, -1), is_patch=True):  # lineno的第一位是src里的lineno,第二位是tgt里的lineno
         self.lineno = lineno
-        if content.startswith(('+', '-')):
-            self.prefix = content[0]
+        if is_patch and len(content) > 1:
+            self.prefix = content[0].strip()
             self.content = content[1:]
         else:
             self.prefix = ''
@@ -226,7 +226,7 @@ def _skip_started_incomplete_multi_line_comments(comment_end_line_obj: Line, hun
             hunk.addlines.append(i)
 
 
-def _parse_hunk(stream, hunk=None):
+def _parse_hunk(stream, is_patch, hunk=None):
     """
     Parse the content of a hunk
     :param stream: content to parse, exclude hunk header (i.e. '@@ -d,d +d,d @@')
@@ -254,7 +254,7 @@ def _parse_hunk(stream, hunk=None):
 
 
         # -------------------------- Del line -----------------------------
-        if line.startswith("-"):
+        if is_patch and line.startswith("-"):
             cnt_dict['linessrc'] += 1
             line_obj = Line(line, (cnt_dict['linessrc'], -1))
 
@@ -311,7 +311,7 @@ def _parse_hunk(stream, hunk=None):
                 else:
                     del_statement.append_sub_line(line_obj)
         # -------------------------- Add line -----------------------------
-        elif line.startswith("+"):
+        elif is_patch and line.startswith("+"):
             cnt_dict['linestgt'] += 1
             line_obj = Line(line, (-1, cnt_dict['linestgt']))
 
@@ -371,7 +371,7 @@ def _parse_hunk(stream, hunk=None):
         else:
             cnt_dict['linessrc'] += 1
             cnt_dict['linestgt'] += 1
-            line_obj = Line(line, (cnt_dict['linessrc'], cnt_dict['linestgt']))
+            line_obj = Line(line, (cnt_dict['linessrc'], cnt_dict['linestgt']), is_patch)
 
             if not (del_multi_comment or add_multi_comment) and _check_multiline_comment_start(line_obj.content):
                 add_multi_comment = True
@@ -443,7 +443,10 @@ def _parse_hunk(stream, hunk=None):
                     add_statement, add_multi_comment = None, False
                 else:
                     # multi-line comments
-                    add_statement.append_sub_line(line_obj)
+                    try:
+                        add_statement.append_sub_line(line_obj)
+                    except Exception as e:
+                        print(e)
 
                     # code branch: turn common line to added line
                     line_obj = copy.deepcopy(line_obj)
@@ -534,7 +537,7 @@ def parse(stream, is_patch=True, name=''):
     patch.name = name
     try:
         if not is_patch:
-            patch.hunks.append(_parse_hunk(stream, Hunk()))
+            patch.hunks.append(_parse_hunk(stream, is_patch, Hunk()))
         else:
             hunk_bounds = []
 
@@ -552,9 +555,9 @@ def parse(stream, is_patch=True, name=''):
             last_end = hunk_bounds[0][1]
             for i in range(1, len(hunk_bounds)):
                 hunk_content = stream[last_end:hunk_bounds[i][0]]
-                _parse_hunk(hunk_content, patch.hunks[i - 1])
+                _parse_hunk(hunk_content, is_patch, patch.hunks[i - 1])
                 last_end = hunk_bounds[i][1]
-            _parse_hunk(stream[last_end:], patch.hunks[-1])
+            _parse_hunk(stream[last_end:], is_patch, patch.hunks[-1])
     except Exception as e:
         logger.error(f'[Parser Error] {name}\n{e}\n{traceback.format_exc()}')
     return patch

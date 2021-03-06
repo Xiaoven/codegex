@@ -497,3 +497,10 @@ def test_13():
  	/**
 ''')
     assert len(patch.hunks[0].lines) == 5
+
+
+def test_file_01():
+    p = 'tests/data/Md4.java'
+    with open(p, 'r') as f:
+        patch = parse(f.read(), is_patch=False, name=p)
+        assert len(patch.hunks[0].lines) == 152
