@@ -48,6 +48,8 @@ params = [
      'return i | j & j;', 0, 0),
     (False, 'SA_SELF_COMPUTATION', 'DIY_08.java',
      'return i | j & j | z;', 0, 0),
+    (False, 'SA_SELF_COMPUTATION', 'DIY_09.java',
+     'double second = requestMetrics.endDate.getTime() - requestMetrics.endDate.getTime();', 0, 0),
     # ---------------- SA_SELF_COMPARISON ----------------------
     (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation_02.java',
      '''@NoWarning("SA_FIELD_SELF_COMPARISON")

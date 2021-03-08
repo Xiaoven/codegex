@@ -27,7 +27,7 @@ class FinalizerOnExitDetector(Detector):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('DM_RUN_FINALIZERS_ON_EXIT', confidence, context.cur_patch.name, line_no,
-                            'Method invokes dangerous method runFinalizersOnExit', sha=context.cur_patch.sha)
+                            'Method invokes dangerous method runFinalizersOnExit', sha=context.cur_patch.sha, line_content=context.cur_line.content)
             )
 
 
@@ -49,7 +49,7 @@ class RandomOnceDetector(Detector):
             line_no = get_exact_lineno(m.start(1), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('DMI_RANDOM_USED_ONLY_ONCE', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
-                            'Random object created and used only once', sha=context.cur_patch.sha)
+                            'Random object created and used only once', sha=context.cur_patch.sha, line_content=context.cur_line.content)
             )
             return
 
@@ -71,7 +71,7 @@ class RandomD2IDetector(Detector):
                 line_no = get_exact_lineno(m.end(2), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('RV_01_TO_INT', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
-                                'Random value from 0 to 1 is coerced to the integer 0', sha=context.cur_patch.sha)
+                                'Random value from 0 to 1 is coerced to the integer 0', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
                 return
 
@@ -108,7 +108,7 @@ class StringCtorDetector(Detector):
                 # m.start(1) is the offset of the naming group
                 line_no = get_exact_lineno(m.start(1), context.cur_line)[1]
                 self.bug_accumulator.append(BugInstance(p_type, priorities.MEDIUM_PRIORITY, context.cur_patch.name,
-                                                        line_no, description, sha=context.cur_patch.sha))
+                                                        line_no, description, sha=context.cur_patch.sha, line_content=context.cur_line.content))
                 return
 
 
@@ -178,4 +178,4 @@ class InvalidMinMaxDetector(Detector):
                         line_no = get_exact_lineno(m1.end(0), context.cur_line)[1]
                         self.bug_accumulator.append(
                             BugInstance('DM_INVALID_MIN_MAX', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
-                                        'Incorrect combination of Math.max and Math.min', sha=context.cur_patch.sha))
+                                        'Incorrect combination of Math.max and Math.min', sha=context.cur_patch.sha, line_content=context.cur_line.content))

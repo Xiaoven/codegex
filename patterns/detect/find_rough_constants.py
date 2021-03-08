@@ -70,7 +70,7 @@ class FindRoughConstantsDetector(Detector):
             if p < priorities.IGNORE_PRIORITY:
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 bug_ins = RoughConstantValueBugInstance("CNT_ROUGH_CONSTANT_VALUE", p, context.cur_patch.name, line_no,
-                                                        sha=context.cur_patch.sha)
+                                                        sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 bug_ins.gen_description(float_const, bad_const)
                 self.bug_accumulator.append(bug_ins)
                 return

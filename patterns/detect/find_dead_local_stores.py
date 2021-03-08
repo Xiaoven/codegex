@@ -33,6 +33,6 @@ class FindDeadLocalIncrementInReturn(Detector):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('DLS_DEAD_LOCAL_INCREMENT_IN_RETURN', priority, context.cur_patch.name,
-                            line_no, 'Useless increment in return statement', sha=context.cur_patch.sha)
+                            line_no, 'Useless increment in return statement', sha=context.cur_patch.sha, line_content=context.cur_line.content)
             )
 

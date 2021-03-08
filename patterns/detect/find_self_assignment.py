@@ -25,7 +25,7 @@ class CheckForSelfAssignment(Detector):
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('SA_SELF_ASSIGNMENT', Priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
-                                    'SA: Self assignment of field or variable', sha=context.cur_patch.sha)
+                                    'SA: Self assignment of field or variable', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
 
 
@@ -46,5 +46,5 @@ class CheckForSelfDoubleAssignment(Detector):
                     self.bug_accumulator.append(
                         BugInstance('SA_DOUBLE_ASSIGNMENT', Priorities.HIGH_PRIORITY, context.cur_patch.name,
                                     line_no,
-                                    'SA: Double assignment of field or local variable', sha=context.cur_patch.sha)
+                                    'SA: Double assignment of field or local variable', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )

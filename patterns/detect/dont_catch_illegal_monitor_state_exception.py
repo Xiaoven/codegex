@@ -35,6 +35,6 @@ class DontCatchIllegalMonitorStateException(Detector):
                     self.bug_accumulator.append(
                         BugInstance('IMSE_DONT_CATCH_IMSE', priorities.HIGH_PRIORITY,
                                     context.cur_patch.name, line_no,
-                                    'Dubious catching of IllegalMonitorStateException', sha=context.cur_patch.sha)
+                                    'Dubious catching of IllegalMonitorStateException', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
                     return

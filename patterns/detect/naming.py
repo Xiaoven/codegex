@@ -39,7 +39,7 @@ class SimpleSuperclassNameDetector(Detector):
                     self.bug_accumulator.append(
                         BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', HIGH_PRIORITY,
                                     context.cur_patch.name, line_no,
-                                    'Class names shouldn’t shadow simple name of superclass', sha=context.cur_patch.sha)
+                                    'Class names shouldn’t shadow simple name of superclass', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
 
 
@@ -80,7 +80,7 @@ class SimpleInterfaceNameDetector(Detector):
                         BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', MEDIUM_PRIORITY,
                                     context.cur_patch.name, line_no,
                                     'Class or interface names shouldn’t shadow simple name of implemented interface',
-                                    sha=context.cur_patch.sha)
+                                    sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
 
 
@@ -103,7 +103,7 @@ class HashCodeNameDetector(Detector):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('NM_LCASE_HASHCODE', HIGH_PRIORITY, context.cur_patch.name, line_no,
-                            "Class defines hashcode(); should it be hashCode()?", sha=context.cur_patch.sha))
+                            "Class defines hashcode(); should it be hashCode()?", sha=context.cur_patch.sha, line_content=context.cur_line.content))
 
 
 class ToStringNameDetector(Detector):
@@ -124,7 +124,7 @@ class ToStringNameDetector(Detector):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('NM_LCASE_TOSTRING', HIGH_PRIORITY, context.cur_patch.name, line_no,
-                            'Class defines tostring(); should it be toString()?', sha=context.cur_patch.sha))
+                            'Class defines tostring(); should it be toString()?', sha=context.cur_patch.sha, line_content=context.cur_line.content))
 
 
 class EqualNameDetector(Detector):
@@ -146,7 +146,7 @@ class EqualNameDetector(Detector):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('NM_BAD_EQUAL', HIGH_PRIORITY, context.cur_patch.name, line_no,
-                            'Class defines equal(Object); should it be equals(Object)?', sha=context.cur_patch.sha))
+                            'Class defines equal(Object); should it be equals(Object)?', sha=context.cur_patch.sha, line_content=context.cur_line.content))
 
 
 class ClassNameConventionDetector(Detector):
@@ -178,7 +178,7 @@ class ClassNameConventionDetector(Detector):
                     self.bug_accumulator.append(
                         BugInstance('NM_CLASS_NAMING_CONVENTION', priority, context.cur_patch.name, line_no,
                                     'Nm: Class names should start with an upper case letter',
-                                    sha=context.cur_patch.sha))
+                                    sha=context.cur_patch.sha, line_content=context.cur_line.content))
 
 
 class MethodNameConventionDetector(Detector):
@@ -234,7 +234,7 @@ class MethodNameConventionDetector(Detector):
                     self.bug_accumulator.append(
                         BugInstance('NM_METHOD_NAMING_CONVENTION', priority, context.cur_patch.name, line_no,
                                     'Nm: Method names should start with a lower case letter',
-                                    sha=context.cur_patch.sha))
+                                    sha=context.cur_patch.sha, line_content=context.cur_line.content))
                     return
 
     def _local_search(self, context):

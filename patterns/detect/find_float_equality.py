@@ -28,6 +28,6 @@ class FloatEqualityDetector(Detector):
                     self.bug_accumulator.append(
                         BugInstance('FE_TEST_IF_EQUAL_TO_NOT_A_NUMBER', priorities.HIGH_PRIORITY,
                                     context.cur_patch.name, line_no,
-                                    "Doomed test for equality to NaN", sha=context.cur_patch.sha)
+                                    "Doomed test for equality to NaN", sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
                     return

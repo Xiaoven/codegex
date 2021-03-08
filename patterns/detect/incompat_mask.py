@@ -92,7 +92,7 @@ class IncompatMaskDetector(Detector):
             if p_type is not None:
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(BugInstance(p_type, priority, context.cur_patch.name, line_no, description,
-                                                        sha=context.cur_patch.sha))
+                                                        sha=context.cur_patch.sha, line_content=context.cur_line.content))
 
 
 
