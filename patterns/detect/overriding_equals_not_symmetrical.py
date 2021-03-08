@@ -44,5 +44,5 @@ class EqualsClassNameDetector(Detector):
                 self.bug_accumulator.append(
                     BugInstance('EQ_COMPARING_CLASS_NAMES', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
                                 line_no, 'Equals method compares class names rather than class objects',
-                                sha=context.cur_patch.sha))
+                                sha=context.cur_patch.sha, line_content=context.cur_line.content))
                 return

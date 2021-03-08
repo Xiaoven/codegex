@@ -34,4 +34,4 @@ class BooleanAssignmentDetector(Detector):
                 self.bug_accumulator.append(
                     BugInstance('QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT', priorities.HIGH_PRIORITY, context.cur_patch.name,
                                 line_no, 'Method assigns boolean literal in boolean expression',
-                                sha=context.cur_patch.sha))
+                                sha=context.cur_patch.sha, line_content=context.cur_line.content))

@@ -35,10 +35,10 @@ class StaticDateFormatDetector(Detector):
                     BugInstance('STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE',
                                 priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no,
                                 f"{field_name} is a static field of type java.text.DateFormat, which isn't thread safe",
-                                sha=context.cur_patch.sha))
+                                sha=context.cur_patch.sha, line_content=context.cur_line.content))
             else:
                 self.bug_accumulator.append(
                     BugInstance('STCAL_STATIC_CALENDAR_INSTANCE',
                                 priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no,
                                 f"{field_name} is a static field of type java.util.Calendar, which isn't thread safe",
-                                sha=context.cur_patch.sha))
+                                sha=context.cur_patch.sha, line_content=context.cur_line.content))

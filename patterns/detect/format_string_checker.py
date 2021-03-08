@@ -58,7 +58,7 @@ class NewLineDetector(Detector):
                     line_no = get_exact_lineno(offset+m_newline.start(1), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('VA_FORMAT_STRING_USES_NEWLINE', priority, context.cur_patch.name, line_no,
-                                    'Format string should use %n rather than \\n', sha=context.cur_patch.sha)
+                                    'Format string should use %n rather than \\n', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
                     return
 

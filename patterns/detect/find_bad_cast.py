@@ -28,6 +28,6 @@ class FindBadCastDetector(Detector):
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY', priorities.HIGH_PRIORITY, context.cur_patch.name,
-                                line_no, "BC: Impossible downcast of toArray() result", sha=context.cur_patch.sha)
+                                line_no, "BC: Impossible downcast of toArray() result", sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
 

@@ -22,7 +22,7 @@ class ExplicitInvDetector(Detector):
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('FI_EXPLICIT_INVOCATION', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
-                                'Explicit invocation of Object.finalize()', sha=context.cur_patch.sha)
+                                'Explicit invocation of Object.finalize()', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
 
 
@@ -41,5 +41,5 @@ class PublicAccessDetector(Detector):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
-                            line_no, 'Finalizer should be protected, not public', sha=context.cur_patch.sha)
+                            line_no, 'Finalizer should be protected, not public', sha=context.cur_patch.sha, line_content=context.cur_line.content)
             )

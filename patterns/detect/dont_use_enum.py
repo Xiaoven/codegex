@@ -29,7 +29,7 @@ class DontUseEnumDetector(Detector):
                     BugInstance('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', priorities.MEDIUM_PRIORITY,
                                 context.cur_patch.name, line_no,
                                 'Nm: Use of identifier that is a keyword in later versions of Java',
-                                sha=context.cur_patch.sha)
+                                sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
                 return
 
@@ -43,6 +43,6 @@ class DontUseEnumDetector(Detector):
                     BugInstance('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', priorities.MEDIUM_PRIORITY,
                                 context.cur_patch.name, line_no,
                                 'Nm: Use of identifier that is a keyword in later versions of Java',
-                                sha=context.cur_patch.sha)
+                                sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
                 return

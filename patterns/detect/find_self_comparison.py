@@ -62,7 +62,7 @@ class CheckForSelfComputation(Detector):
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('SA_SELF_COMPUTATION', Priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no,
-                                'Nonsensical self computation involving a variable or field', sha=context.cur_patch.sha)
+                                'Nonsensical self computation involving a variable or field', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
                 return
 
@@ -141,5 +141,5 @@ class CheckForSelfComparison(Detector):
             line_no = get_exact_lineno(match_end, context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('SA_SELF_COMPARISON', Priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no,
-                            'Self comparison of value or field with itself', sha=context.cur_patch.sha)
+                            'Self comparison of value or field with itself', sha=context.cur_patch.sha, line_content=context.cur_line.content)
             )
