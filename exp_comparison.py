@@ -154,5 +154,5 @@ if __name__ == '__main__':
             f.write('{:<30s} {:<10f} seconds\n'.format(project_name, Timer.timers[project_name]))
         f.write(format('', '->40s') + '\n')
         for key, time_s in Timer.timers.items():
-            if key != 'total' or key not in project_name_list:
+            if key != 'Total' and key not in project_name_list:
                 f.write('{:<30s} {:<10f} seconds\n'.format(key, time_s))
