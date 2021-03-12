@@ -3,6 +3,7 @@ from utils import log_message
 from gen_detectors import DETECTOR_DICT
 from .priorities import *
 from .context import Context
+from timer import Timer
 
 
 class BaseEngine:
@@ -103,8 +104,13 @@ class DefaultEngine(BaseEngine):
                 self.context.cur_line_idx = i
                 self.context.cur_line = hunk.lines[i]
 
+                detector_timers = dict()
                 for name, detector in self._detectors.items():
+                    if name not in detector_timers:
+                        detector_timers[name] = Timer(name=name, logger=None)
+                    detector_timers[name].start()
                     detector.match(self.context)
+                    detector_timers[name].stop()
 
         # collect bug instances
         for detector in list(self._detectors.values()):
