@@ -8,7 +8,7 @@ params = [
     # https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugsTestCases/src/java/bugIdeas/Ideas_2010_10_11.java
     ('BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY', 'Ideas_2010_10_11',
      '''public class Ideas_2010_10_11 {
-     
+
     @ExpectWarning("BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY")
     public void cascadeDelete(Collection value) throws RemoveException
     {
@@ -59,6 +59,9 @@ params = [
     }
 }
      ''', 1, 3),
+    # https://github.com/biojava/biojava/blob/master/biojava-structure/src/test/java/org/biojava/nbio/structure/io/mmtf/TestMmtfUtils.java#L250
+    ('BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY', 'biojava/TestMmtfUtils.java',
+     'assertArrayEquals(testData, (double[]) transMap.keySet().toArray()[0], 0.0);', 0, 0),
 ]
 
 
