@@ -108,6 +108,9 @@ def get_string_ranges(content: str):
     range_list = list()
     tmp_list = list()
     if content:
+        if content.startswith('"'):  # the leading quote won't be matched by regex, but should be added to tmp_list
+            tmp_list.append(0)
+
         its = DOUBLE_QUOTE_REGEX.finditer(content)
         for m in its:
             tmp_list.append(m.start(1))

@@ -73,7 +73,7 @@ class CheckForSelfComparison(Detector):
         self.pattern_1 = regex.compile(
             r'(\b\w[\w.]*(?P<aux1>\((?:[^()]++|(?&aux1))*\))*)\s*(==|!=|>=|<=|>|<)\s*([\w.]+(?&aux1)*)')
         self.pattern_2 = regex.compile(
-            r'\b((?:[\w\.$"]|(?:\(\s*\)))+)\s*\.\s*(?:equals|compareTo|endsWith|startsWith|contains|equalsIgnoreCase|compareToIgnoreCase)(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
+            r'((?:"|\b\w|(?P<aux1>\((?:[^()]++|(?&aux1))*\)))(?:[\w\.$"]|(?&aux1))*?)\s*\.\s*(?:equals|compareTo|endsWith|startsWith|contains|equalsIgnoreCase|compareToIgnoreCase)((?&aux1))')
         Detector.__init__(self)
 
     def match(self, context):
@@ -119,12 +119,10 @@ class CheckForSelfComparison(Detector):
                                                                  'compareToIgnoreCase')):
             its = self.pattern_2.finditer(line_content)
             for m in its:
-                op_offset = m.start()
-                if in_range(op_offset, string_ranges):
+                if in_range(m.start(3), string_ranges):
                     continue
-                g = m.groups()
-                before_method = g[0]
-                after_method = g[-1].strip()
+                before_method = m.group(1)
+                after_method = m.group(3)[1:-1].strip()  # remove '(' and ')', then strip
 
                 if before_method == after_method:
                     hit = True
