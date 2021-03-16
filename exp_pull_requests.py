@@ -8,10 +8,11 @@ from patterns.models.engine import DefaultEngine
 from rparser import parse
 from utils import create_missing_dirs
 from timer import Timer
-
+from gen_detectors import DETECTOR_DICT
 
 root = 'PullRequests/java/files'
 report_path = 'PullRequests/report'
+create_missing_dirs(report_path)
 
 RE_SHA = re.compile(r'https://github\.com/[^/]+/[^/]+/blob/(\w+)/')
 
@@ -87,7 +88,7 @@ def sum_time_and_warnings():
             sum += v
         print(f'sum of diversity = {sum}')
 
-    with open(f'{report_path}/timer.json', 'r') as f:
+    with open(f'{report_path}/time_projects.json', 'r') as f:
         jfile = json.load(f)
         sum = 0
         for k, v in jfile.items():
@@ -149,8 +150,17 @@ def run():
                     json.dump(bugs_json, out)
             pr_timer.stop()
 
-    with open(path.join(report_path, 'timer.json'), 'w') as logfile:
-        json.dump(Timer.timers, logfile)
+    project_time_dict = dict()
+    detector_time_dict = dict()
+    for k, v in Timer.timers.items():
+        if k not in DETECTOR_DICT:
+            project_time_dict[k] = v
+        else:
+            detector_time_dict[k] = v
+    with open(path.join(report_path, 'time_projects.json'), 'w') as logfile:
+        json.dump(project_time_dict, logfile)
+    with open(path.join(report_path, 'time_detectors.json'), 'w') as logfile:
+        json.dump(detector_time_dict, logfile)
 
 
 if __name__ == '__main__':
