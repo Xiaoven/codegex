@@ -1,7 +1,7 @@
 import copy
 import re
 from io import StringIO
-from utils import logger
+from utils import logger, get_string_ranges, in_range
 import traceback
 
 
@@ -35,6 +35,7 @@ class Line:
     def __init__(self, content, lineno=(-1, -1), is_patch=True):  # lineno的第一位是src里的lineno,第二位是tgt里的lineno
         self.lineno = lineno
         if is_patch and len(content) > 1:
+            # In patch, the first character is reserved to indicate if the line is deleted or added
             self.prefix = content[0].strip()
             self.content = content[1:]
         else:
@@ -102,7 +103,6 @@ class VirtualStatement(Line):
         return None
 
 
-
 class Patch:
     """ Patch for a single file.
         If used as an iterable, returns hunks.
@@ -120,24 +120,11 @@ class Patch:
 
 
 # --------------------------------------------------------------------------------------
-re_stmt_end = re.compile(r'[;{}](\s*//[^\n]*)?$')
+re_stmt_end = re.compile(r'[;{}]\s*$')
 re_annotation = re.compile(r'^@[\w\_$]+(?:\(.*\))?$')
-
-
-def trim_useless_content(line_obj: Line):
-    """
-    Remove single-line comment from line
-    :param line: the original line content
-    :return: the trimmed line content
-    """
-    strip_line = line_obj.content.strip()
-    if not strip_line or strip_line.startswith('//'):
-        line_obj.content = ''
-    else:
-        m = re_stmt_end.search(line_obj.content)
-        if m and m.groups()[0]:
-            group_start = m.start(1)  # get the start of the first group
-            line_obj.content = line_obj.content[:group_start]
+ann_left = re.compile(r'/\*')
+ann_right = re.compile(r'\*/')
+ann_slash = re.compile(r'//')
 
 
 def _check_statement_end(line: str):
@@ -244,19 +231,35 @@ def _parse_hunk(stream, is_patch, hunk=None):
     all_lines_start_with_star = True
 
     for line in StringIO(stream):
-        if '/*' in line and '*/' in line:
-            line = re.sub(r'/\*.*\*/', '', line)
+        line_obj = Line(line, is_patch=is_patch)
 
-        strip_content = line[1:] if line.startswith("-") or line.startswith("+") else line
-        strip_content = strip_content.strip()
+        # remove single-line annotation from line content
+        string_ranges = get_string_ranges(line_obj.content)
+
+        left_stars = [m.start() for m in ann_left.finditer(line_obj.content) if not in_range(m.start(), string_ranges)]
+        right_stars = [m.end() for m in ann_right.finditer(line_obj.content) if not in_range(m.start(), string_ranges)]
+        if left_stars and right_stars:
+            old_content = line_obj.content
+            line_obj.content = old_content[:left_stars[0]] + old_content[right_stars[-1]:]
+            string_ranges = get_string_ranges(line_obj.content)
+
+        slash_starts = [m.start() for m in ann_slash.finditer(line_obj.content) if not in_range(m.start(), string_ranges)]
+        if slash_starts:
+            line_obj.content = line_obj.content[:slash_starts[0]]
+
+        # trim empty line, it will be skip in following branches
+        strip_content = line_obj.content.strip()
+        if not strip_content:
+            line_obj.content = strip_content
+
+        # flag for special hunk
         if strip_content and not strip_content.startswith("*"):
             all_lines_start_with_star = False
 
-
         # -------------------------- Del line -----------------------------
-        if is_patch and line.startswith("-"):
+        if line_obj.prefix == "-":
             cnt_dict['linessrc'] += 1
-            line_obj = Line(line, (cnt_dict['linessrc'], -1))
+            line_obj.lineno = (cnt_dict['linessrc'], -1)
 
             if common_statement:
                 incomplete_common_statement[0] = True
@@ -285,8 +288,6 @@ def _parse_hunk(stream, is_patch, hunk=None):
                 if common_statement and not incomplete_common_statement[1]:
                     add_multi_comment = True
             elif _check_statement_end(line_obj.content):  # whether line is a complete statement or not
-                # trim blank line or single-line comments
-                trim_useless_content(line_obj)
                 if not line_obj.content:
                     continue  # skip blank line or single line comments
 
@@ -311,9 +312,9 @@ def _parse_hunk(stream, is_patch, hunk=None):
                 else:
                     del_statement.append_sub_line(line_obj)
         # -------------------------- Add line -----------------------------
-        elif is_patch and line.startswith("+"):
+        elif line_obj.prefix == "+":
             cnt_dict['linestgt'] += 1
-            line_obj = Line(line, (-1, cnt_dict['linestgt']))
+            line_obj.lineno = (-1, cnt_dict['linestgt'])
 
             if common_statement:
                 incomplete_common_statement[1] = True
@@ -342,7 +343,6 @@ def _parse_hunk(stream, is_patch, hunk=None):
                 if common_statement and not incomplete_common_statement[0]:
                     del_multi_comment = True
             elif _check_statement_end(line_obj.content):
-                trim_useless_content(line_obj)
                 if not line_obj.content:
                     continue  # skip blank line or single line comments
 
@@ -371,7 +371,7 @@ def _parse_hunk(stream, is_patch, hunk=None):
         else:
             cnt_dict['linessrc'] += 1
             cnt_dict['linestgt'] += 1
-            line_obj = Line(line, (cnt_dict['linessrc'], cnt_dict['linestgt']), is_patch)
+            line_obj.lineno = (cnt_dict['linessrc'], cnt_dict['linestgt'])
 
             if not (del_multi_comment or add_multi_comment) and _check_multiline_comment_start(line_obj.content):
                 add_multi_comment = True
@@ -422,7 +422,6 @@ def _parse_hunk(stream, is_patch, hunk=None):
                     line_obj.prefix = '+'
 
                     if _check_statement_end(line_obj.content):
-                        trim_useless_content(line_obj)
                         if not line_obj.content:
                             continue  # skip blank line or single line comments
 
@@ -443,17 +442,13 @@ def _parse_hunk(stream, is_patch, hunk=None):
                     add_statement, add_multi_comment = None, False
                 else:
                     # multi-line comments
-                    try:
-                        add_statement.append_sub_line(line_obj)
-                    except Exception as e:
-                        print(e)
+                    add_statement.append_sub_line(line_obj)
 
                     # code branch: turn common line to added line
                     line_obj = copy.deepcopy(line_obj)
                     line_obj.prefix = '-'
 
                     if _check_statement_end(line_obj.content):
-                        trim_useless_content(line_obj)
                         if not line_obj.content:
                             continue  # skip blank line or single line comments
 
@@ -471,8 +466,7 @@ def _parse_hunk(stream, is_patch, hunk=None):
             elif not del_multi_comment and not add_multi_comment and _check_multiline_comment_end(line_obj.content):
                 _skip_started_incomplete_multi_line_comments(line_obj, hunk)
                 common_statement, add_statement, del_statement = None, None, None
-            elif _check_statement_end(line):
-                trim_useless_content(line_obj)
+            elif _check_statement_end(line_obj.content):
                 if not line_obj.content:
                     continue  # skip blank line or single line comments
 
