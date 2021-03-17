@@ -128,6 +128,14 @@ params = [
     # https://github.com/sunjincheng121/incubator-iotdb/blob/9d40954fdcbe67bf20fed063208b31b23d5650dd/cli/src/main/java/org/apache/iotdb/tool/ExportCsv.java#L343
     (False, 'SA_SELF_COMPARISON', 'incubator_iotdb.java',
      '} else if (value.contains(",")) {', 0, 0),
+    # https://github.com/biojava/biojava/blob/master/biojava-ontology/src/main/java/org/biojava/nbio/ontology/utils/AbstractAnnotation.java#L236
+    (False, 'SA_SELF_COMPARISON', 'biojava/AbstractAnnotation.java',
+     'return ((Annotation) o).asMap().equals(asMap());', 0, 0),
+    # https://github.com/micromata/projectforge/blob/develop/projectforge-wicket/src/main/java/org/projectforge/web/task/TaskTreeProvider.java#L198
+    (False, 'SA_SELF_COMPARISON', 'biojava/AbstractAnnotation.java',
+     'return ((TaskNodeModel) obj).id.equals(id);', 0, 0),
+    (False, 'SA_SELF_COMPARISON', 'Fake_14.java',
+     '"abc".equals("abc");', 1, 1),
 ]
 
 

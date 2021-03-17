@@ -9,41 +9,41 @@ params = [
     # From other repository: https://github.com/tesshucom/jpsonic/commit/04425589726efad5532e5828326f2de38e643cb1
     (True, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'AirsonicSpringLiquibase.java',
      '''@@ -15,8 +15,9 @@
-import java.sql.Connection;
-import java.util.List;
+ import java.sql.Connection;
+ import java.util.List;
 
-public class SpringLiquibase extends liquibase.integration.spring.SpringLiquibase''', 1, 18),
+ public class SpringLiquibase extends liquibase.integration.spring.SpringLiquibase''', 1, 18),
     # DIY from: https://github.com/makotoarakaki/aipo/commit/b4eae261c527a41af1ade5b1d1fa95548f9a36cc
     (True, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'ALActivityImpl.java',
      '''@@ -29,8 +29,9 @@
-public class ALActivityImpl extends org.apache.shindig.social.core.model.ALActivityImpl implements Activity {''', 1,
+ public class ALActivityImpl extends org.apache.shindig.social.core.model.ALActivityImpl implements Activity {''', 1,
      29),
     # From other repository: https://github.com/tesshucom/jpsonic/commit/e82450ff9e8cd81ac0122de9f268f36c68683464
     (True, 'NM_SAME_SIMPLE_NAME_AS_INTERFACE', 'AirsonicLocaleResolver.java',
      '''@@ -39,7 +39,7 @@
-* @author Sindre Mehus
-*/
-@Service
-public class LocaleResolver implements org.springframework.web.servlet.LocaleResolver {
+ * @author Sindre Mehus
+ */
+ @Service
+ public class LocaleResolver implements org.springframework.web.servlet.LocaleResolver {
 +public class AirsonicLocaleResolver implements org.springframework.web.servlet.LocaleResolver {''', 1, 42),
     # From other repository: https://github.com/hashbase/hashbase/commit/c47511baa7a8e50cecc9296f685b49249174cc77
     (True, 'NM_SAME_SIMPLE_NAME_AS_INTERFACE', 'Future.java',
      '''@@ -26,6 +26,9 @@
  */
-@InterfaceAudience.Public
-@InterfaceStability.Evolving
-public interface Future<V> extends io.netty.util.concurrent.Future<V> {''', 1, 29),
+ @InterfaceAudience.Public
+ @InterfaceStability.Evolving
+ public interface Future<V> extends io.netty.util.concurrent.Future<V> {''', 1, 29),
     # DIY
-    (False, 'NM_SAME_SIMPLE_NAME_AS_INTERFACE', 'AirsonicLocaleResolver.java',
+    (False, 'NM_SAME_SIMPLE_NAME_AS_INTERFACE', 'AirsonicLocaleResolver_01.java',
      '''public class LocaleResolver extends DIYClass implements DIYInterface, org.springframework.web.servlet.LocaleResolver {''',
      1, 1),
     # DIY
     (True, 'NM_SAME_SIMPLE_NAME_AS_INTERFACE', 'Future.java',
      '''@@ -26,6 +26,9 @@
-*/
-@InterfaceAudience.Public
-@InterfaceStability.Evolving
-public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future<V> {''', 1, 29),
+ */
+ @InterfaceAudience.Public
+ @InterfaceStability.Evolving
+ public interface Future<V> extends DIYInterface, io.netty.util.concurrent.Future<V> {''', 1, 29),
     # https://github.com/elastic/elasticsearch/blob/master/plugins/analysis-icu/src/main/java/org/elasticsearch/index/mapper/ICUCollationKeywordFieldMapper.java#L188
     (False, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'ICUCollationKeywordFieldMapper.java',
      '''public class ICUCollationKeywordFieldMapper extends FieldMapper {
@@ -200,6 +200,13 @@ public enum Ternary implements Serializable, IsSerializable {
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_44.java',
      ''' public enum headerMenuData {
     Home("Home"),''', 0, 0),
+    # https://github.com/eclipse/jetty.project/blob/jetty-10.0.x/jetty-client/src/test/java/org/eclipse/jetty/client/ssl/SslBytesServerTest.java#L1027
+    (False, 'NM_METHOD_NAMING_CONVENTION', 'jetty.project/SslBytesServerTest.java',
+    '''    @Test
+    @DisabledOnOs(WINDOWS) // Don't run on Windows (buggy JVM)
+    public void testRequestWithBigContentWriteBlockedThenReset() throws Exception
+    {
+        final SSLSocket client = newClient();''', 0, 0),
 ]
 
 

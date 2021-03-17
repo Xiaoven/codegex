@@ -107,15 +107,24 @@ def get_string_ranges(content: str):
     """
     range_list = list()
     tmp_list = list()
-    if content:
-        its = DOUBLE_QUOTE_REGEX.finditer(content)
-        for m in its:
-            tmp_list.append(m.start(1))
 
+    if not content or '"' not in content:
+        return range_list
+
+    # find the offset of each double quote
+    if content.startswith('"'):  # the leading quote won't be matched by regex, but should be added to tmp_list
+        tmp_list.append(0)
+
+    its = DOUBLE_QUOTE_REGEX.finditer(content)
+    for m in its:
+        tmp_list.append(m.start(1))
+
+    # whether double quotes appear in pairs
     size = len(tmp_list)
     if size % 2 != 0:
         tmp_list.append(len(content) - 1)
 
+    # pair double quotes in order
     i = 0
     while i < size:
         range_list.append((tmp_list[i], tmp_list[i+1] + 1))

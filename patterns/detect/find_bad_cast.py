@@ -22,9 +22,12 @@ class FindBadCastDetector(Detector):
             start_offset = m.start(0)
             if in_range(start_offset, string_ranges):
                 continue
-            g = m.groups()
 
-            if g[0] != 'Object' and 'Arrays.asList' not in line_content:
+            right_substring = line_content[m.end(0):].strip()
+            if right_substring[0] == '[':
+                continue
+
+            if m.group(1) != 'Object' and 'Arrays.asList' not in line_content:
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY', priorities.HIGH_PRIORITY, context.cur_patch.name,
