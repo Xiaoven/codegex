@@ -78,4 +78,10 @@ A light-weight tool like spotbugs
           pass
         ```
 
-        
+## 总结
+
+### expression level 中检查特定的 method invocation 的，有3种情况比较实现：
+1. method name 比较特别，比如 `finalize()`, `getClass().getResource(...)`, 虽然我们无法获取 object 的类型和 invoked method 的 signature信息，也不太容易出错。
+2. 对于比较 general 的  method name，比如 `add()`, 如果patterns检查它的特别用法，比如 `c.add(c)`, 我们也可以用正则实现，并且比较有把握说这样的invocation是有问题的
+3. static method，当不是 static import 时，我们可以匹配像 `ClassName.staticMethod(...)` 这样的用法，比如 static method  的例子可以是 `Object.equals(...)`, `EasyMock.verify()`, (easymock 这个我们还没有实现)，减少误报的可能
+
