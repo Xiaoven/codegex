@@ -56,67 +56,101 @@ def exec_task(file_dict: dict):
     return bug_instance_dict
 
 
-def detect_project(project_name: str, tasks=(TASK_MAIN, TASK_TEST)):
-    # get java files
-    source_paths = dict()
-    test_paths = dict()
-    other_paths = list()
-    project_path = path.join(BASE_PATH, project_name)
-    output = check_output(['find', project_path, '-name', '*.java']).decode('utf-8')
-    if not output.strip():
-        return
+# def detect_project(project_name: str, tasks=(TASK_MAIN, TASK_TEST)):
+#     # get java files
+#     source_paths = dict()
+#     test_paths = dict()
+#     other_paths = list()
+#     project_path = path.join(BASE_PATH, project_name)
+#     output = check_output(['find', project_path, '-name', '*.java']).decode('utf-8')
+#     if not output.strip():
+#         return
+#
+#     cnt_source, cnt_test = 0, 0
+#
+#     for file_path in output.splitlines():
+#         m = JAVA_FILE_PATTERN.match(file_path)
+#         if m:
+#             g = m.groups()
+#
+#             if g[1] == 'main' in file_path:
+#                 tmp_paths = source_paths.get(g[0], list())
+#                 tmp_paths.append(file_path)
+#                 source_paths[g[0]] = tmp_paths
+#                 cnt_source += 1
+#             elif g[1] == 'test' in file_path:
+#                 tmp_paths = source_paths.get(g[0], list())
+#                 tmp_paths.append(file_path)
+#                 test_paths[g[0]] = tmp_paths
+#                 cnt_test += 1
+#             else:
+#                 other_paths.append(file_path)
+#
+#             # if cnt_source + cnt_test >= 100:
+#             #     break
+#
+#     log_dir = path.join(LOG_PATH, project_name)
+#     os.makedirs(log_dir, exist_ok=True)
+#     logfile = path.join(log_dir, 'detect.log')
+#     empty_file(logfile)
+#
+#     append_file(logfile, f'source file num: {cnt_source}\ntest file num: {cnt_test}\n')
+#
+#     if other_paths:
+#         append_file(logfile, '------------------------- Unknown Java Files -------------------------\n'
+#                     + '\n'.join(other_paths) + '\n')
+#
+#     unknown_tasks = list()
+#     for task in tasks:
+#         bug_ins_dict = dict()
+#         log_file_name = ''
+#         if task == TASK_MAIN:
+#             append_file(logfile, '------------------------- Execute Task Main -------------------------\n')
+#             bug_ins_dict = exec_task(source_paths)
+#             log_file_name = 'main.csv'
+#         elif task == TASK_TEST:
+#             append_file(logfile, '------------------------- Execute Task Test -------------------------\n')
+#             bug_ins_dict = exec_task(test_paths)
+#             log_file_name = 'test.csv'
+#         else:
+#             unknown_tasks.append(task)
+#
+#         # write reports
+#         for subproject, bug_instances in bug_ins_dict.items():
+#             if bug_instances:
+#                 report_path = subproject.replace(BASE_PATH, log_dir)
+#                 os.makedirs(report_path, exist_ok=True)
+#                 report_path = path.join(report_path, log_file_name)
+#                 content = str()
+#                 for ins in bug_instances:
+#                     content += f'{ins.type},{ins.file_name},{ins.line_no}\n'
+#                 write_file(report_path, content)
+#                 append_file(logfile, f'Found {len(bug_instances)} violations: f{report_path}\n')
+#
+#     if unknown_tasks:
+#         append_file(logfile, '------------------------- Unknown Tasks -------------------------\n'
+#                     + '\n'.join(unknown_tasks) + '\n')
 
-    cnt_source, cnt_test = 0, 0
 
-    for file_path in output.splitlines():
-        m = JAVA_FILE_PATTERN.match(file_path)
-        if m:
-            g = m.groups()
+def detect_specified_paths(project_name: str, path_file: str):
+    path_list = list()
+    with open(path_file, 'r') as f:
+        path_list = [p.strip() for p in f.readlines()]
 
-            if g[1] == 'main' in file_path:
-                tmp_paths = source_paths.get(g[0], list())
-                tmp_paths.append(file_path)
-                source_paths[g[0]] = tmp_paths
-                cnt_source += 1
-            elif g[1] == 'test' in file_path:
-                tmp_paths = source_paths.get(g[0], list())
-                tmp_paths.append(file_path)
-                test_paths[g[0]] = tmp_paths
-                cnt_test += 1
-            else:
-                other_paths.append(file_path)
+    if path_list:
+        # create empty log file
+        log_dir = path.join(LOG_PATH, project_name)
+        os.makedirs(log_dir, exist_ok=True)
+        logfile = path.join(log_dir, 'detect.log')
+        empty_file(logfile)
+        append_file(logfile, f'Total number of files to analyze: {len(path_list)}')
 
-            # if cnt_source + cnt_test >= 100:
-            #     break
-
-    log_dir = path.join(LOG_PATH, project_name)
-    os.makedirs(log_dir, exist_ok=True)
-    logfile = path.join(log_dir, 'detect.log')
-    empty_file(logfile)
-
-    append_file(logfile, f'source file num: {cnt_source}\ntest file num: {cnt_test}\n')
-
-    if other_paths:
-        append_file(logfile, '------------------------- Unknown Java Files -------------------------\n'
-                    + '\n'.join(other_paths) + '\n')
-
-    unknown_tasks = list()
-    for task in tasks:
-        bug_ins_dict = dict()
-        log_file_name = ''
-        if task == TASK_MAIN:
-            append_file(logfile, '------------------------- Execute Task Main -------------------------\n')
-            bug_ins_dict = exec_task(source_paths)
-            log_file_name = 'main.csv'
-        elif task == TASK_TEST:
-            append_file(logfile, '------------------------- Execute Task Test -------------------------\n')
-            bug_ins_dict = exec_task(test_paths)
-            log_file_name = 'test.csv'
-        else:
-            unknown_tasks.append(task)
+        # analyze files
+        bug_instance_dict = exec_task(path_list)
 
         # write reports
-        for subproject, bug_instances in bug_ins_dict.items():
+        log_file_name = 'bug_instances.csv'
+        for subproject, bug_instances in bug_instance_dict.items():
             if bug_instances:
                 report_path = subproject.replace(BASE_PATH, log_dir)
                 os.makedirs(report_path, exist_ok=True)
@@ -126,10 +160,6 @@ def detect_project(project_name: str, tasks=(TASK_MAIN, TASK_TEST)):
                     content += f'{ins.type},{ins.file_name},{ins.line_no}\n'
                 write_file(report_path, content)
                 append_file(logfile, f'Found {len(bug_instances)} violations: f{report_path}\n')
-
-    if unknown_tasks:
-        append_file(logfile, '------------------------- Unknown Tasks -------------------------\n'
-                    + '\n'.join(unknown_tasks) + '\n')
 
 
 if __name__ == '__main__':
@@ -141,7 +171,7 @@ if __name__ == '__main__':
         project_timer = Timer(name=project_name, logger=None)
         project_timer.start()
 
-        detect_project(project_name)
+        # detect_project(project_name)
 
         project_timer.stop()
 
