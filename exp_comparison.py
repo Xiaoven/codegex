@@ -3,30 +3,29 @@ from os import path
 from subprocess import check_output
 import re
 import json
-
+import shutil
 from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
 from rparser import parse
 from timer import Timer
 
-BASE_PATH = '/Users/audrey/Documents/GitHub/rbugs/comparison'
-REPORT_PATH = BASE_PATH + '/report'
-REPO_PATH = BASE_PATH + '/repos'
-EXEC_LOG_PATH = BASE_PATH + '/execute_log'
-EXECUTE_PATH = BASE_PATH + '/exec_path'
-os.makedirs(EXECUTE_PATH, exist_ok=True)
+BASE_PATH = '/home/zhouying/git/rbugs'
+EXEC_LOG_PATH = '/home/zhouying/Documents/workspace/rbugs/experiment/log/exepath'
+REPORT_PATH = '/home/zhouying/Documents/workspace/rbugs/experiment/log/report/rbugs'
+REPO_PATH = '/home/zhouying/Documents/workspace/rbugs/experiment/top100repos'
+EXECUTE_PATH = BASE_PATH + '/execute_log'
+if os.path.exists(REPORT_PATH):
+    shutil.rmtree(REPORT_PATH)
+if os.path.exists(EXECUTE_PATH):
+    shutil.rmtree(EXECUTE_PATH)
 os.makedirs(REPORT_PATH, exist_ok=True)
+os.makedirs(EXECUTE_PATH, exist_ok=True)
 
 TASK_MAIN = 'task_main'
 TASK_TEST = 'task_test'
 
 JAVA_FILE_PATTERN = re.compile(r'^(.+?)/src/(main|test)/java/')
-
 ANALYZE_FILE = re.compile(r'\[java\] \w+\s+\d+: Analyzing classes \(')
-
-
-def empty_file(file_path: str):
-    open(file_path, 'w').close()
 
 
 def append_file(file_path: str, content: str):
@@ -61,8 +60,7 @@ def exec_task(file_list):
 
 def gen_analyze_paths():
     ls_result = os.listdir(EXEC_LOG_PATH)
-    project_names = [name.rstrip('.log') for name in ls_result if name.endswith('.log')]
-
+    project_names = [name[:-4] for name in ls_result if name.endswith('.log')]
     for name in project_names:
         files_to_analyze = set()
         with open(path.join(EXEC_LOG_PATH, name + '.log'), 'r') as f:
@@ -83,30 +81,34 @@ def gen_analyze_paths():
 
 def detect_project(project_name: str):
     # load files to analyze
-    with open(path.join(EXECUTE_PATH, project_name + '.json'), 'r') as f:
-        path_list = json.load(f)
+    try:
+        with open(path.join(EXECUTE_PATH, project_name + '.json'), 'r') as f:
+            path_list = json.load(f)
 
-    if path_list:
-        # analyze files
-        bug_instances = exec_task(path_list)
+        if path_list:
+            # analyze files
+            bug_instances = exec_task(path_list)
 
-        # write reports
-        if bug_instances:
-            repo_report_path = path.join(REPORT_PATH, project_name)
-            os.makedirs(repo_report_path, exist_ok=True)
-            # write csv
-            content = str()
-            for ins in bug_instances:
-                content += f'{ins.type},{ins.file_name},{ins.line_no}\n'
+            # write reports
+            if bug_instances:
+                repo_report_path = path.join(REPORT_PATH, project_name)
+                os.makedirs(repo_report_path, exist_ok=True)
+                # write csv
+                content = str()
+                for ins in bug_instances:
+                    content += f'{ins.type},{ins.file_name},{ins.line_no}\n'
 
-            write_file(f'{repo_report_path}/{project_name}.csv', content)
-            # write bug instance json
-            with open(f'{repo_report_path}/bug_instances.json', 'w') as out:
-                bugs_json = dict()
-                bugs_json['repo'] = project_name
-                bugs_json['total'] = len(bug_instances)
-                bugs_json['items'] = [bug.__dict__ for bug in bug_instances]
-                json.dump(bugs_json, out)
+                write_file(f'{repo_report_path}/{project_name}.csv', content)
+                # write bug instance json
+                with open(f'{repo_report_path}/bug_instances.json', 'w') as out:
+                    bugs_json = dict()
+                    bugs_json['repo'] = project_name
+                    bugs_json['total'] = len(bug_instances)
+                    bugs_json['items'] = [bug.__dict__ for bug in bug_instances]
+                    json.dump(bugs_json, out)
+    except FileNotFoundError as fnf_error:
+        print(fnf_error)
+        
 
 
 if __name__ == '__main__':
