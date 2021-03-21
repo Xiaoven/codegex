@@ -70,8 +70,25 @@ if __name__ == '__main__':
         if detector_names:
             f.write('\nDETECTOR_DICT = {\n    ' + ',\n    '.join(detector_names) + '\n}')
 
+    patterns_to_write = set()
+    for pattern in all_pattern_set:
+        if pattern == 'SA_SELF_ASSIGNMENT':
+            patterns_to_write.add('SA_FIELD_SELF_ASSIGNMENT')
+            patterns_to_write.add('SA_LOCAL_SELF_ASSIGNMENT')
+        elif pattern == 'SA_SELF_COMPARISON':
+            patterns_to_write.add('SA_FIELD_SELF_COMPARISON')
+            patterns_to_write.add('SA_LOCAL_SELF_COMPARISON')
+        elif pattern == 'SA_SELF_COMPUTATION':
+            patterns_to_write.add('SA_FIELD_SELF_COMPUTATION')
+            patterns_to_write.add('SA_LOCAL_SELF_COMPUTATION')
+        elif pattern == 'SA_DOUBLE_ASSIGNMENT':
+            patterns_to_write.add('SA_FIELD_DOUBLE_ASSIGNMENT')
+            patterns_to_write.add('SA_LOCAL_DOUBLE_ASSIGNMENT')
+        else:
+            patterns_to_write.add(pattern)
+
     with open('spotbugs-includeFilter.xml', 'w') as f:
         f.write('<FindBugsFilter>\n')
-        for pattern in all_pattern_set:
+        for pattern in patterns_to_write:
             f.write(f'\t<Match>\n\t\t<Bug pattern="{pattern}"/>\n\t</Match>\n')
         f.write('</FindBugsFilter>')
