@@ -85,3 +85,10 @@ A light-weight tool like spotbugs
 2. 对于比较 general 的  method name，比如 `add()`, 如果patterns检查它的特别用法，比如 `c.add(c)`, 我们也可以用正则实现，并且比较有把握说这样的invocation是有问题的
 3. static method，当不是 static import 时，我们可以匹配像 `ClassName.staticMethod(...)` 这样的用法，比如 static method  的例子可以是 `Object.equals(...)`, `EasyMock.verify()`, (easymock 这个我们还没有实现)，减少误报的可能
 
+### 容易实现的 patterns
+检查带有关键词的 class, method, field 的 declarations
+- class 关键词: `class`, `extends`, `implements`
+- method 语法结构 `returnType methodName`
+- field 关键词(帮助区分 field 和 local variable): `static`, `volatile`, `public/private/protected`
+
+field declaration 还能提供 type 信息
