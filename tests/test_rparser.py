@@ -504,3 +504,10 @@ def test_file_01():
     with open(p, 'r') as f:
         patch = parse(f.read(), is_patch=False, name=p)
         assert len(patch.hunks[0].lines) == 152
+
+
+def test_file_02():
+    p = 'tests/data/DotPlotPanel.java'
+    with open(p, 'r') as f:
+        patch = parse(f.read(), is_patch=False, name=p)
+        assert len(patch.hunks[0].lines) == 101
