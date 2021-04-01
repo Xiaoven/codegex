@@ -87,4 +87,4 @@ def test_local_search():
     engine = DefaultEngine(context, included_filter=('GetResourceDetector',))
     engine.visit(patch_1, patch_2, patch_3)
     assert len(engine.filter_bugs()) == 2
-    assert len(engine.filter_bugs('low')) == 1
+    assert len(engine.filter_bugs('low')) == 2
