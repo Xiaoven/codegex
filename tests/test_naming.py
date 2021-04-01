@@ -62,6 +62,9 @@ params = [
     # RxJava/src/main/java/io/reactivex/rxjava3/observers/BaseTestConsumer.java
     (False, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'BaseTestConsumer.java',
      '''public abstract class BaseTestConsumer<T, U extends BaseTestConsumer<T, U>> {''', 0, 0),
+    (False, 'NM_SAME_SIMPLE_NAME_AS_INTERFACE', 'gchisto_GCLogFileReader.java',
+     '''public class GCLogFileReader
+        implements gchisto.gctracegenerator.file.GCLogFileReader {''', 1, 2),
     # ------------------------ NM_LCASE_HASHCODE ------------------------
     # DIY
     (False, 'NM_LCASE_HASHCODE', 'Main_01.java',
@@ -134,6 +137,9 @@ params = [
      'class className$className extends PreorderVisitor implements Detector {', 1, 1),
     (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_22.java',
      'class helloProto$ extends PreorderVisitor implements Detector {', 0, 0),
+    (False, 'NM_CLASS_NAMING_CONVENTION', '2021_04_01.java',
+     '''public class gCLogFileReader
+        {''', 1, 2),
     # ------------------------ NM_METHOD_NAMING_CONVENTION ------------------------
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_15.java', '''private boolean MethodName(Obejct o){''', 1, 1),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_16.java', '''boolean methodName(Obejct o){''', 0, 0),
