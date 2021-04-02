@@ -80,10 +80,11 @@ A light-weight tool like spotbugs
 
 ## 总结
 
-### expression level 中检查特定的 method invocation 的，有3种情况比较实现：
-1. method name 比较特别，比如 `finalize()`, `getClass().getResource(...)`, 虽然我们无法获取 object 的类型和 invoked method 的 signature信息，也不太容易出错。
+### expression level 中检查特定的 method invocation 的，以下情况比较实现：
+1. method name 比较特别，比如 `getClass().getResource(...)`, 虽然我们无法获取 object 的类型和 invoked method 的 signature信息，也不太容易出错。
 2. 对于比较 general 的  method name，比如 `add()`, 如果patterns检查它的特别用法，比如 `c.add(c)`, 我们也可以用正则实现，并且比较有把握说这样的invocation是有问题的
 3. static method，当不是 static import 时，我们可以匹配像 `ClassName.staticMethod(...)` 这样的用法，比如 static method  的例子可以是 `Object.equals(...)`, `EasyMock.verify()`, (easymock 这个我们还没有实现)，减少误报的可能
+4. 检查是否 invoke 了在 Object 中定义的 methods, 如 [No: Using notify() rather than notifyAll() (NO_NOTIFY_NOT_NOTIFYALL)](https://spotbugs.readthedocs.io/en/stable/bugDescriptions.html#no-using-notify-rather-than-notifyall-no-notify-not-notifyall) and [FI: Explicit invocation of finalizer (FI_EXPLICIT_INVOCATION)](https://spotbugs.readthedocs.io/en/stable/bugDescriptions.html#fi-explicit-invocation-of-finalizer-fi-explicit-invocation)
 
 ### 容易实现的 patterns
 检查带有关键词的 class, method, field 的 declarations
