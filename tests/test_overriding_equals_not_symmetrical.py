@@ -5,14 +5,18 @@ from patterns.models.engine import DefaultEngine
 from rparser import parse
 
 params = [
-    (False, 'EQ_COMPARING_CLASS_NAMES', '',
-     '''if (auth.getClass().getName().equals(
-                        "complication.auth.DefaultAthenticationHandler")) {''', 1, 2),
-    (False, 'EQ_COMPARING_CLASS_NAMES', '',
-     '''if (x.getClass().getName().equals(y.getClass().getName() )) {''', 1, 1),
-    (False, 'EQ_COMPARING_CLASS_NAMES', '',
-     '''if (Objects.equals( "complication.auth.DefaultAthenticationHandler",
+    (False, 'EQ_COMPARING_CLASS_NAMES', 'Case01.java',
+     '''if (Objects.equals( this.getClass().getName(),
                             auth.getClass().getName())){''', 1, 2),
+    (False, 'EQ_COMPARING_CLASS_NAMES', 'Case02.java',
+     '''if (x.getClass().getName().equals(y.getClass().getName() )) {''', 1, 1),
+
+    (False, 'EQ_COMPARING_CLASS_NAMES', 'Case03.java',
+     '''if (auth.getClass().getName().equals(
+                        "complication.auth.DefaultAthenticationHandler")) {''', 0, 0),
+    (False, 'EQ_COMPARING_CLASS_NAMES', 'Case04.java',
+     '''if (Objects.equals( "complication.auth.DefaultAthenticationHandler",
+                            auth.getClass().getName())){''', 0, 0),
 ]
 
 
