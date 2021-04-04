@@ -29,14 +29,14 @@ class EqualsClassNameDetector(Detector):
             comparing_class_name = False
             if before_equals == 'Objects' and ',' in after_equals:
                 elements = after_equals.split(',')
+                comparing_class_name = True
                 for elem in elements:
-                    if elem.replace(' ', '').endswith('getClass().getName()'):
-                        comparing_class_name = True
+                    if not elem.replace(' ', '').endswith('getClass().getName()'):
+                        comparing_class_name = False
                         break
             else:
-                if before_equals.replace(' ', '').endswith('getClass().getName()'):
-                    comparing_class_name = True
-                elif after_equals.replace(' ', '').endswith('getClass().getName()'):
+                if before_equals.replace(' ', '').endswith('getClass().getName()') and \
+                        after_equals.replace(' ', '').endswith('getClass().getName()'):
                     comparing_class_name = True
 
             if comparing_class_name:
