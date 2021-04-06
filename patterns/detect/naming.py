@@ -47,7 +47,7 @@ class SimpleInterfaceNameDetector(Detector):
     def __init__(self):
         # Check interfaces implemented by a class
         self.pattern1 = regex.compile(
-            r'class\s+([\w$]+)\b.*\bimplements\s+([^{]+)')
+            r'class\s+([\w$]+)\b.*\bimplements\s+([^{]+)', flags=regex.DOTALL)
         # Check interfaces extended by a interface
         # No implements clause allowed for interface
         # Interface can extend multiple super interfaces
@@ -152,7 +152,7 @@ class EqualNameDetector(Detector):
 class ClassNameConventionDetector(Detector):
     def __init__(self):
         # Match class name
-        self.cn_pattern = regex.compile(r'class\s+([a-z][\w$]+).*{')
+        self.cn_pattern = regex.compile(r'class\s+([a-z][\w$]+)[^{]*{')
         Detector.__init__(self)
 
     def match(self, context):
