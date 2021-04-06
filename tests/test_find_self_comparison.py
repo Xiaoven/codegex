@@ -136,6 +136,8 @@ params = [
      'return ((TaskNodeModel) obj).id.equals(id);', 0, 0),
     (False, 'SA_SELF_COMPARISON', 'Fake_14.java',
      '"abc".equals("abc");', 1, 1),
+    (False, 'SA_SELF_COMPARISON', 'asmsupport/ClassReader.java',
+     'if (attrs[i].type.equals(type)) {}', 0, 0),
 ]
 
 
