@@ -184,6 +184,8 @@ params = [
      '''        return Math.min(100, Math.max(0, rawInput));''', 0, 1),
     (False, 'DM_INVALID_MIN_MAX', 'Feature329.java',
      '''        return Math.max(0, Math.min(100, rawInput));''', 0, 1),
+    (False, 'DM_INVALID_MIN_MAX', 'jmh/LinuxPerfNormProfiler.java',
+     'multiplier = Math.max(1D, Math.min(0D, multiplier));', 1, 1),
 ]
 
 
