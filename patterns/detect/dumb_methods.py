@@ -34,7 +34,7 @@ class FinalizerOnExitDetector(Detector):
 class RandomOnceDetector(Detector):
     def __init__(self):
         self.pattern = regex.compile(
-            r'new\s+[\w.]*Random(?P<aux1>\((?:[^()]++|(?&aux1))*\))++\s*\.\s*next\w*\(\s*\)')
+            r'new\s+[\w.]*Random(?P<aux1>\((?:[^()]++|(?&aux1))*\))++\s*\.\s*next(?:Boolean|Bytes|Double|Float|Gaussian|Int|Long)\([^),]*\)')
         Detector.__init__(self)
 
     def match(self, context):
