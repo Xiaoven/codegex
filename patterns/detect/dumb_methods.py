@@ -3,7 +3,7 @@ import regex
 from patterns.models.detectors import Detector, get_exact_lineno
 from patterns.models.bug_instance import BugInstance
 from patterns.models import priorities
-from utils import log_message, get_string_ranges, in_range
+from utils import log_message, get_string_ranges, in_range, str_to_float
 
 
 class FinalizerOnExitDetector(Detector):
@@ -110,13 +110,6 @@ class StringCtorDetector(Detector):
                 self.bug_accumulator.append(BugInstance(p_type, priorities.MEDIUM_PRIORITY, context.cur_patch.name,
                                                         line_no, description, sha=context.cur_patch.sha, line_content=context.cur_line.content))
                 return
-
-
-def str_to_float(num_str: str):
-    try:
-        return float(num_str)
-    except ValueError:
-        return None
 
 
 class InvalidMinMaxDetector(Detector):

@@ -176,3 +176,14 @@ def convert_str_to_int(num_str: str):
         return int_val
     except ValueError:
         return None
+
+
+def str_to_float(num_str: str):
+    try:
+        if num_str[-1] in ('D', 'd', 'F', 'f'):
+            num_str = num_str[:-1]
+        elif num_str[-1] in ('L', 'l'):
+            return int(num_str)
+        return float(num_str)
+    except ValueError:
+        return None
