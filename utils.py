@@ -183,7 +183,7 @@ def str_to_float(num_str: str):
         if num_str[-1] in ('D', 'd', 'F', 'f'):
             num_str = num_str[:-1]
         elif num_str[-1] in ('L', 'l'):
-            return int(num_str)
+            return int(num_str[:-1])
         return float(num_str)
     except ValueError:
         return None
