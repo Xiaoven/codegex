@@ -75,6 +75,8 @@ params = [
      "        if (\"random\".equals(seed)) {\n"
      "            seedValue = new java.util.Random().nextLong();\n"
      "        } else if (\"timestamp\".equals(seed)) {\n", 1, 173),
+    (False, 'DMI_RANDOM_USED_ONLY_ONCE', 'Benchmark/BenchmarkTest02415.java',
+     'new java.util.Random().nextBytes(bytes);', 1, 1),
 
     # ============== DM_STRING_VOID_CTOR ==============
     # From other repository: https://github.com/universAAL/middleware/commit/daf0a4ca23297f08713e722d5f2fd891699aa95f
