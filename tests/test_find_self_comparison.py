@@ -49,7 +49,9 @@ params = [
     (False, 'SA_SELF_COMPUTATION', 'DIY_08.java',
      'return i | j & j | z;', 0, 0),
     (False, 'SA_SELF_COMPUTATION', 'DIY_09.java',
-     'double second = requestMetrics.endDate.getTime() - requestMetrics.endDate.getTime();', 0, 0),
+     'double second = requestMetrics.endDate.getTime() - requestMetrics.endDate.getTime();', 1, 1),
+    (False, 'SA_SELF_COMPUTATION', 'DIY_10.java',
+     'player.world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);', 0, 0),
     # ---------------- SA_SELF_COMPARISON ----------------------
     (False, 'SA_SELF_COMPARISON', 'SelfFieldOperation_02.java',
      '''@NoWarning("SA_FIELD_SELF_COMPARISON")
