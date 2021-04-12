@@ -39,8 +39,12 @@ class CheckForSelfComputation(Detector):
             op = g[2]
             op_offset = m.start(3)
             obj_2 = g[3]
-            if obj_1 == obj_2 and not obj_1.endswith(')') and op in ('&', '|', '^', '-') and\
+            if obj_1 == obj_2 and op in ('&', '|', '^', '-') and\
                     not in_range(op_offset, string_ranges):
+                # to filter method called on Random object
+                if any(k in obj_1 for k in ('random', 'Random', 'next')):
+                    continue
+
                 pre_substring = line_content[:m.start(0)].rstrip()
                 op_front = None
                 if pre_substring[-2:] in self._op_precedence_dict:
