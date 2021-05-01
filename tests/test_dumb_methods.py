@@ -188,6 +188,10 @@ params = [
      '''        return Math.max(0, Math.min(100, rawInput));''', 0, 1),
     (False, 'DM_INVALID_MIN_MAX', 'jmh/LinuxPerfNormProfiler.java',
      'multiplier = Math.max(1D, Math.min(0D, multiplier));', 1, 1),
+    (False, 'DM_BOOLEAN_CTOR', 'UseValueOfResolutionExample.java',
+     'return new Boolean(value);', 1, 1),
+    (False, 'DM_NUMBER_CTOR', 'UseValueOfResolutionExample.java',
+     'return new Integer(value);', 1, 1),
 ]
 
 
@@ -195,8 +199,10 @@ params = [
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine(Context(), included_filter=('FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector',
-                                            'StringCtorDetector', 'InvalidMinMaxDetector'))
+    engine = DefaultEngine(Context(),
+                           included_filter=('FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector',
+                                            'StringCtorDetector', 'InvalidMinMaxDetector',
+                                            'BooleanConstructorDetector', 'IntegerConstructorDetector'))
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

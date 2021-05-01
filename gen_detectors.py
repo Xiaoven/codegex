@@ -18,7 +18,7 @@ from patterns.detect.find_finalize_invocations import ExplicitInvDetector, Publi
 from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod, DefPrivateMethod
 from patterns.detect.find_unrelated_types_in_generic_container import SuspiciousCollectionMethodDetector
 from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDetector, RandomD2IDetector, \
-    StringCtorDetector, InvalidMinMaxDetector
+    StringCtorDetector, InvalidMinMaxDetector, BooleanConstructorDetector, IntegerConstructorDetector
 from patterns.detect.format_string_checker import NewLineDetector
 from patterns.detect.find_float_equality import FloatEqualityDetector
 from patterns.detect.find_puzzlers import OverwrittenIncrementDetector
@@ -26,7 +26,6 @@ from patterns.detect.find_bad_cast import FindBadCastDetector
 from patterns.detect.naming import ClassNameConventionDetector, MethodNameConventionDetector
 from patterns.detect.dont_use_enum import DontUseEnumDetector
 from patterns.detect.find_self_assignment import CheckForSelfAssignment, CheckForSelfDoubleAssignment
-
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -53,7 +52,7 @@ DETECTOR_DICT = {
     "RandomD2IDetector": RandomD2IDetector,
     "StringCtorDetector": StringCtorDetector,
     "NewLineDetector": NewLineDetector,
-    "InvalidMinMaxDetector":  InvalidMinMaxDetector,
+    "InvalidMinMaxDetector": InvalidMinMaxDetector,
     'CheckForSelfComputation': CheckForSelfComputation,
     'CheckForSelfComparison': CheckForSelfComparison,
     'FindDeadLocalIncrementInReturn': FindDeadLocalIncrementInReturn,
@@ -72,4 +71,6 @@ DETECTOR_DICT = {
     'DontUseEnumDetector': DontUseEnumDetector,
     'CheckForSelfAssignment': CheckForSelfAssignment,
     'CheckForSelfDoubleAssignment': CheckForSelfDoubleAssignment,
+    'BooleanConstructorDetector': BooleanConstructorDetector,
+    'IntegerConstructorDetector': IntegerConstructorDetector,
 }

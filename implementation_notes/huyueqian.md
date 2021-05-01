@@ -242,3 +242,46 @@ Spotbugs 中只有对应此pattern的测试用例，无实现代码。经过观�
 
 
 
+### Dm: Method invokes inefficient Boolean constructor; use Boolean.valueOf(…) instead (DM_BOOLEAN_CTOR)
+
+##### Regex
+
+```regexp
+\s+Boolean\(\s*[\w.]*\s*\)
+```
+
+##### Examples
+
+```java
+//https://github.com/spotbugs/spotbugs/blob/51e586bed98393e53559a38c1f9bd15f54514efa/eclipsePlugin-test/quickfixScenario/UseValueOfResolutionExample.java
+
+    public Boolean getBoolean(boolean value) {
+        return new Boolean(value);
+    }
+```
+
+##### 实现思路
+
+Spotbugs 中对构造函数进行了判断，而在Codegex中，可以很方便地使用正则表达式单行匹配。
+
+### Bx: Method invokes inefficient Number constructor; use static valueOf instead (DM_NUMBER_CTOR)
+
+##### Regex
+
+```regexp
+\s+Integer\(\s*[\w.]*\s*\)
+```
+
+##### Examples
+
+```java
+//https://github.com/spotbugs/spotbugs/blob/51e586bed98393e53559a38c1f9bd15f54514efa/eclipsePlugin-test/quickfixScenario/UseValueOfResolutionExample.java
+
+    public Integer getInteger(int value) {
+        return new Integer(value);
+    }
+```
+
+##### 实现思路
+
+Spotbugs 中对构造函数进行了判断，而在Codegex中，可以很方便地使用正则表达式单行匹配。
