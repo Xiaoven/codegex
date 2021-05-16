@@ -188,6 +188,8 @@ params = [
      '''        return Math.max(0, Math.min(100, rawInput));''', 0, 1),
     (False, 'DM_INVALID_MIN_MAX', 'jmh/LinuxPerfNormProfiler.java',
      'multiplier = Math.max(1D, Math.min(0D, multiplier));', 1, 1),
+    (False, 'DM_INVALID_MIN_MAX', 'jmh/LinuxPerfNormProfiler.java',
+     'new Double(d).intValue();', 1, 1),
 ]
 
 
