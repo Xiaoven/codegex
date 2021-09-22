@@ -11,4 +11,7 @@ student_exp/
 PullRequests
 spotbugs-includeFilter.xml
 *.zip
-comparison
+
+# dependent jars
+utils/dependencies/jars/
+utils/dependencies/lib/

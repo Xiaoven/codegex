@@ -1,46 +1,100 @@
-## Getting Start
+# dev-ast@xiaoven
 
-### Preprocessing
+This branch is to introduce AST context into Codegex to detect more kinds of patterns and bug instances.
 
-Given a patch ([see examples](https://github.com/codegex-analysis/codegex-evaluation/blob/main/result/pull-request/crawl-pr/java/files/094698200/NanoHomework/pulls/54/files.json)), call `parse(stream, is_patch=True, name='')` in `parser.py` to split the patch into "statements" by terminators like `;`, `{`, `}`.
+# Usage
 
-```python
-from rparser import parse
+TODO: 使用该工具检查的步骤
 
-diff_string = "@@ -0,0 +1,21 @@\n+public class ArrayJava {\n+    public static void main(String[] args) {\n+        int[] mas = {3, 3, 8, 9, 7, 8, 4, 6, 6, 8, 6, 9, 8, 6, 3, 3, 3, 5};\n+\n+        int a = 0;\n+        int d = 0;\n+        for (int i = 0; i < mas.length; i++) {\n+            for (int j = i + 1; j < mas.length - 1; j++) {\n+                if (mas[i] == mas[j]) {\n+                    a = mas[i];\n+                    d++;\n+\n+                }\n+\n+            }\n+            System.out.println(\"элемент \" + a + \" встречается \" + d + \" раз\\n\");\n+            d = 0;\n+            break;\n+        }\n+    }\n+}"
+# Development
+### Step 1: Download Dependencies
+```shell
+# install python dependencies
+$ pip3 install -r requirements.txt
 
-patch = parse(diff_string, name='src/ArrayJava.java')
+# download java libraries
+$ cd utils/dependencies
+$ ./download.sh
 ```
 
-If you want to patch the content of a Java file, you should set `is_patch` as `False`.
+TODO: 开发该工具的步骤
 
-```python
-with open(java_file_path, 'r') as f:
-     patch = parse(f.read(), is_patch=False, name=file_name)
-```
+# Notes
+
+## 项目背景
+
+SpotBugs 中有的 patterns 与 text 内容比较相关，根据正则是否能够完全支持其实现，可分为2类：
+
+1.   只需要正则做 text 匹配就能实现，如 self assignment (`x = x;`)
+2.   需要其它的context信息, 如 Comparison of String objects using == or != (`stringVar1 == stringVar2`)
+
+对于第一种，我们希望 AST 能为其提供operand的类型信息，以检测到更多的bug instances；对于第二种，我们希望regex可以提供定位服务，确定需要对哪个可以的modified file进行AST parsing，然后执行基于AST的detectors，以检测更多的patterns。
+
+因此，我们需要解决的问题如下：
+
+1.   AST node 和 text 之间的 mapping，最好能通过 O(1) 的时间获取到对应的信息，如果是 O(N) 时间，还不如不用regex，全部基于扫描 AST 实现得了（N指 AST nodes 数）
+2.   Parse 单个 file，参照 spotbugs 实现基于  AST 的 detectors
+
+另外，除了 PRs 外，希望也能支持 commits 的检测（无法留言，但是可以用于做实验或本地检测）
+
+## 框架设计
+
+1.   Parser 服务
+     -   基于 diff 的 statement parser (fuzzy parsing)
+     -   针对single file 的 AST parser
+2.   Mapping 服务
+     -   根据 line number 快速定位到对应的 AST
+
+3.   Detectors
+     -   基于 regex 的 detectors
+     -   基于 AST 的 detectors
+     -   detectors的config功能（读取config文件实现, `detector_name: True`）
+4.   Bug Instances
+     -   优先级策略
+     -   filter 功能 (根据 detector，priority)
+5.   Github PR 留言功能
+6.   utils
+     -   常用方法封装 (是否要将utils.py按功能拆成不同文件)
+     -   Internet 服务 （与GitHub API的交互服务）
+
+## TODOs
+
+-   [x] 检查流程设计
+    -   先进行 regex-detectors 的检查，通过 regex-detectors invoke 对应的 ast detectors
+    -   [x] 参考 spotbugs、pmd 等工具的流程
+    -   spoon AST 提供的 visitor 模式： CtScanner 类
+-   parsers
+     - [x] AST parser 选择：spoon (java写的，比较靠谱)
+          - [ ] python调用java库：[JPype](https://jpype.readthedocs.io/en/latest/)
+          
+          - [x] spoon 编译单个java文件的可行性
+            ```java
+            CtClass clazz = Launcher.parseClass("public class A {}");
+            ```
+            
+          - [x] AST node的位置属性：SourcePosition类，有getLine方法，也有offset
+          
+              ```java
+                      List<CtElement> ll = clazz.getDirectChildren();
+                      for (CtElement element : ll) {
+                          SourcePosition sp = element.getPosition();
+                          if (!(sp instanceof NoSourcePosition)) {
+                              int start = sp.getLine();
+                              int end = sp.getEndLine();
+                              System.out.printf("start %d\tend %d\n", start, end);
+                          }
+                      }
+              ```
+          
+              
+- 代码重构
+    - config：enable detectors，filters
+    - service:
+        - config：增量更新、重置
+
+## 疑惑
+
+1.   AST能拿到method call的signature吗
 
 
 
-### Analyzing
-
-First, create a `DefaultEngine` instance with a `Context` instance. An engine will call detectors to check each statements, while the context contains some pointers to currently detected patch set, patch, hunk and line that may be used by detectors.
-
-```java
-from patterns.models.context import Context
-from patterns.models.engine import DefaultEngine
-  
-context = Context()
-# context.enable_online_search()  # Time-consuming operation that searches code via Github API
-engine = DefaultEngine(context)
-  
-engine.visit(*patchset)   # Here, patchset is a list of patch and you can only pass a single patch
-bug_instances = engine.filter_bugs(level='low')  # Return a list of warning objects of BugInstance type Codegex found.
-```
-
-You can include/exclude detectors by passing a list of detector names to `included_filter`/`excluded_filter` of the constructor of an engine. All available detector names are in [gen_detectors.py](https://github.com/codegex-analysis/Codegex/blob/main/gen_detectors.py)
-
-
-
-### Automatically Comment Generating
-
-The code is in [codegex-evaluation](https://github.com/codegex-analysis/codegex-evaluation/tree/main/result/pull-request/scripts/auto-comment).
