@@ -1,0 +1,15 @@
+<ivy-module version="2.0" xmlns:e="http://ant.apache.org/ivy/extra" xmlns:m="http://ant.apache.org/ivy/maven">
+    <info organisation="test.spoon" module="jpype"/>
+
+    <configurations defaultconf="deps">
+        <conf name="deps" description="binary jars"/>
+    </configurations>
+
+    <!-- https://www.baeldung.com/java-in-memory-databases -->
+    <dependencies>
+        <!-- just copy the dependencies you want in here and make sure the conf attribute has deps->default -->
+        <dependency org="fr.inria.gforge.spoon" name="spoon-core" rev="9.1.0-beta-9" conf="deps->default"/>
+        <!-- The version of slf4j-simple should match that used in spoon-core -->
+        <dependency org="org.slf4j" name="slf4j-simple" rev="1.7.30" conf="deps->default"/>
+    </dependencies>
+</ivy-module>

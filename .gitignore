@@ -15,3 +15,6 @@ spotbugs-includeFilter.xml
 # dependent jars
 utils/dependencies/jars/
 utils/dependencies/lib/
+
+# pytest
+**/.pytest_cache
