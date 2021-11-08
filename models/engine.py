@@ -1,9 +1,10 @@
-from rparser import Patch
-from utils import log_message
+from .data_models import Patch
 from gen_detectors import DETECTOR_DICT
-from .priorities import *
+from .bug_instance import Confidence
 from .context import Context
-from timer import Timer
+from utils.timer import Timer
+
+from loguru import logger
 
 
 class BaseEngine:
@@ -56,26 +57,26 @@ class BaseEngine:
             return self.bug_accumulator
 
         if level == 'low':
-            bound = LOW_PRIORITY
+            bound = Confidence.LOW
         elif level == 'medium':
-            bound = MEDIUM_PRIORITY
+            bound = Confidence.MEDIUM
         elif level == 'high':
-            bound = HIGH_PRIORITY
+            bound = Confidence.HIGH
         elif level == 'exp':
-            bound = EXP_PRIORITY
+            bound = Confidence.EXPERIMENTAL
         elif level == 'ignore':
-            bound = IGNORE_PRIORITY
+            bound = Confidence.IGNORE
         else:
             raise ValueError('Invalid level value. Hint: ignore, exp, low, medium, high')
 
-        return tuple(bug for bug in self.bug_accumulator if bug.priority <= bound)
+        return tuple(bug for bug in self.bug_accumulator if bug.confidence.value <= bound.value)
 
     def report(self, level='low'):
         """
         This method is called after all patches to be visited.
         """
         for bug_ins in self.filter_bugs(level):
-            log_message(str(bug_ins), 'info')
+            logger.info(str(bug_ins))
 
 
 class DefaultEngine(BaseEngine):

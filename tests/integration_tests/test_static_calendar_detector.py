@@ -1,8 +1,8 @@
 import pytest
 
-from patterns.models.context import Context
-from patterns.models.engine import DefaultEngine
-from rparser import parse
+from models.context import Context
+from models.engine import DefaultEngine
+from utils.fuzzy_parser import parse
 
 params = [
     # https://github.com/sstrickx/yahoofinance-api/pull/152/files#diff-8d68307bdbd437a4c6e7bece19d314248059d2a5d13240a33b631ab83af4b2abR236

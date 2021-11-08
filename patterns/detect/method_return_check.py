@@ -1,9 +1,9 @@
 import regex
 
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from patterns.models import priorities
-from utils import get_string_ranges, in_range
+from models.detectors import *
+from models.bug_instance import Confidence, BugInstance
+
+from utils.utils import get_string_ranges, in_range
 
 
 class NotThrowDetector(Detector):
@@ -20,7 +20,7 @@ class NotThrowDetector(Detector):
                 return
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
-                BugInstance('RV_EXCEPTION_NOT_THROWN', priorities.MEDIUM_PRIORITY,
+                BugInstance('RV_EXCEPTION_NOT_THROWN', Confidence.MEDIUM,
                             context.cur_patch.name, line_no,
                             "Exception created and dropped rather than thrown", sha=context.cur_patch.sha, line_content=context.cur_line.content)
             )

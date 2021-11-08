@@ -2,10 +2,10 @@ import cachetools
 import regex
 from cachetools import cached, LRUCache
 
-from patterns.models import priorities
-from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector, online_search, get_exact_lineno
-from utils import get_string_ranges, in_range
+
+from models.bug_instance import Confidence, BugInstance
+from models.detectors import *
+from utils.utils import get_string_ranges, in_range
 
 _cache = LRUCache(maxsize=500)
 
@@ -54,7 +54,7 @@ class GetResourceDetector(Detector):
         Decide the priority according to search results of local search or online search
         :param simple_name: simple name of class
         :param context: context object to analysis
-        :return: MEDIUM_PRIORITY if extended, else IGNORE_PRIORITY
+        :return: Confidence.MEDIUM if extended, else Confidence.IGNORE
         """
         # check if patch_set is updated
         if context.patch_set != self.patch_set:
@@ -66,7 +66,7 @@ class GetResourceDetector(Detector):
         if context.local_search():
             for patch_name, extended_name_list in self.extends_dict.items():
                 if simple_name in extended_name_list:
-                    return priorities.MEDIUM_PRIORITY
+                    return Confidence.MEDIUM
         # online search
         if context.online_search():
             repo_name, token = context.get_online_search_info()
@@ -78,14 +78,14 @@ class GetResourceDetector(Detector):
                 if resp_json:
                     if 'total_count' in resp_json:
                         if resp_json['total_count'] > 0:
-                            return priorities.MEDIUM_PRIORITY
+                            return Confidence.MEDIUM
                         else:
                             # return None
-                            return priorities.LOW_PRIORITY
+                            return Confidence.LOW
 
         # default priority
-        # return priorities.IGNORE_PRIORITY
-        return priorities.LOW_PRIORITY
+        # return Confidence.IGNORE
+        return Confidence.LOW
 
     def _init_extends_dict(self, ):
         self.extends_dict.clear()

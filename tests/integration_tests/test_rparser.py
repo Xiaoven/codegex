@@ -1,5 +1,8 @@
 import pytest
-from rparser import parse
+from utils.fuzzy_parser import parse
+from pathlib import PurePath
+
+DATA_DIR = PurePath(__file__).parent / 'data'
 
 params = [
     # -------------------------- test support for patch and non-patch --------------------------
@@ -500,14 +503,14 @@ def test_13():
 
 
 def test_file_01():
-    p = 'tests/data/Md4.java'
+    p = DATA_DIR / 'Md4.java'
     with open(p, 'r') as f:
         patch = parse(f.read(), is_patch=False, name=p)
         assert len(patch.hunks[0].lines) == 152
 
 
 def test_file_02():
-    p = 'tests/data/DotPlotPanel.java'
+    p = DATA_DIR / 'DotPlotPanel.java'
     with open(p, 'r') as f:
         patch = parse(f.read(), is_patch=False, name=p)
         assert len(patch.hunks[0].lines) == 101

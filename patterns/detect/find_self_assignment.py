@@ -1,9 +1,9 @@
 import regex
 
-from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector, get_exact_lineno
-import patterns.models.priorities as Priorities
-from utils import in_range, get_string_ranges
+from models.bug_instance import Confidence, BugInstance
+from models.detectors import *
+
+from utils.utils import in_range, get_string_ranges
 
 
 class CheckForSelfAssignment(Detector):
@@ -24,7 +24,7 @@ class CheckForSelfAssignment(Detector):
                 if g[0] == g[2]:
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
-                        BugInstance('SA_SELF_ASSIGNMENT', Priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
+                        BugInstance('SA_SELF_ASSIGNMENT', Confidence.HIGH, context.cur_patch.name, line_no,
                                     'SA: Self assignment of field or variable', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
 
@@ -44,7 +44,7 @@ class CheckForSelfDoubleAssignment(Detector):
                 if g[0] == g[2]:
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
-                        BugInstance('SA_DOUBLE_ASSIGNMENT', Priorities.HIGH_PRIORITY, context.cur_patch.name,
+                        BugInstance('SA_DOUBLE_ASSIGNMENT', Confidence.HIGH, context.cur_patch.name,
                                     line_no,
                                     'SA: Double assignment of field or local variable', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )

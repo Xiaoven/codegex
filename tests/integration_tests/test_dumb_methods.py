@@ -1,6 +1,6 @@
-from patterns.models.context import Context
-from rparser import parse
-from patterns.models.engine import DefaultEngine
+from models.context import Context
+from utils.fuzzy_parser import parse
+from models.engine import DefaultEngine
 
 import pytest
 

@@ -1,9 +1,9 @@
 import re
 
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from patterns.models import priorities
-from utils import get_string_ranges, in_range
+from models.detectors import *
+from models.bug_instance import Confidence, BugInstance
+
+from utils.utils import get_string_ranges, in_range
 
 
 class DontCatchIllegalMonitorStateException(Detector):
@@ -33,7 +33,7 @@ class DontCatchIllegalMonitorStateException(Detector):
                 if exception_class.endswith('IllegalMonitorStateException'):
                     line_no = get_exact_lineno('IllegalMonitorStateException', context.cur_line, keyword_mode=True)[1]
                     self.bug_accumulator.append(
-                        BugInstance('IMSE_DONT_CATCH_IMSE', priorities.HIGH_PRIORITY,
+                        BugInstance('IMSE_DONT_CATCH_IMSE', Confidence.HIGH,
                                     context.cur_patch.name, line_no,
                                     'Dubious catching of IllegalMonitorStateException', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )

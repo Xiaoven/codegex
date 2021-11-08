@@ -1,9 +1,9 @@
 import pytest
 
-from patterns.models.context import Context
-from patterns.models.engine import DefaultEngine
-from rparser import parse
-from patterns.models.priorities import *
+from models.context import Context
+from models.engine import DefaultEngine
+from utils.fuzzy_parser import parse
+from models.bug_instance import Confidence
 
 params = [
     # From other repository: https://github.com/albfan/jmeld/commit/bab5df4d96b511dd1e4be36fce3a2eab52c24c4e
@@ -81,70 +81,70 @@ testcases = [
             if (( 0x8000000000000000L & x) > 0)
                 return true;
             return false;
-        }''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, HIGH_PRIORITY),
+        }''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, Confidence.HIGH),
     ('''public boolean bugHighGE(long x) {
             if ((x & 0x8000000000000000L) >= 0)
-                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, MEDIUM_PRIORITY),
+                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, Confidence.MEDIUM),
     ('''public boolean bugHighLT(long x) {
             if ((x & 0x8000000000000000L) < 0)
-                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, MEDIUM_PRIORITY),
+                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, Confidence.MEDIUM),
     ('''public boolean bugHighLE(long x) {
             if ((x & 0x8000000000000000L) <= 0)
-                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, HIGH_PRIORITY),
+                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, Confidence.HIGH),
     # low int
     ('''public boolean bugLowGT(long x) {
                 if ((x & 0x1) > 0)
                     return true;
                 return false;
-            }''', 'BIT_SIGNED_CHECK', 1, 2, LOW_PRIORITY),
+            }''', 'BIT_SIGNED_CHECK', 1, 2, Confidence.LOW),
     ('''public boolean bugLowGE(long x) {
                 if ((x & 0x1) >= 0)
-                    return true;''', 'BIT_SIGNED_CHECK', 1, 2, LOW_PRIORITY),
+                    return true;''', 'BIT_SIGNED_CHECK', 1, 2, Confidence.LOW),
     ('''public boolean bugLowLT(long x) {
                 if ((x & 0x1) < 0)
-                    return true;''', 'BIT_SIGNED_CHECK', 1, 2, LOW_PRIORITY),
+                    return true;''', 'BIT_SIGNED_CHECK', 1, 2, Confidence.LOW),
     ('''public boolean bugLowLE(long x) {
                 if ((x & 0x1) <= 0)
-                    return true;''', 'BIT_SIGNED_CHECK', 1, 2, LOW_PRIORITY),
+                    return true;''', 'BIT_SIGNED_CHECK', 1, 2, Confidence.LOW),
     # high int
     ('''public boolean bugHighGT(int x) {
             if ((x & 0x80000000) > 0)
                 return true;
             return false;
-        }''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, HIGH_PRIORITY),
+        }''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, Confidence.HIGH),
     ('''public boolean bugHighGE(int x) {
             if ((x & 0x80000000) >= 0)
-                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, MEDIUM_PRIORITY),
+                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, Confidence.MEDIUM),
     ('''public boolean bugHighLT(int x) {
             if ((x & 0x80000000) < 0)
-                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, MEDIUM_PRIORITY),
+                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, Confidence.MEDIUM),
     ('''public boolean bugHighLE(int x) {
             if ((x & 0x80000000) <= 0)
-                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, HIGH_PRIORITY),
+                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, Confidence.HIGH),
 
     # medium int
     ('''public boolean bugMediumGT(int x) {
             if ((x & 0x10000000) > 0)
                     return true;
                 return false;
-            }''', 'BIT_SIGNED_CHECK', 1, 2, MEDIUM_PRIORITY),
+            }''', 'BIT_SIGNED_CHECK', 1, 2, Confidence.MEDIUM),
     ('''public boolean bugMediumGE(int x) {
                 if ((x & 0x10000000) >= 0)
-                    return true;''', 'BIT_SIGNED_CHECK', 1, 2, MEDIUM_PRIORITY),
+                    return true;''', 'BIT_SIGNED_CHECK', 1, 2, Confidence.MEDIUM),
     ('''public boolean bugMediumLT(int x) {
                 if ((x & 0x10000000) < 0)
-                    return true;''', 'BIT_SIGNED_CHECK', 1, 2, MEDIUM_PRIORITY),
+                    return true;''', 'BIT_SIGNED_CHECK', 1, 2, Confidence.MEDIUM),
     ('''public boolean bugMediumLE(int x) {
                 if ((x & 0x10000000) <= 0)
-                    return true;''', 'BIT_SIGNED_CHECK', 1, 2, MEDIUM_PRIORITY),
+                    return true;''', 'BIT_SIGNED_CHECK', 1, 2, Confidence.MEDIUM),
     # not
     ('''public boolean bugNotMediumMask(int x) {
             if ((x & ~0x10000000) > 0)
-                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, HIGH_PRIORITY),
+                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, Confidence.HIGH),
     # DIY
     ('''public boolean DIY(int x) {
             if ((x & -10) <= 0)
-                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, HIGH_PRIORITY),
+                return true;''', 'BIT_SIGNED_CHECK_HIGH_BIT', 1, 2, Confidence.HIGH),
 ]
 
 
@@ -158,7 +158,7 @@ def test_spotbugs_cases(patch_str: str, expected_warning: str, expected_length: 
         assert len(engine.bug_accumulator) == expected_length
         assert engine.bug_accumulator[0].type == expected_warning
         assert engine.bug_accumulator[0].line_no == expected_line_no
-        assert engine.bug_accumulator[0].priority == expected_priority
+        assert engine.bug_accumulator[0].confidence == expected_priority
 
     else:
         assert len(engine.bug_accumulator) == 0

@@ -1,9 +1,9 @@
 import regex
 
-from patterns.models import priorities
-from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector, get_exact_lineno
-from utils import get_string_ranges, in_range
+
+from models.bug_instance import Confidence, BugInstance
+from models.detectors import *
+from utils.utils import get_string_ranges, in_range
 
 
 class BooleanAssignmentDetector(Detector):
@@ -32,6 +32,6 @@ class BooleanAssignmentDetector(Detector):
 
                 line_no = get_exact_lineno(m_1.end(2), context.cur_line)[1]
                 self.bug_accumulator.append(
-                    BugInstance('QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT', priorities.HIGH_PRIORITY, context.cur_patch.name,
+                    BugInstance('QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT', Confidence.HIGH, context.cur_patch.name,
                                 line_no, 'Method assigns boolean literal in boolean expression',
                                 sha=context.cur_patch.sha, line_content=context.cur_line.content))

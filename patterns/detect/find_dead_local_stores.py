@@ -1,9 +1,9 @@
 import re
 
-from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.priorities import *
-from utils import get_string_ranges, in_range
+from models.bug_instance import Confidence, BugInstance
+from models.detectors import *
+
+from utils.utils import get_string_ranges, in_range
 
 
 class FindDeadLocalIncrementInReturn(Detector):
@@ -23,12 +23,12 @@ class FindDeadLocalIncrementInReturn(Detector):
 
             var_name = m.groups()[0]
 
-            priority = IGNORE_PRIORITY
+            priority = Confidence.IGNORE
 
             # # TODO: enhance with local search
-            # priority = MEDIUM_PRIORITY
+            # priority = Confidence.MEDIUM
             # if var_name.startswith('$'):
-            #     priority = LOW_PRIORITY
+            #     priority = Confidence.LOW
 
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(

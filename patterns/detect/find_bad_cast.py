@@ -1,8 +1,8 @@
 import regex
-from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models import priorities
-from utils import get_string_ranges, in_range
+from models.bug_instance import Confidence, BugInstance
+from models.detectors import *
+
+from utils.utils import get_string_ranges, in_range
 
 
 class FindBadCastDetector(Detector):
@@ -30,7 +30,7 @@ class FindBadCastDetector(Detector):
             if m.group(1) != 'Object' and 'Arrays.asList' not in line_content:
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
-                    BugInstance('BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY', priorities.HIGH_PRIORITY, context.cur_patch.name,
+                    BugInstance('BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY', Confidence.HIGH, context.cur_patch.name,
                                 line_no, "BC: Impossible downcast of toArray() result", sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
 

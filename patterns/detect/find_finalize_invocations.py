@@ -1,9 +1,9 @@
 import re
 
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from patterns.models import priorities
-from utils import get_string_ranges, in_range
+from models.detectors import *
+from models.bug_instance import Confidence, BugInstance
+
+from utils.utils import get_string_ranges, in_range
 
 
 class ExplicitInvDetector(Detector):
@@ -21,7 +21,7 @@ class ExplicitInvDetector(Detector):
             if m.group(1) != 'super':
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
-                    BugInstance('FI_EXPLICIT_INVOCATION', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
+                    BugInstance('FI_EXPLICIT_INVOCATION', Confidence.HIGH, context.cur_patch.name, line_no,
                                 'Explicit invocation of Object.finalize()', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
 
@@ -40,6 +40,6 @@ class PublicAccessDetector(Detector):
                 return
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
-                BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', Confidence.MEDIUM, context.cur_patch.name,
                             line_no, 'Finalizer should be protected, not public', sha=context.cur_patch.sha, line_content=context.cur_line.content)
             )

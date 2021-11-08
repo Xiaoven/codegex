@@ -1,9 +1,9 @@
 import regex
 
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from patterns.models import priorities
-from utils import get_string_ranges, in_range
+from models.detectors import *
+from models.bug_instance import Confidence, BugInstance
+
+from utils.utils import get_string_ranges, in_range
 
 
 class NewLineDetector(Detector):
@@ -39,20 +39,20 @@ class NewLineDetector(Detector):
                 its_newline = self.newline_regex.finditer(params)
                 for m_newline in its_newline:
                     # Adjust priority
-                    priority = priorities.LOW_PRIORITY
+                    priority = Confidence.LOW
                     obj_name_lower = obj_name.lower()
 
                     if method_name == 'format' and (obj_name == 'String' or obj_name_lower.endswith('formatter')
                                                     or obj_name_lower.endswith('writer')):
-                        priority = priorities.MEDIUM_PRIORITY
+                        priority = Confidence.MEDIUM
                     elif method_name == 'printf' and (obj_name == 'System.out' or obj_name_lower.endswith('writer')):
-                        priority = priorities.MEDIUM_PRIORITY
+                        priority = Confidence.MEDIUM
                     elif method_name == 'fmt' and obj_name_lower.endswith('logger'):
-                        priority = priorities.MEDIUM_PRIORITY
+                        priority = Confidence.MEDIUM
                     else:
                         type_name = self._local_search(obj_name, context)
                         if type_name:
-                            priority = priorities.MEDIUM_PRIORITY
+                            priority = Confidence.MEDIUM
 
                     # get exact line number
                     line_no = get_exact_lineno(offset+m_newline.start(1), context.cur_line)[1]

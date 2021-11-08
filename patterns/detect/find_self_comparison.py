@@ -1,9 +1,9 @@
 import regex
 
-from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector, get_exact_lineno
-import patterns.models.priorities as Priorities
-from utils import get_generic_type_ranges, get_string_ranges, in_range
+from models.bug_instance import Confidence, BugInstance
+from models.detectors import *
+
+from utils.utils import get_generic_type_ranges, get_string_ranges, in_range
 
 
 class CheckForSelfComputation(Detector):
@@ -66,7 +66,7 @@ class CheckForSelfComputation(Detector):
                     continue
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
-                    BugInstance('SA_SELF_COMPUTATION', Priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no,
+                    BugInstance('SA_SELF_COMPUTATION', Confidence.MEDIUM, context.cur_patch.name, line_no,
                                 'Nonsensical self computation involving a variable or field', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
                 return
@@ -143,6 +143,6 @@ class CheckForSelfComparison(Detector):
         if hit:
             line_no = get_exact_lineno(match_end, context.cur_line)[1]
             self.bug_accumulator.append(
-                BugInstance('SA_SELF_COMPARISON', Priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no,
+                BugInstance('SA_SELF_COMPARISON', Confidence.MEDIUM, context.cur_patch.name, line_no,
                             'Self comparison of value or field with itself', sha=context.cur_patch.sha, line_content=context.cur_line.content)
             )

@@ -1,9 +1,9 @@
 import regex
 
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from patterns.models import priorities
-from utils import get_string_ranges, in_range
+from models.detectors import *
+from models.bug_instance import Confidence, BugInstance
+
+from utils.utils import get_string_ranges, in_range
 
 
 class StaticDateFormatDetector(Detector):
@@ -33,12 +33,12 @@ class StaticDateFormatDetector(Detector):
             if class_name.endswith('DateFormat'):
                 self.bug_accumulator.append(
                     BugInstance('STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE',
-                                priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no,
+                                Confidence.MEDIUM, context.cur_patch.name, line_no,
                                 f"{field_name} is a static field of type java.text.DateFormat, which isn't thread safe",
                                 sha=context.cur_patch.sha, line_content=context.cur_line.content))
             else:
                 self.bug_accumulator.append(
                     BugInstance('STCAL_STATIC_CALENDAR_INSTANCE',
-                                priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no,
+                                Confidence.MEDIUM, context.cur_patch.name, line_no,
                                 f"{field_name} is a static field of type java.util.Calendar, which isn't thread safe",
                                 sha=context.cur_patch.sha, line_content=context.cur_line.content))

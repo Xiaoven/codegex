@@ -1,9 +1,9 @@
 import regex
+from loguru import logger
 
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from patterns.models import priorities
-from utils import log_message, get_string_ranges, in_range, str_to_float
+from models.detectors import *
+from models.bug_instance import Confidence, BugInstance
+from utils.utils import get_string_ranges, in_range, str_to_float
 
 
 class FinalizerOnExitDetector(Detector):
@@ -20,9 +20,9 @@ class FinalizerOnExitDetector(Detector):
                 return
 
             pkg_name = m.groups()[0]
-            confidence = priorities.HIGH_PRIORITY
+            confidence = Confidence.HIGH
             if pkg_name == 'System' or 'Runtime':
-                confidence = priorities.MEDIUM_PRIORITY
+                confidence = Confidence.MEDIUM
 
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
@@ -48,7 +48,7 @@ class RandomOnceDetector(Detector):
             # m.start(1) is the offset of the naming group
             line_no = get_exact_lineno(m.start(1), context.cur_line)[1]
             self.bug_accumulator.append(
-                BugInstance('DMI_RANDOM_USED_ONLY_ONCE', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
+                BugInstance('DMI_RANDOM_USED_ONLY_ONCE', Confidence.HIGH, context.cur_patch.name, line_no,
                             'Random object created and used only once', sha=context.cur_patch.sha, line_content=context.cur_line.content)
             )
             return
@@ -70,7 +70,7 @@ class RandomD2IDetector(Detector):
             if obj == 'math' or obj == 'r' or 'rand' in obj:
                 line_no = get_exact_lineno(m.end(2), context.cur_line)[1]
                 self.bug_accumulator.append(
-                    BugInstance('RV_01_TO_INT', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
+                    BugInstance('RV_01_TO_INT', Confidence.HIGH, context.cur_patch.name, line_no,
                                 'Random value from 0 to 1 is coerced to the integer 0', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
                 return
@@ -107,7 +107,7 @@ class StringCtorDetector(Detector):
             if p_type is not None:
                 # m.start(1) is the offset of the naming group
                 line_no = get_exact_lineno(m.start(1), context.cur_line)[1]
-                self.bug_accumulator.append(BugInstance(p_type, priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                self.bug_accumulator.append(BugInstance(p_type, Confidence.MEDIUM, context.cur_patch.name,
                                                         line_no, description, sha=context.cur_patch.sha, line_content=context.cur_line.content))
                 return
 
@@ -150,7 +150,7 @@ class InvalidMinMaxDetector(Detector):
 
                 inner_args = arg_str_2.split(',')
                 if len(inner_args) != 2:
-                    log_message(f'[InvalidMinMaxDetector] More than one commas for {line_content}', 'error')
+                    logger.info(f'[InvalidMinMaxDetector] More than one commas for {line_content}')
                     return
 
                 const_2 = None
@@ -170,5 +170,5 @@ class InvalidMinMaxDetector(Detector):
                     if upper_bound < lower_bound:
                         line_no = get_exact_lineno(m1.end(0), context.cur_line)[1]
                         self.bug_accumulator.append(
-                            BugInstance('DM_INVALID_MIN_MAX', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
+                            BugInstance('DM_INVALID_MIN_MAX', Confidence.HIGH, context.cur_patch.name, line_no,
                                         'Incorrect combination of Math.max and Math.min', sha=context.cur_patch.sha, line_content=context.cur_line.content))

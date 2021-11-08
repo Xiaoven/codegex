@@ -1,9 +1,8 @@
 import regex
 
-from patterns.models import priorities
-from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector, get_exact_lineno
-from utils import convert_str_to_int, get_string_ranges, in_range
+from models.bug_instance import Confidence, BugInstance
+from models.detectors import *
+from utils.utils import convert_str_to_int, get_string_ranges, in_range
 
 
 class BadMonthDetector(Detector):
@@ -17,7 +16,7 @@ class BadMonthDetector(Detector):
         fire = False
         instance_name = None
         month = None
-        priority = priorities.MEDIUM_PRIORITY
+        priority = Confidence.MEDIUM
 
         line_content = context.cur_line.content
         string_ranges = get_string_ranges(line_content)
@@ -32,7 +31,7 @@ class BadMonthDetector(Detector):
                 g = m.groups()
                 instance_name = g[0]
                 month = int(g[1])
-                priority = priorities.HIGH_PRIORITY
+                priority = Confidence.HIGH
         elif 'set' in line_content:
             if 'calendar' in line_content.lower():  # To temporarily reduce unnecessary matches
                 m = self.calendar.search(line_content)
@@ -79,7 +78,7 @@ class ShiftAddPriorityDetector(Detector):
             string_ranges = get_string_ranges(line_content)
             if in_range(m.start(0), string_ranges):
                 return
-            priority = priorities.LOW_PRIORITY
+            priority = Confidence.LOW
             const = convert_str_to_int(m.groups()[0])
 
             if const is not None:
@@ -90,7 +89,7 @@ class ShiftAddPriorityDetector(Detector):
                     return
 
                 if const == 8:
-                    priority = priorities.MEDIUM_PRIORITY
+                    priority = Confidence.MEDIUM
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('BSHIFT_WRONG_ADD_PRIORITY', priority, context.cur_patch.name, line_no,
@@ -122,7 +121,7 @@ class OverwrittenIncrementDetector(Detector):
                 if pattern_inc.search(op_2):
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
-                        BugInstance('DLS_OVERWRITTEN_INCREMENT', priorities.HIGH_PRIORITY, context.cur_patch.name,
+                        BugInstance('DLS_OVERWRITTEN_INCREMENT', Confidence.HIGH, context.cur_patch.name,
                                     line_no, "DLS: Overwritten increment", sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
                     break

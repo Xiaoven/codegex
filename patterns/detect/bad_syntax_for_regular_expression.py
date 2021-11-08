@@ -1,9 +1,8 @@
-import regex
+from models.detectors import *
+from utils.utils import get_string_ranges, in_range
 
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from patterns.models import priorities
-from utils import get_string_ranges, in_range
+from models.bug_instance import Confidence, BugInstance
+import regex
 
 
 class SingleDotPatternDetector(Detector):
@@ -32,14 +31,14 @@ class SingleDotPatternDetector(Detector):
                 if ',' in arg_2 and not (arg_2.startswith('"') and arg_2.endswith('"')):
                     continue
 
-                priority = priorities.HIGH_PRIORITY
+                priority = Confidence.HIGH
                 if method_name == 'replaceAll' and arg_1 == '.':
-                    priority = priorities.MEDIUM_PRIORITY
+                    priority = Confidence.MEDIUM
                     if arg_2.startswith('"') and arg_2.endswith('"'):
                         if arg_2 in ('"x"', '"X"', '"-"', '"*"', '" "', '"\\*"'):
                             continue  # Ignore password mask
                         elif len(arg_2) == 3:
-                            priority = priorities.LOW_PRIORITY
+                            priority = Confidence.LOW
 
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]  # m.end(0)-1 < len(line_content)
                 self.bug_accumulator.append(
@@ -76,9 +75,9 @@ class FileSeparatorAsRegexpDetector(Detector):
                 if method_name == 'compile' and (class_name != 'Pattern' or 'Pattern.LITERAL' in arg_2):
                     continue
 
-                priority = priorities.HIGH_PRIORITY
+                priority = Confidence.HIGH
                 if method_name == 'matches' and not arg_2:  # Observe from spotbugs' test cases
-                    priority = priorities.LOW_PRIORITY
+                    priority = Confidence.LOW
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION', priority, context.cur_patch.name,

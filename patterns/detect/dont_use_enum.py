@@ -1,9 +1,9 @@
 import regex
 
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from patterns.models import priorities
-from utils import get_string_ranges, in_range
+from models.detectors import *
+from models.bug_instance import Confidence, BugInstance
+
+from utils.utils import get_string_ranges, in_range
 
 
 class DontUseEnumDetector(Detector):
@@ -26,7 +26,7 @@ class DontUseEnumDetector(Detector):
                 # In spotbugs, it checks methods and fields.
                 # We check method definition and calls like `obj.field` or `obj.method()`
                 self.bug_accumulator.append(
-                    BugInstance('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', priorities.MEDIUM_PRIORITY,
+                    BugInstance('NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER', Confidence.MEDIUM,
                                 context.cur_patch.name, line_no,
                                 'Nm: Use of identifier that is a keyword in later versions of Java',
                                 sha=context.cur_patch.sha, line_content=context.cur_line.content)
@@ -40,7 +40,7 @@ class DontUseEnumDetector(Detector):
                 line_no = get_exact_lineno(m.start(0), context.cur_line)[1]
                 # In spotbugs, it checks local variables, here we check local variables and fields.
                 self.bug_accumulator.append(
-                    BugInstance('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', priorities.MEDIUM_PRIORITY,
+                    BugInstance('NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER', Confidence.MEDIUM,
                                 context.cur_patch.name, line_no,
                                 'Nm: Use of identifier that is a keyword in later versions of Java',
                                 sha=context.cur_patch.sha, line_content=context.cur_line.content)

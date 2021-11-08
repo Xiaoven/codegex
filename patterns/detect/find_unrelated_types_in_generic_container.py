@@ -1,9 +1,9 @@
 import regex
 
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from patterns.models import priorities
-from utils import get_string_ranges, in_range
+from models.detectors import *
+from models.bug_instance import Confidence, BugInstance
+
+from utils.utils import get_string_ranges, in_range
 
 
 class SuspiciousCollectionMethodDetector(Detector):
@@ -32,15 +32,15 @@ class SuspiciousCollectionMethodDetector(Detector):
                 if method_name == 'removeAll':
                     pattern_type = 'DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION'
                     description = 'removeAll used to clear a collection'
-                    priority = priorities.MEDIUM_PRIORITY
+                    priority = Confidence.MEDIUM
                 elif method_name in ['containsAll', 'retainAll']:
                     pattern_type = 'DMI_VACUOUS_SELF_COLLECTION_CALL'
                     description = 'Vacuous call to collections'
-                    priority = priorities.MEDIUM_PRIORITY
+                    priority = Confidence.MEDIUM
                 elif method_name in ['contains', 'remove']:
                     pattern_type = 'DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES'
                     description = 'Collections should not contain themselves'
-                    priority = priorities.HIGH_PRIORITY
+                    priority = Confidence.HIGH
 
                 if pattern_type:
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]

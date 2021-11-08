@@ -1,8 +1,8 @@
 import pytest
 
-from patterns.models.context import Context
-from rparser import parse
-from patterns.models.engine import DefaultEngine
+from models.context import Context
+from utils.fuzzy_parser import parse
+from models.engine import DefaultEngine
 
 params = [
     # // https://github.com/eclipsesource/J2V8/pull/504/files#diff-a892003576f3e242006668a1b63c89dff9144c4e4b343020847ad103b53e6b03R79

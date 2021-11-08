@@ -18,3 +18,5 @@ utils/dependencies/lib/
 
 # pytest
 **/.pytest_cache
+
+*.log

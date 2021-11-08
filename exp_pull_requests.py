@@ -5,8 +5,8 @@ import json
 
 from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
-from rparser import parse
-from utils import create_missing_dirs
+from utils.fuzzy_parser import parse
+from utils.utils import create_missing_dirs
 from timer import Timer
 from gen_detectors import DETECTOR_DICT
 

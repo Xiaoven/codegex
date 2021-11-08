@@ -2,16 +2,18 @@ from collections import deque
 from pathlib import PurePath
 from loguru import logger
 
-
+import jpype
 import jpype.imports
 
 JARS_PATH = PurePath(__file__).parent.parent / 'dependencies' / 'jars'
 
-jpype.startJVM(classpath=f'{JARS_PATH}/*')
-import spoon.Launcher as Launcher
-from spoon.reflect.cu.position import NoSourcePosition
-from spoon.reflect.code import *
-from spoon.reflect.declaration import *
+if not jpype.isJVMStarted():
+    jpype.startJVM(classpath=f'{JARS_PATH}/*')
+    import java.lang.UnsupportedOperationException as UnsupportedOperationException
+    import spoon.Launcher as Launcher
+    from spoon.reflect.cu.position import NoSourcePosition
+    from spoon.reflect.code import *
+    from spoon.reflect.declaration import *
 
 
 def read_file_content(file_path: str):

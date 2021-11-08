@@ -1,9 +1,9 @@
 import regex
 
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from patterns.models.priorities import *
-from utils import get_string_ranges, in_range
+from models.detectors import *
+from models.bug_instance import Confidence, BugInstance
+
+from utils.utils import get_string_ranges, in_range
 
 GENERIC_REGEX = regex.compile(r'(?P<gen><(?:[^<>]++|(?&gen))*>)')
 CLASS_EXTENDS_REGEX = regex.compile(r'\bclass\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)')
@@ -37,7 +37,7 @@ class SimpleSuperclassNameDetector(Detector):
                 if len(line_content) == len(line_content.lstrip()):  # if do not have leading space
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
-                        BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', HIGH_PRIORITY,
+                        BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', Confidence.HIGH,
                                     context.cur_patch.name, line_no,
                                     'Class names shouldn’t shadow simple name of superclass', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
@@ -77,7 +77,7 @@ class SimpleInterfaceNameDetector(Detector):
                 if len(line_content) == len(line_content.lstrip()):
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
-                        BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', MEDIUM_PRIORITY,
+                        BugInstance('NM_SAME_SIMPLE_NAME_AS_INTERFACE', Confidence.MEDIUM,
                                     context.cur_patch.name, line_no,
                                     'Class or interface names shouldn’t shadow simple name of implemented interface',
                                     sha=context.cur_patch.sha, line_content=context.cur_line.content)
@@ -102,7 +102,7 @@ class HashCodeNameDetector(Detector):
                 return
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
-                BugInstance('NM_LCASE_HASHCODE', HIGH_PRIORITY, context.cur_patch.name, line_no,
+                BugInstance('NM_LCASE_HASHCODE', Confidence.HIGH, context.cur_patch.name, line_no,
                             "Class defines hashcode(); should it be hashCode()?", sha=context.cur_patch.sha, line_content=context.cur_line.content))
 
 
@@ -123,7 +123,7 @@ class ToStringNameDetector(Detector):
                 return
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
-                BugInstance('NM_LCASE_TOSTRING', HIGH_PRIORITY, context.cur_patch.name, line_no,
+                BugInstance('NM_LCASE_TOSTRING', Confidence.HIGH, context.cur_patch.name, line_no,
                             'Class defines tostring(); should it be toString()?', sha=context.cur_patch.sha, line_content=context.cur_line.content))
 
 
@@ -145,7 +145,7 @@ class EqualNameDetector(Detector):
                 return
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
-                BugInstance('NM_BAD_EQUAL', HIGH_PRIORITY, context.cur_patch.name, line_no,
+                BugInstance('NM_BAD_EQUAL', Confidence.HIGH, context.cur_patch.name, line_no,
                             'Class defines equal(Object); should it be equals(Object)?', sha=context.cur_patch.sha, line_content=context.cur_line.content))
 
 
@@ -170,9 +170,9 @@ class ClassNameConventionDetector(Detector):
                 # reference from https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222
                 # /spotbugs/src/main/java/edu/umd/cs/findbugs/detect/Naming.java#L389
                 if '_' not in class_name:
-                    priority = LOW_PRIORITY
+                    priority = Confidence.LOW
                     if any(access in line_content for access in ('public', 'protected')):
-                        priority = MEDIUM_PRIORITY
+                        priority = Confidence.MEDIUM
 
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
@@ -224,11 +224,11 @@ class MethodNameConventionDetector(Detector):
                         if self.is_enum:  # skip elements defined in enum
                             continue
                         else:
-                            priority = IGNORE_PRIORITY
+                            priority = Confidence.IGNORE
                     else:
-                        priority = LOW_PRIORITY
+                        priority = Confidence.LOW
                         if any(access in line_content for access in ('public', 'protected')):
-                            priority = MEDIUM_PRIORITY
+                            priority = Confidence.MEDIUM
 
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(

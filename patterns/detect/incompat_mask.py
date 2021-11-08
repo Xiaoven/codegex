@@ -1,7 +1,7 @@
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from patterns.models import priorities
-from utils import convert_str_to_int, get_string_ranges, in_range
+from models.detectors import *
+from models.bug_instance import Confidence, BugInstance
+
+from utils.utils import convert_str_to_int, get_string_ranges, in_range
 
 import regex
 
@@ -48,7 +48,7 @@ class IncompatMaskDetector(Detector):
                 const_str = operand_2
             is_long = True if const_str.endswith(('L', 'l')) else False
 
-            priority = priorities.HIGH_PRIORITY
+            priority = Confidence.HIGH
             p_type, description = None, None
 
             if relation_op in ('>', '<', '>=', '<=') and tgt_const == 0:
@@ -65,16 +65,16 @@ class IncompatMaskDetector(Detector):
                     p_type = 'BIT_SIGNED_CHECK_HIGH_BIT'
                     description = 'Check for sign of bitwise operation involving negative number.'
                     if relation_op in ('<', '>='):
-                        priority = priorities.MEDIUM_PRIORITY
+                        priority = Confidence.MEDIUM
                 elif 0 <= const <= max_positive:
                     p_type = 'BIT_SIGNED_CHECK'
                     description = 'Check for sign of bitwise operation.'
                     # at most 12 bits: -4096 <= const <= -1 or 0 <= const <= 4095
                     only_low_bits = const <= 0xfff
-                    priority = priorities.LOW_PRIORITY if only_low_bits else priorities.MEDIUM_PRIORITY
+                    priority = Confidence.LOW if only_low_bits else Confidence.MEDIUM
 
             elif relation_op in ('==', '!='):
-                priority = priorities.HIGH_PRIORITY
+                priority = Confidence.HIGH
                 p_type, description = None, None
 
                 if bitop == '|':

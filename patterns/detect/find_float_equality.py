@@ -1,8 +1,8 @@
 import regex
-from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models import priorities
-from utils import get_string_ranges, in_range
+from models.bug_instance import Confidence, BugInstance
+from models.detectors import *
+
+from utils.utils import get_string_ranges, in_range
 
 
 class FloatEqualityDetector(Detector):
@@ -26,7 +26,7 @@ class FloatEqualityDetector(Detector):
                 if any(op in ('Float.NaN', 'Double.NaN') for op in (op_1, op_2)):
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
-                        BugInstance('FE_TEST_IF_EQUAL_TO_NOT_A_NUMBER', priorities.HIGH_PRIORITY,
+                        BugInstance('FE_TEST_IF_EQUAL_TO_NOT_A_NUMBER', Confidence.HIGH,
                                     context.cur_patch.name, line_no,
                                     "Doomed test for equality to NaN", sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )

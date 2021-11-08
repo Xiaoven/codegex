@@ -1,6 +1,6 @@
 from utils.ast_helper import *
 
-TEST_SOURCE = '../resources/MapMaterial.java'
+TEST_SOURCE = PurePath(__file__).parent.parent / 'resources/MapMaterial.java'
 
 
 def test_build_map():

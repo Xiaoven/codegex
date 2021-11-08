@@ -1,9 +1,10 @@
 import copy
 import re
 from io import StringIO
+from loguru import logger
 
 from models.data_models import Hunk, Line, VirtualStatement, Patch
-from utils import logger, get_string_ranges, in_range
+from .utils import get_string_ranges, in_range
 import traceback
 
 # --------------------------------------------------------------------------------------

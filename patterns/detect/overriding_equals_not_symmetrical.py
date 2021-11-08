@@ -1,9 +1,9 @@
 import regex
 
-from patterns.models import priorities
-from patterns.models.bug_instance import BugInstance
-from patterns.models.detectors import Detector, get_exact_lineno
-from utils import get_string_ranges, in_range
+
+from models.bug_instance import Confidence, BugInstance
+from models.detectors import *
+from utils.utils import get_string_ranges, in_range
 
 
 class EqualsClassNameDetector(Detector):
@@ -42,7 +42,7 @@ class EqualsClassNameDetector(Detector):
             if comparing_class_name:
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
-                    BugInstance('EQ_COMPARING_CLASS_NAMES', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                    BugInstance('EQ_COMPARING_CLASS_NAMES', Confidence.MEDIUM, context.cur_patch.name,
                                 line_no, 'Equals method compares class names rather than class objects',
                                 sha=context.cur_patch.sha, line_content=context.cur_line.content))
                 return

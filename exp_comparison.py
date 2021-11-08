@@ -6,7 +6,7 @@ import json
 
 from patterns.models.context import Context
 from patterns.models.engine import DefaultEngine
-from rparser import parse
+from utils.fuzzy_parser import parse
 from timer import Timer
 
 BASE_PATH = '/Users/audrey/Documents/GitHub/rbugs/comparison'

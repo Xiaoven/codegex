@@ -1,6 +1,6 @@
-from patterns.models.context import Context
-from rparser import Line, VirtualStatement
-from utils import send
+from .context import Context
+from .data_models import Line, VirtualStatement
+from utils.internet_service import send
 
 
 def online_search(query: str, token='', search_parent=False, repo_name=''):

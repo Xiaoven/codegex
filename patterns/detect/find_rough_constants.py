@@ -1,7 +1,7 @@
-from patterns.models import priorities
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from utils import get_string_ranges, in_range
+
+from models.detectors import *
+from models.bug_instance import Confidence, BugInstance
+from utils.utils import get_string_ranges, in_range
 import re
 
 import math
@@ -20,12 +20,12 @@ class BadConstant:
 
 
 BAD_CONSTANTS = [
-    BadConstant(math.pi, 1, "Math.PI", priorities.HIGH_PRIORITY),
-    BadConstant(math.pi, 1 / 2.0, "Math.PI/2", priorities.MEDIUM_PRIORITY),
-    BadConstant(math.pi, 1 / 3.0, "Math.PI/3", priorities.LOW_PRIORITY),
-    BadConstant(math.pi, 1 / 4.0, "Math.PI/4", priorities.LOW_PRIORITY),
-    BadConstant(math.pi, 2, "2*Math.PI", priorities.MEDIUM_PRIORITY),
-    BadConstant(math.e, 1, "Math.E", priorities.LOW_PRIORITY)
+    BadConstant(math.pi, 1, "Math.PI", Confidence.HIGH),
+    BadConstant(math.pi, 1 / 2.0, "Math.PI/2", Confidence.MEDIUM),
+    BadConstant(math.pi, 1 / 3.0, "Math.PI/3", Confidence.LOW),
+    BadConstant(math.pi, 1 / 4.0, "Math.PI/4", Confidence.LOW),
+    BadConstant(math.pi, 2, "2*Math.PI", Confidence.MEDIUM),
+    BadConstant(math.e, 1, "Math.E", Confidence.LOW)
 ]
 
 
@@ -33,21 +33,21 @@ def get_priority(bad_constant: BadConstant, const_val):
     diff = bad_constant.diff(const_val)
 
     if diff > 1e-3:
-        return priorities.IGNORE_PRIORITY  # 差值太大，不太可能是近似值
+        return Confidence.IGNORE  # 差值太大，不太可能是近似值
     elif diff > 1e-4:
-        return bad_constant.base_priority + 1
+        return Confidence(bad_constant.base_priority.value + 1)
     elif diff < 1e-6:
-        p = bad_constant.base_priority - 1
-        return p if p > 0 else 1
+        confidenceValue = bad_constant.base_priority.value - 1
+        return Confidence(confidenceValue) if confidenceValue > 0 else bad_constant.base_priority
     else:
         return bad_constant.base_priority
 
 
 def check_const(const_val: float):
-    best_p, best_const = priorities.IGNORE_PRIORITY, None
+    best_p, best_const = Confidence.IGNORE, None
     for bad_const in BAD_CONSTANTS:
         priority = get_priority(bad_const, const_val)
-        if priority < best_p:
+        if priority.value < best_p.value:
             best_p = priority
             best_const = bad_const
     return best_p, best_const
@@ -67,7 +67,7 @@ class FindRoughConstantsDetector(Detector):
                 continue
             float_const = float(m.group(0))
             p, bad_const = check_const(float_const)
-            if p < priorities.IGNORE_PRIORITY:
+            if p.value < Confidence.IGNORE.value:
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 bug_ins = RoughConstantValueBugInstance("CNT_ROUGH_CONSTANT_VALUE", p, context.cur_patch.name, line_no,
                                                         sha=context.cur_patch.sha, line_content=context.cur_line.content)

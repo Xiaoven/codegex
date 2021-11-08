@@ -44,6 +44,7 @@ SpotBugs 中有的 patterns 与 text 内容比较相关，根据正则是否能�
      -   针对single file 的 AST parser
 2.   Mapping 服务
      -   根据 line number 快速定位到对应的 AST
+        - [spoon metadata graph](https://spoon.gforge.inria.fr/structural_elements.html)
 
 3.   Detectors
      -   基于 regex 的 detectors
@@ -97,4 +98,35 @@ SpotBugs 中有的 patterns 与 text 内容比较相关，根据正则是否能�
 1.   AST能拿到method call的signature吗
 
 
+## Mapping
+## SourcePosition 调查
+[官方描述](https://spoon.gforge.inria.fr/comments.html)
 
+似乎单行的sourceStartline属性都为-1，但是getLine方法会对它进行处理（调用searchLineNumber方法根据offset搜）
+
+### SourcePositionImpl
+- CtJavaDoc 多行的 comment sourceStartline 不为 -1
+- CtAnnotation 单行的 sourceStartline 为 -1
+- CtIf 为 -1
+- CtBlock 为 -1
+### NoSourcePosition
+- CtConstructor 默认的，即源代码没有写的
+### DeclarationSourcePosition
+- CtField 有comments和annotations成员变量，sourceStartline 不包括它们的范围
+- CtAnonymousExecutable 如static初始化块, 多行，但sourceStartline 为 -1
+- CtLocalVariable 本地变量赋值，根据 defaultExpression 可以访问右边的 expression
+### BodyHolderSourcePosition
+可以通过body下的statements访问所属的statement
+- CtClass
+- CtMethod
+
+### PartialSourcePosition
+super() 不能调用 getPosition().getLine()  unsupportedOperationExeception
+
+[ ] CtMethod, CtField, CtExpression 的 getDirectChildren是什么类型，
+- CtMethod 的 directChild 是返回值类型(CtTypeReference), CtBlock, CtJavaDoc(注释)、CtParameter等
+- CtExpression
+- CtAssignment 的 directChild 是类型(CtTypeReference)、CtFieldWrite 变量名、CtLiteral (e.g. true)
+[ ] expression的getLine方法和它所属的statement一样吗？
+  
+CtConstructor 是 CtStatement 的子类型，而 CtMethod 却不是。它们俩的共同父类型是 CtExecutable

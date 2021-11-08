@@ -1,9 +1,9 @@
 import re
 
-from patterns.models.detectors import Detector, get_exact_lineno
-from patterns.models.bug_instance import BugInstance
-from patterns.models import priorities
-from utils import get_string_ranges, in_range
+from models.detectors import *
+from models.bug_instance import Confidence, BugInstance
+
+from utils.utils import get_string_ranges, in_range
 
 
 class DefSerialVersionID(Detector):
@@ -29,17 +29,17 @@ class DefSerialVersionID(Detector):
 
             pattern_name = None
             message = None
-            priority = priorities.LOW_PRIORITY
+            priority = Confidence.LOW
 
             if prefix:
                 if 'static' not in prefix:
                     pattern_name = 'SE_NONSTATIC_SERIALVERSIONID'
                     message = "serialVersionUID isn't static."
-                    priority = priorities.MEDIUM_PRIORITY
+                    priority = Confidence.MEDIUM
                 elif 'final' not in prefix:
                     pattern_name = 'SE_NONFINAL_SERIALVERSIONID'
                     message = "serialVersionUID isn't final."
-                    priority = priorities.MEDIUM_PRIORITY
+                    priority = Confidence.MEDIUM
 
             if not pattern_name and 'int' == g[1]:
                 pattern_name = 'SE_NONLONG_SERIALVERSIONID'
@@ -83,7 +83,7 @@ class DefReadResolveMethod(Detector):
             if pattern_name:
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
-                    BugInstance(pattern_name, priorities.MEDIUM_PRIORITY, context.cur_patch.name, line_no, message,
+                    BugInstance(pattern_name, Confidence.MEDIUM, context.cur_patch.name, line_no, message,
                                 sha=context.cur_patch.sha, line_content=context.cur_line.content))
 
 
@@ -130,7 +130,7 @@ class DefPrivateMethod(Detector):
             if not strip_line.startswith('private'):
                 line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                 self.bug_accumulator.append(
-                    BugInstance('SE_METHOD_MUST_BE_PRIVATE', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                    BugInstance('SE_METHOD_MUST_BE_PRIVATE', Confidence.MEDIUM, context.cur_patch.name,
                                 line_no, 'Method must be private in order for serialization to work.',
                                 sha=context.cur_patch.sha, line_content=context.cur_line.content))
 
