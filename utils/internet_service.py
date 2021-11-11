@@ -2,7 +2,6 @@ import time
 from loguru import logger
 import requests
 
-
 requests.adapters.DEFAULT_RETRIES = 5
 SESSION = requests.Session()
 SESSION.keep_alive = False
@@ -20,6 +19,8 @@ def send(url, token='', max_retry=1, sleep_time=2):
 
     try:
         res = SESSION.get(url, headers=headers, stream=False, timeout=10)
+        if res.status_code != 200:
+            logger.warning(f'STATUS_CODE NOT OK for ' + url)
         return res
     except Exception as e:
         logger.error('[Request Error] url: {}    - msg: {}'.format(url, e))
@@ -30,3 +31,25 @@ def send(url, token='', max_retry=1, sleep_time=2):
         cur_sleep_time = sleep_time + BASE_SLEEP_TIME
         time.sleep(cur_sleep_time)
         return send(url, token, max_retry - 1, sleep_time=cur_sleep_time)
+
+
+# Github APIs
+API_PR = 'https://api.github.com/repos/{}/pulls/{}'
+API_PR_FILES = 'https://api.github.com/repos/{}/pulls/{}/files'
+
+
+def download_pr(repo, pr_number):
+    url = API_PR.format(repo, pr_number)
+    resp = send(url)
+    return resp.json() if resp else dict()
+
+
+def download_pr_files(repo, pr_number):
+    url = API_PR_FILES.format(repo, pr_number)
+    resp = send(url)
+    return resp.json() if resp else list()
+
+
+def download_raw_files(raw_url):
+    resp = send(raw_url)
+    return resp.text if resp else ''

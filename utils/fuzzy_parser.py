@@ -2,10 +2,11 @@ import copy
 import re
 from io import StringIO
 from loguru import logger
+import traceback
 
 from models.data_models import Hunk, Line, VirtualStatement, Patch
 from .utils import get_string_ranges, in_range
-import traceback
+from .internet_service import download_pr_files, download_raw_files
 
 # --------------------------------------------------------------------------------------
 re_stmt_end = re.compile(r'[;{}]\s*$')
@@ -445,3 +446,16 @@ def parse(stream, is_patch=True, name=''):
     except Exception as e:
         logger.error(f'[Parser Error] {name}\n{e}\n{traceback.format_exc()}')
     return patch
+
+
+def parse_pr_files(pr_files: list):
+    java_files = [file for file in pr_files if file['filename'].endswith('.java')]
+
+    patches = list()
+    for file in java_files:
+        patch = parse(file['patch'])
+        patch.name = file['filename']
+        patch.sha = file['sha']
+        patch.type = file['status']
+
+    return patches

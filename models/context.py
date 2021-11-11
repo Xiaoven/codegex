@@ -11,10 +11,15 @@ class Context:
         self.cur_hunk = None
         self.cur_line = None
         self.cur_line_idx = -1
+        self.ast_root, self.ast_dic = None, None
 
         # configuration
-        self._online_search, self._repo_name, self._token = False, None, None
+        self._online_search, self._token = False, None
         self._local_search = True
+
+        # PR info
+        self.repo, self.pr_number = None, 0
+        self.pr_files = None
 
     def set_patch_set(self, patch_set: tuple, repo_name=''):
         self.patch_set = patch_set
@@ -24,7 +29,7 @@ class Context:
         self.cur_line_idx = -1
 
         if repo_name:
-            self._repo_name = repo_name
+            self.repo = repo_name
 
     def online_search(self):
         return self._online_search
@@ -32,20 +37,20 @@ class Context:
     def enable_online_search(self, github_repo_name='', github_token=''):
         self._online_search = True
         if github_repo_name:
-            self._repo_name = github_repo_name
+            self.repo = github_repo_name
         if github_token:
             self._token = github_token
 
     def update_repo_name(self, github_repo_name: str):
-        self._repo_name = github_repo_name
+        self.repo = github_repo_name
 
     def disable_online_search(self):
         self._online_search = False
-        self._repo_name = None
+        self.repo = None
         self._token = None
 
     def get_online_search_info(self):
-        return self._repo_name, self._token
+        return self.repo, self._token
 
     def local_search(self):
         return self._local_search

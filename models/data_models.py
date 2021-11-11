@@ -115,3 +115,11 @@ class Patch:
     def __iter__(self):
         for h in self.hunks:
             yield h
+
+
+class PullRequest:
+    def __init__(self):
+        self.repo = ''
+        self.pr_number = ''
+        self.patches = list()
+        self.ast_dic = dict()
