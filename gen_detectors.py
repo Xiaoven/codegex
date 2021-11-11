@@ -12,7 +12,7 @@ from patterns.detect.infinite_recursive_loop import CollectionAddItselfDetector
 from patterns.detect.find_rough_constants import FindRoughConstantsDetector
 from patterns.detect.find_ref_comparison import EqualityDetector, CallToNullDetector
 from patterns.detect.naming import SimpleSuperclassNameDetector, SimpleInterfaceNameDetector, HashCodeNameDetector, \
-    ToStringNameDetector, EqualNameDetector
+    ToStringNameDetector, EqualNameDetector, ExceptionClassNameDetector
 from patterns.detect.dont_catch_illegal_monitor_state_exception import DontCatchIllegalMonitorStateException
 from patterns.detect.find_finalize_invocations import ExplicitInvDetector, PublicAccessDetector
 from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolveMethod, DefPrivateMethod
@@ -72,4 +72,5 @@ DETECTOR_DICT = {
     'DontUseEnumDetector': DontUseEnumDetector,
     'CheckForSelfAssignment': CheckForSelfAssignment,
     'CheckForSelfDoubleAssignment': CheckForSelfDoubleAssignment,
+    'ExceptionClassNameDetector': ExceptionClassNameDetector,
 }

@@ -213,6 +213,18 @@ public enum Ternary implements Serializable, IsSerializable {
     public void testRequestWithBigContentWriteBlockedThenReset() throws Exception
     {
         final SSLSocket client = newClient();''', 0, 0),
+
+    # https://github.com/FINRAOS/JTAF-XCore/commit/ca5cc7b2b29fcec42e35bcccc3f78b7fcf99811d
+    (True, 'NM_CLASS_NOT_EXCEPTION', 'VerifyException.java',
+     "@@ -30,7 +30,7 @@\n"
+    "public class VerifyException extends Command {\n", 1, 30),
+    (True, 'NM_CLASS_NOT_EXCEPTION', 'VerifyExceptionCmd.java',
+     "@@ -30,7 +30,7 @@\n"
+     "+public class VerifyExceptionCmd extends Command {\n", 0, 0),
+    (False, 'NM_CLASS_NOT_EXCEPTION', 'ClassNotException_Test03.java',
+     "public class VerifyException {", 1, 1),
+    (False, 'NM_CLASS_NOT_EXCEPTION', 'ClassNotException_Test03.java',
+     "public class VerifyExceptionCmd {", 0, 0),
 ]
 
 
@@ -223,6 +235,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     engine = DefaultEngine(Context(), included_filter=[
         'SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector', 'HashCodeNameDetector', 'ToStringNameDetector',
         'EqualNameDetector', 'ClassNameConventionDetector', 'MethodNameConventionDetector',
+        'ExceptionClassNameDetector',
     ])
     engine.visit(patch)
 

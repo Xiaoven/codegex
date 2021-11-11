@@ -30,10 +30,11 @@ class SimpleSuperclassNameDetector(Detector):
                 return
             g = m.groups()
             class_name = g[0]
-            super_classes = GENERIC_REGEX.sub('', g[2])  # remove <...>
-            super_classes_list = [name.rsplit('.', 1)[-1].strip() for name in super_classes.split(',')]
+            # A class can only have one superclass
+            super_class = GENERIC_REGEX.sub('', g[2])  # remove <...>
+            super_class = super_class.rsplit('.', 1)[-1].strip()
 
-            if class_name in super_classes_list:
+            if class_name == super_class:
                 if len(line_content) == len(line_content.lstrip()):  # if do not have leading space
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
@@ -41,6 +42,8 @@ class SimpleSuperclassNameDetector(Detector):
                                     context.cur_patch.name, line_no,
                                     'Class names shouldn’t shadow simple name of superclass', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
+
+
 
 
 class SimpleInterfaceNameDetector(Detector):
@@ -252,3 +255,28 @@ class MethodNameConventionDetector(Detector):
                             self.is_enum = True
                             return
             self.is_enum = False
+
+
+class ExceptionClassNameDetector(Detector):
+    def __init__(self):
+        # Check hashcode method exists
+        self.pattern = regex.compile(r'\bclass\s+\b\w*Exception\b(?:\s+extends\s+(\w+))?')
+        Detector.__init__(self)
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        if 'class' in line_content and 'Exception' in line_content:
+            m = self.pattern.search(line_content)
+            if m:
+                superclassName = m.group(1)
+                if not superclassName or not superclassName.endswith('Exception'):
+                    string_ranges = get_string_ranges(line_content)
+                    if in_range(m.start(0), string_ranges):
+                        return
+
+                    line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
+                    self.bug_accumulator.append(
+                        BugInstance('NM_CLASS_NOT_EXCEPTION', MEDIUM_PRIORITY, context.cur_patch.name, line_no,
+                                    'Class is not derived from an Exception, even though it is named as such',
+                                    sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                    )
