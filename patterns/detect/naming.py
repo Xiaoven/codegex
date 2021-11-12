@@ -7,7 +7,8 @@ from utils import get_string_ranges, in_range
 
 GENERIC_REGEX = regex.compile(r'(?P<gen><(?:[^<>]++|(?&gen))*>)')
 CLASS_EXTENDS_REGEX = regex.compile(r'\bclass\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([\w$.]+)')
-INTERFACE_EXTENDS_REGEX = regex.compile(r'\binterface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)')
+INTERFACE_EXTENDS_REGEX = regex.compile(
+    r'\binterface\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+extends\s+([^{]+)')
 ENUM_REGEX = regex.compile(r'\benum\s+\w+\s*(?:\b(?:extends|implements)\s+[\w<>,\s]+)*\s*{')
 
 
@@ -40,10 +41,9 @@ class SimpleSuperclassNameDetector(Detector):
                     self.bug_accumulator.append(
                         BugInstance('NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', HIGH_PRIORITY,
                                     context.cur_patch.name, line_no,
-                                    'Class names shouldn’t shadow simple name of superclass', sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                                    'Class names shouldn’t shadow simple name of superclass', sha=context.cur_patch.sha,
+                                    line_content=context.cur_line.content)
                     )
-
-
 
 
 class SimpleInterfaceNameDetector(Detector):
@@ -106,7 +106,8 @@ class HashCodeNameDetector(Detector):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('NM_LCASE_HASHCODE', HIGH_PRIORITY, context.cur_patch.name, line_no,
-                            "Class defines hashcode(); should it be hashCode()?", sha=context.cur_patch.sha, line_content=context.cur_line.content))
+                            "Class defines hashcode(); should it be hashCode()?", sha=context.cur_patch.sha,
+                            line_content=context.cur_line.content))
 
 
 class ToStringNameDetector(Detector):
@@ -127,7 +128,8 @@ class ToStringNameDetector(Detector):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('NM_LCASE_TOSTRING', HIGH_PRIORITY, context.cur_patch.name, line_no,
-                            'Class defines tostring(); should it be toString()?', sha=context.cur_patch.sha, line_content=context.cur_line.content))
+                            'Class defines tostring(); should it be toString()?', sha=context.cur_patch.sha,
+                            line_content=context.cur_line.content))
 
 
 class EqualNameDetector(Detector):
@@ -149,7 +151,8 @@ class EqualNameDetector(Detector):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('NM_BAD_EQUAL', HIGH_PRIORITY, context.cur_patch.name, line_no,
-                            'Class defines equal(Object); should it be equals(Object)?', sha=context.cur_patch.sha, line_content=context.cur_line.content))
+                            'Class defines equal(Object); should it be equals(Object)?', sha=context.cur_patch.sha,
+                            line_content=context.cur_line.content))
 
 
 class ClassNameConventionDetector(Detector):
