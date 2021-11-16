@@ -225,3 +225,34 @@ class BigDecimalConstructorDetector(Detector):
                                     'BigDecimal constructed from double that isn’t represented precisely',
                                     sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
+
+
+class NonsensicalInvocationDetector(Detector):
+    def __init__(self):
+        self.pattern = regex.compile(
+            r'\b(?:Preconditions\.checkNotNull|Strings\.(?:nullToEmpty|emptyToNull|isNullOrEmpty))\s*\(\s*(?P<str>"[^"]*")\s*(?:,\s*(\w+|(?&str)))?')
+        Detector.__init__(self)
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        if any(clazzName in line_content for clazzName in ('Preconditions', 'Strings')) and \
+                any(methodName in line_content for methodName in ('checkNotNull', 'nullToEmpty', 'emptyToNull', 'isNullOrEmpty')):
+            itr = self.pattern.finditer(line_content)
+            string_ranges = get_string_ranges(line_content)
+            for m in itr:
+                if in_range(m.start(0), string_ranges):
+                    continue
+                patternName = 'DMI_DOH'
+                description = 'D’oh! A nonsensical method invocation'
+
+                secondParam = m.group(2)
+                if secondParam is not None and not secondParam.startswith('"'):
+                    patternName = 'DMI_ARGUMENTS_WRONG_ORDER'
+                    description = 'Reversed method arguments'
+
+                self.bug_accumulator.append(
+                    BugInstance(patternName, MEDIUM_PRIORITY, context.cur_patch.name,
+                                get_exact_lineno(m.end(0), context.cur_line)[1],
+                                description,
+                                sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                )

@@ -201,6 +201,18 @@ params = [
      'BigDecimal bd = new BigDecimal(0.1f);', 0, 0),
     (False, 'DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE', 'TestBigDecimalConstructor_03.java',
      'BigDecimal bd = new BigDecimal(100.00);', 0, 0),
+    (False, 'DMI_ARGUMENTS_WRONG_ORDER', 'TestArgWrongOrder_01.java',
+     'Preconditions.checkNotNull("x must be nonnull", x);', 1, 1),
+    # (False, 'DMI_ARGUMENTS_WRONG_ORDER', 'TestArgWrongOrder_02.java',
+    #  'Assert.assertNotNull(x, "x must be nonnull");', 1, 1),
+    (False, 'DMI_ARGUMENTS_WRONG_ORDER', 'TestArgWrongOrder_03.java',
+     'Preconditions.checkNotNull(x, "x must be nonnull");', 0, 0),
+    (False, 'DMI_DOH', 'TestNonsensicalInvocation_01.java',
+     'Preconditions.checkNotNull("x must be nonnull");', 1, 1),
+    # (False, 'DMI_DOH', 'TestNonsensicalInvocation_02.java',
+    #  'Assert.assertNotNull("x must be nonnull");', 1, 1),
+    (False, 'DMI_DOH', 'TestNonsensicalInvocation_03.java',
+     'Preconditions.checkNotNull("msg", "OJBK");', 1, 1),
 ]
 
 
@@ -211,6 +223,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     engine = DefaultEngine(Context(), included_filter=(
         'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
         'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
+        'NonsensicalInvocationDetector',
     ))
     engine.visit(patch)
     if expected_length > 0:
