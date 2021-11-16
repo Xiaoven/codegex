@@ -231,6 +231,7 @@ class NonsensicalInvocationDetector(Detector):
     def __init__(self):
         self.pattern = regex.compile(
             r'\b(?:Preconditions\.checkNotNull|Strings\.(?:nullToEmpty|emptyToNull|isNullOrEmpty))\s*\(\s*(?P<str>"[^"]*")\s*(?:,\s*(\w+|(?&str)))?')
+        self.pattern2 = regex.compile(r'Assert\.assertNotNull\s*\(\s*(\w+,\s*)?"[^"]+"\s*\)')
         Detector.__init__(self)
 
     def match(self, context):
@@ -253,6 +254,25 @@ class NonsensicalInvocationDetector(Detector):
                 self.bug_accumulator.append(
                     BugInstance(patternName, MEDIUM_PRIORITY, context.cur_patch.name,
                                 get_exact_lineno(m.end(0), context.cur_line)[1],
-                                description,
-                                sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                                description, sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                )
+
+        if all(key in line_content for key in ('Assert', 'assertNotNull')):
+            itr = self.pattern2.finditer(line_content)
+            string_ranges = get_string_ranges(line_content)
+            for m in itr:
+                if in_range(m.start(0), string_ranges):
+                    return
+
+                patternName = 'DMI_DOH'
+                description = 'D’oh! A nonsensical method invocation'
+
+                if m.group(1) is not None:
+                    patternName = 'DMI_ARGUMENTS_WRONG_ORDER'
+                    description = 'Reversed method arguments'
+
+                self.bug_accumulator.append(
+                    BugInstance(patternName, MEDIUM_PRIORITY, context.cur_patch.name,
+                                get_exact_lineno(m.end(0), context.cur_line)[1],
+                                description, sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
