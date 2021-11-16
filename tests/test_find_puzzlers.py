@@ -109,6 +109,10 @@ params = [
     }
 }
      ''', 0, 1),
+    ('PZ_DONT_REUSE_ENTRY_OBJECTS_IN_ITERATORS', 'Main_12.java',
+     "public class TMP implements Iterator, Map.Entry {", 1, 1),
+    ('PZ_DONT_REUSE_ENTRY_OBJECTS_IN_ITERATORS', 'Main_13.java',
+     "public interface TMP extends Iterator, Entry {", 1, 1),
 ]
 
 
@@ -116,7 +120,8 @@ params = [
 def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, False)
     patch.name = file_name
-    engine = DefaultEngine(Context(), included_filter=('BadMonthDetector', 'ShiftAddPriorityDetector', 'OverwrittenIncrementDetector'))
+    engine = DefaultEngine(Context(), included_filter=('BadMonthDetector', 'ShiftAddPriorityDetector',
+                                                       'OverwrittenIncrementDetector', 'ReuseEntryInIteratorDetector'))
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
