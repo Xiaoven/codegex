@@ -172,3 +172,25 @@ class InvalidMinMaxDetector(Detector):
                         self.bug_accumulator.append(
                             BugInstance('DM_INVALID_MIN_MAX', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
                                         'Incorrect combination of Math.max and Math.min', sha=context.cur_patch.sha, line_content=context.cur_line.content))
+
+
+class VacuousEasyMockCallDetector(Detector):
+    def __init__(self):
+        self.pattern = regex.compile(r'\bEasyMock\.(?:verify|replay|(?:reset\w*))\s*\(\s*\)')
+        Detector.__init__(self)
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        if 'EasyMock' in line_content and any(key in line_content for key in ('verify', 'replay', 'reset')):
+            m = self.pattern.search(line_content)
+            if m:
+                string_ranges = get_string_ranges(line_content)
+                if in_range(m.start(0), string_ranges):
+                    return
+
+                self.bug_accumulator.append(
+                    BugInstance('DMI_VACUOUS_CALL_TO_EASYMOCK_METHOD', priorities.HIGH_PRIORITY, context.cur_patch.name,
+                                get_exact_lineno(m.end(0), context.cur_line)[1],
+                                'Useless/vacuous call to EasyMock method',
+                                sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                )

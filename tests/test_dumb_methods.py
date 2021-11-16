@@ -188,6 +188,13 @@ params = [
      '''        return Math.max(0, Math.min(100, rawInput));''', 0, 1),
     (False, 'DM_INVALID_MIN_MAX', 'jmh/LinuxPerfNormProfiler.java',
      'multiplier = Math.max(1D, Math.min(0D, multiplier));', 1, 1),
+    (False, 'DMI_VACUOUS_CALL_TO_EASYMOCK_METHOD', 'TestEasyMock_01.java',
+     '''public static void main(String[] args) {
+        EasyMock.verify();
+        EasyMock.reset();
+        EasyMock.resetToDefault();
+        EasyMock.replay();
+    }''', 4, 2),
 ]
 
 
@@ -195,8 +202,10 @@ params = [
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine(Context(), included_filter=('FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector',
-                                            'StringCtorDetector', 'InvalidMinMaxDetector'))
+    engine = DefaultEngine(Context(), included_filter=(
+        'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
+        'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector',
+    ))
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
