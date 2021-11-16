@@ -195,6 +195,12 @@ params = [
         EasyMock.resetToDefault();
         EasyMock.replay();
     }''', 4, 2),
+    (False, 'DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE', 'TestBigDecimalConstructor_01.java',
+     'BigDecimal bd = new BigDecimal(0.1);', 1, 1),
+    (False, 'DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE', 'TestBigDecimalConstructor_02.java',
+     'BigDecimal bd = new BigDecimal(0.1f);', 0, 0),
+    (False, 'DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE', 'TestBigDecimalConstructor_03.java',
+     'BigDecimal bd = new BigDecimal(100.00);', 0, 0),
 ]
 
 
@@ -204,7 +210,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     patch.name = file_name
     engine = DefaultEngine(Context(), included_filter=(
         'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
-        'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector',
+        'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
     ))
     engine.visit(patch)
     if expected_length > 0:

@@ -1,8 +1,9 @@
 import regex
+from decimal import Decimal
 
-from patterns.models.detectors import Detector, get_exact_lineno
+from patterns.models.priorities import *
 from patterns.models.bug_instance import BugInstance
-from patterns.models import priorities
+from patterns.models.detectors import Detector, get_exact_lineno
 from utils import log_message, get_string_ranges, in_range, str_to_float
 
 
@@ -20,9 +21,9 @@ class FinalizerOnExitDetector(Detector):
                 return
 
             pkg_name = m.groups()[0]
-            confidence = priorities.HIGH_PRIORITY
+            confidence = HIGH_PRIORITY
             if pkg_name == 'System' or 'Runtime':
-                confidence = priorities.MEDIUM_PRIORITY
+                confidence = MEDIUM_PRIORITY
 
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
@@ -48,7 +49,7 @@ class RandomOnceDetector(Detector):
             # m.start(1) is the offset of the naming group
             line_no = get_exact_lineno(m.start(1), context.cur_line)[1]
             self.bug_accumulator.append(
-                BugInstance('DMI_RANDOM_USED_ONLY_ONCE', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
+                BugInstance('DMI_RANDOM_USED_ONLY_ONCE', HIGH_PRIORITY, context.cur_patch.name, line_no,
                             'Random object created and used only once', sha=context.cur_patch.sha, line_content=context.cur_line.content)
             )
             return
@@ -70,7 +71,7 @@ class RandomD2IDetector(Detector):
             if obj == 'math' or obj == 'r' or 'rand' in obj:
                 line_no = get_exact_lineno(m.end(2), context.cur_line)[1]
                 self.bug_accumulator.append(
-                    BugInstance('RV_01_TO_INT', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
+                    BugInstance('RV_01_TO_INT', HIGH_PRIORITY, context.cur_patch.name, line_no,
                                 'Random value from 0 to 1 is coerced to the integer 0', sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
                 return
@@ -107,7 +108,7 @@ class StringCtorDetector(Detector):
             if p_type is not None:
                 # m.start(1) is the offset of the naming group
                 line_no = get_exact_lineno(m.start(1), context.cur_line)[1]
-                self.bug_accumulator.append(BugInstance(p_type, priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                self.bug_accumulator.append(BugInstance(p_type, MEDIUM_PRIORITY, context.cur_patch.name,
                                                         line_no, description, sha=context.cur_patch.sha, line_content=context.cur_line.content))
                 return
 
@@ -170,7 +171,7 @@ class InvalidMinMaxDetector(Detector):
                     if upper_bound < lower_bound:
                         line_no = get_exact_lineno(m1.end(0), context.cur_line)[1]
                         self.bug_accumulator.append(
-                            BugInstance('DM_INVALID_MIN_MAX', priorities.HIGH_PRIORITY, context.cur_patch.name, line_no,
+                            BugInstance('DM_INVALID_MIN_MAX', HIGH_PRIORITY, context.cur_patch.name, line_no,
                                         'Incorrect combination of Math.max and Math.min', sha=context.cur_patch.sha, line_content=context.cur_line.content))
 
 
@@ -189,8 +190,38 @@ class VacuousEasyMockCallDetector(Detector):
                     return
 
                 self.bug_accumulator.append(
-                    BugInstance('DMI_VACUOUS_CALL_TO_EASYMOCK_METHOD', priorities.HIGH_PRIORITY, context.cur_patch.name,
+                    BugInstance('DMI_VACUOUS_CALL_TO_EASYMOCK_METHOD', HIGH_PRIORITY, context.cur_patch.name,
                                 get_exact_lineno(m.end(0), context.cur_line)[1],
                                 'Useless/vacuous call to EasyMock method',
                                 sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
+
+
+class BigDecimalConstructorDetector(Detector):
+    def __init__(self):
+        self.pattern = regex.compile(r'\bnew\s+BigDecimal\s*\(\s*(\d+\.\d+)\s*\)')
+        Detector.__init__(self)
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        if all(key in line_content for key in ('new', 'BigDecimal', '.')):
+            itr = self.pattern.finditer(line_content)
+            string_ranges = get_string_ranges(line_content)
+            for m in itr:
+                if in_range(m.start(0), string_ranges):
+                    continue
+                value = float(m.group(1))
+                floatStr = str(value)  # trim useless 0
+                decimalValue = Decimal(value)
+                decimalValueStr = str(decimalValue)
+
+                if floatStr != decimalValueStr and floatStr != decimalValueStr + '.0':
+                    priority = MEDIUM_PRIORITY if len(floatStr) <= 8 and len(decimalValueStr) > 12 \
+                                                  and 'E' not in decimalValueStr else LOW_PRIORITY
+
+                    self.bug_accumulator.append(
+                        BugInstance('DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE', priority, context.cur_patch.name,
+                                    get_exact_lineno(m.end(0), context.cur_line)[1],
+                                    'BigDecimal constructed from double that isn’t represented precisely',
+                                    sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                    )
