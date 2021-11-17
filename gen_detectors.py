@@ -1,6 +1,7 @@
 from patterns.detect.bad_syntax_for_regular_expression import SingleDotPatternDetector, FileSeparatorAsRegexpDetector
 from patterns.detect.find_dead_local_stores import FindDeadLocalIncrementInReturn
-from patterns.detect.find_puzzlers import BadMonthDetector, ShiftAddPriorityDetector, ReuseEntryInIteratorDetector
+from patterns.detect.find_puzzlers import BadMonthDetector, ShiftAddPriorityDetector, ReuseEntryInIteratorDetector, \
+    MultiplyIRemResultDetector
 from patterns.detect.find_self_comparison import CheckForSelfComputation, CheckForSelfComparison
 from patterns.detect.incompat_mask import IncompatMaskDetector
 from patterns.detect.inheritance_unsafe_get_resource import GetResourceDetector
@@ -78,4 +79,5 @@ DETECTOR_DICT = {
     'VacuousEasyMockCallDetector': VacuousEasyMockCallDetector,
     'BigDecimalConstructorDetector': BigDecimalConstructorDetector,
     'NonsensicalInvocationDetector': NonsensicalInvocationDetector,
+    'MultiplyIRemResultDetector': MultiplyIRemResultDetector,
 }

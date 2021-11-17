@@ -187,3 +187,10 @@ def str_to_float(num_str: str):
             return float(num_str)
     except ValueError:
         return None
+
+
+RE_INT_PATTERN = regex.compile(r'^\d+$')
+
+
+def is_int_str(operand_str: str):
+    return RE_INT_PATTERN.match(operand_str)

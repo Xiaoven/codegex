@@ -3,7 +3,7 @@ import regex
 from patterns.models.priorities import *
 from patterns.models.bug_instance import BugInstance
 from patterns.models.detectors import Detector, get_exact_lineno
-from utils import convert_str_to_int, get_string_ranges, in_range
+from utils import convert_str_to_int, get_string_ranges, in_range, is_int_str
 from .naming import GENERIC_REGEX, INTERFACE_EXTENDS_REGEX
 
 
@@ -162,3 +162,25 @@ class ReuseEntryInIteratorDetector(Detector):
                                 "shouldn't reuse Iterator as a Map.Entry",
                                 sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
+
+
+class MultiplyIRemResultDetector(Detector):
+    def __init__(self):
+        self.pattern = regex.compile(r'\b(\w+)\s*%\s*(\w+)\s*\*\s*(\w+)')
+        Detector.__init__(self)
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        if '%' in line_content and '*' in line_content:
+            itr = self.pattern.finditer(line_content)
+            string_ranges = get_string_ranges(line_content)
+            for m in itr:
+                if m.group(1) and is_int_str(m.group(1)) or m.group(2) and is_int_str(m.group(2)) \
+                        or m.group(3) and is_int_str(m.group(3)):
+                    if not in_range(m.start(0), string_ranges):
+                        self.bug_accumulator.append(
+                            BugInstance('IM_MULTIPLYING_RESULT_OF_IREM', LOW_PRIORITY,
+                                        context.cur_patch.name, get_exact_lineno(m.end(0), context.cur_line)[1],
+                                        "Integer multiply of result of integer remainder",
+                                        sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                        )
