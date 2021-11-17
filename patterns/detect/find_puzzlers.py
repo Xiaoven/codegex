@@ -184,3 +184,23 @@ class MultiplyIRemResultDetector(Detector):
                                         "Integer multiply of result of integer remainder",
                                         sha=context.cur_patch.sha, line_content=context.cur_line.content)
                         )
+
+
+class AnonymousArrayToStringDetector(Detector):
+    def __init__(self):
+        self.pattern = regex.compile(
+            r'\(\s*new\s+\w+\[\s*\]\s*(?P<brk>\{(?:[^{}]++|(?&brk))\})\s*\)\s*\.\s*toString\s*\(\s*\)')
+        Detector.__init__(self)
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        if all(key in line_content for key in ('new', 'toString', '[', '{')):
+            m = self.pattern.search(line_content)
+            if m:
+                if not in_range(m.start(0), get_string_ranges(line_content)):
+                    self.bug_accumulator.append(
+                        BugInstance('DMI_INVOKING_TOSTRING_ON_ANONYMOUS_ARRAY', MEDIUM_PRIORITY,
+                                    context.cur_patch.name, get_exact_lineno(m.end(0), context.cur_line)[1],
+                                    "Invocation of toString on an unnamed array",
+                                    sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                    )
