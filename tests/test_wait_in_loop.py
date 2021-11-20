@@ -5,8 +5,16 @@ from patterns.models.engine import DefaultEngine
 from rparser import parse
 
 params = [
-    (False, 'NO_NOTIFY_NOT_NOTIFYALL', 'WaitInLoopTest_01.java',
-     "obj.notify();", 1, 1),
+    # https://github.com/javaee/glassfish/commit/566f8ba3b206a3ca97a24d3d62acfa894fb21553
+    (True, 'NO_NOTIFY_NOT_NOTIFYALL', 'javaee/glassfish/MessageBeanContainer.java.java',
+     '''@@ -958,7 +958,7 @@ public void run() {
+            } finally {
+                synchronized (this) {
+                    this.done = true;
+                    this.notify();
+                }
+                try {
+                    mdbPool.close();''', 1, 961),
 ]
 
 
