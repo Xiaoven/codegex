@@ -30,6 +30,7 @@ from patterns.detect.dont_use_enum import DontUseEnumDetector
 from patterns.detect.find_self_assignment import CheckForSelfAssignment, CheckForSelfDoubleAssignment
 from patterns.detect.synchronize_on_class_literal_not_get_class import SynGetClassDetector
 from patterns.detect.volatile_usage import VolatileArrayDetector
+from patterns.detect.wait_in_loop import NotifyDetector
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -84,4 +85,5 @@ DETECTOR_DICT = {
     'AnonymousArrayToStringDetector': AnonymousArrayToStringDetector,
     'VolatileArrayDetector': VolatileArrayDetector,
     'SynGetClassDetector': SynGetClassDetector,
+    'NotifyDetector': NotifyDetector,
 }
