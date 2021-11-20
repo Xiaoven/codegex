@@ -1,3 +1,4 @@
+from patterns.detect.URL_problems import URLCollectionDetector
 from patterns.detect.bad_syntax_for_regular_expression import SingleDotPatternDetector, FileSeparatorAsRegexpDetector
 from patterns.detect.find_dead_local_stores import FindDeadLocalIncrementInReturn
 from patterns.detect.find_puzzlers import BadMonthDetector, ShiftAddPriorityDetector, ReuseEntryInIteratorDetector, \
@@ -86,4 +87,5 @@ DETECTOR_DICT = {
     'VolatileArrayDetector': VolatileArrayDetector,
     'SynGetClassDetector': SynGetClassDetector,
     'NotifyDetector': NotifyDetector,
+    'URLCollectionDetector': URLCollectionDetector,
 }
