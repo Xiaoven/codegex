@@ -28,6 +28,7 @@ from patterns.detect.find_bad_cast import FindBadCastDetector
 from patterns.detect.naming import ClassNameConventionDetector, MethodNameConventionDetector
 from patterns.detect.dont_use_enum import DontUseEnumDetector
 from patterns.detect.find_self_assignment import CheckForSelfAssignment, CheckForSelfDoubleAssignment
+from patterns.detect.synchronize_on_class_literal_not_get_class import SynGetClassDetector
 from patterns.detect.volatile_usage import VolatileArrayDetector
 
 DETECTOR_DICT = {
@@ -82,4 +83,5 @@ DETECTOR_DICT = {
     'MultiplyIRemResultDetector': MultiplyIRemResultDetector,
     'AnonymousArrayToStringDetector': AnonymousArrayToStringDetector,
     'VolatileArrayDetector': VolatileArrayDetector,
+    'SynGetClassDetector': SynGetClassDetector,
 }
