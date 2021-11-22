@@ -213,6 +213,10 @@ params = [
      'Assert.assertNotNull("x must be nonnull");', 1, 1),
     (False, 'DMI_DOH', 'TestNonsensicalInvocation_03.java',
      'Preconditions.checkNotNull("msg", "OJBK");', 1, 1),
+    (False, 'DM_BOOLEAN_CTOR', 'TestBooleanCtorDetector_01.java',
+     'return new Boolean(s);', 1, 1),
+    (False, 'DM_BOOLEAN_CTOR', 'TestBooleanCtorDetector_02.java',
+     'return new Boolean(true);', 1, 1),
 ]
 
 
@@ -223,7 +227,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     engine = DefaultEngine(Context(), included_filter=(
         'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
         'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
-        'NonsensicalInvocationDetector',
+        'NonsensicalInvocationDetector', 'BooleanCtorDetector',
     ))
     engine.visit(patch)
     if expected_length > 0:
