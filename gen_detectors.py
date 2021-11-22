@@ -1,3 +1,4 @@
+from patterns.detect.URL_problems import URLCollectionDetector
 from patterns.detect.bad_syntax_for_regular_expression import SingleDotPatternDetector, FileSeparatorAsRegexpDetector
 from patterns.detect.find_dead_local_stores import FindDeadLocalIncrementInReturn
 from patterns.detect.find_puzzlers import BadMonthDetector, ShiftAddPriorityDetector, ReuseEntryInIteratorDetector, \
@@ -28,7 +29,9 @@ from patterns.detect.find_bad_cast import FindBadCastDetector
 from patterns.detect.naming import ClassNameConventionDetector, MethodNameConventionDetector
 from patterns.detect.dont_use_enum import DontUseEnumDetector
 from patterns.detect.find_self_assignment import CheckForSelfAssignment, CheckForSelfDoubleAssignment
+from patterns.detect.synchronize_on_class_literal_not_get_class import SynGetClassDetector
 from patterns.detect.volatile_usage import VolatileArrayDetector
+from patterns.detect.wait_in_loop import NotifyDetector
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -82,4 +85,7 @@ DETECTOR_DICT = {
     'MultiplyIRemResultDetector': MultiplyIRemResultDetector,
     'AnonymousArrayToStringDetector': AnonymousArrayToStringDetector,
     'VolatileArrayDetector': VolatileArrayDetector,
+    'SynGetClassDetector': SynGetClassDetector,
+    'NotifyDetector': NotifyDetector,
+    'URLCollectionDetector': URLCollectionDetector,
 }
