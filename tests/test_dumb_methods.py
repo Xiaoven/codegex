@@ -227,6 +227,10 @@ params = [
      'System.out.println(new Double(3.14));', 1, 1),
     (False, 'DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_02.java',
      'System.out.println(new Float("3.2f"));', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_01.java',
+     'System.out.println(new Double(1.0).toString());', 2, 1),
+    (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_02.java',
+     'System.out.println(Integer.valueOf(12).toString());', 1, 1),
 ]
 
 
@@ -238,12 +242,17 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
         'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
         'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
         'NonsensicalInvocationDetector', 'BooleanCtorDetector', 'NumberCTORDetector', 'FPNumberCTORDetector',
+        'BoxedPrimitiveToStringDetector',
     ))
 
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
-        assert engine.bug_accumulator[0].line_no == line_no
-        assert engine.bug_accumulator[0].type == pattern_type
+        find = False
+        for instance in engine.bug_accumulator:
+            if instance.line_no == line_no and instance.type == pattern_type:
+                find = True
+                break
+        assert find
     else:
         assert len(engine.bug_accumulator) == 0
