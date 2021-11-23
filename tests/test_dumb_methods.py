@@ -223,6 +223,10 @@ params = [
     }""", 1, 2),
     (False, 'DM_NUMBER_CTOR', 'TestNumberCTORDetector_02.java',
      'return new Integer("123");', 1, 1),
+    (False, 'DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_01.java',
+     'System.out.println(new Double(3.14));', 1, 1),
+    (False, 'DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_02.java',
+     'System.out.println(new Float("3.2f"));', 1, 1),
 ]
 
 
@@ -233,7 +237,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     engine = DefaultEngine(Context(), included_filter=(
         'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
         'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
-        'NonsensicalInvocationDetector', 'BooleanCtorDetector', 'NumberCTORDetector',
+        'NonsensicalInvocationDetector', 'BooleanCtorDetector', 'NumberCTORDetector', 'FPNumberCTORDetector',
     ))
 
     engine.visit(patch)
