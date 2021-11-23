@@ -194,3 +194,11 @@ RE_INT_PATTERN = regex.compile(r'^\d+$')
 
 def is_int_str(operand_str: str):
     return RE_INT_PATTERN.match(operand_str)
+
+
+def simple_str_to_int(num_str: str):
+    if is_int_str(num_str):
+        return int(num_str, 0)
+    else:
+        logger.error(f'"{num_str}" is not a number string')
+        return None

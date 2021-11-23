@@ -217,6 +217,12 @@ params = [
      'return new Boolean(s);', 1, 1),
     (False, 'DM_BOOLEAN_CTOR', 'TestBooleanCtorDetector_02.java',
      'return new Boolean(true);', 1, 1),
+    (False, 'DM_NUMBER_CTOR', 'TestNumberCTORDetector_01.java',
+     """    public String test1(int myInt) {
+        return new Integer(myInt).toString();
+    }""", 1, 2),
+    (False, 'DM_NUMBER_CTOR', 'TestNumberCTORDetector_02.java',
+     'return new Integer("123");', 1, 1),
 ]
 
 
@@ -227,8 +233,9 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     engine = DefaultEngine(Context(), included_filter=(
         'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
         'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
-        'NonsensicalInvocationDetector', 'BooleanCtorDetector',
+        'NonsensicalInvocationDetector', 'BooleanCtorDetector', 'NumberCTORDetector',
     ))
+
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
