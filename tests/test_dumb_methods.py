@@ -231,6 +231,14 @@ params = [
      'System.out.println(new Double(1.0).toString());', 2, 1),
     (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_02.java',
      'System.out.println(Integer.valueOf(12).toString());', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_01.java',
+     'return Integer.valueOf(value).intValue();', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_02.java',
+     'return Long.valueOf("123").longValue();', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_03.java',
+     'return new Long(value).longValue();', 2, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_04.java',
+     'return (new Integer(value)).intValue();', 2, 1),
 ]
 
 
@@ -242,7 +250,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
         'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
         'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
         'NonsensicalInvocationDetector', 'BooleanCtorDetector', 'NumberCTORDetector', 'FPNumberCTORDetector',
-        'BoxedPrimitiveToStringDetector',
+        'BoxedPrimitiveToStringDetector', 'BoxedPrimitiveForParsingDetector',
     ))
 
     engine.visit(patch)
