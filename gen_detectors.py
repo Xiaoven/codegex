@@ -21,7 +21,8 @@ from patterns.detect.serializable_idiom import DefSerialVersionID, DefReadResolv
 from patterns.detect.find_unrelated_types_in_generic_container import SuspiciousCollectionMethodDetector
 from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDetector, RandomD2IDetector, \
     StringCtorDetector, InvalidMinMaxDetector, VacuousEasyMockCallDetector, BigDecimalConstructorDetector, \
-    NonsensicalInvocationDetector
+    NonsensicalInvocationDetector, BooleanCtorDetector, NumberCTORDetector, FPNumberCTORDetector, \
+    BoxedPrimitiveToStringDetector, BoxedPrimitiveForParsingDetector
 from patterns.detect.format_string_checker import NewLineDetector
 from patterns.detect.find_float_equality import FloatEqualityDetector
 from patterns.detect.find_puzzlers import OverwrittenIncrementDetector
@@ -88,4 +89,9 @@ DETECTOR_DICT = {
     'SynGetClassDetector': SynGetClassDetector,
     'NotifyDetector': NotifyDetector,
     'URLCollectionDetector': URLCollectionDetector,
+    'BooleanCtorDetector': BooleanCtorDetector,
+    'NumberCTORDetector': NumberCTORDetector,
+    'FPNumberCTORDetector': FPNumberCTORDetector,
+    'BoxedPrimitiveToStringDetector': BoxedPrimitiveToStringDetector,
+    'BoxedPrimitiveForParsingDetector': BoxedPrimitiveForParsingDetector,
 }

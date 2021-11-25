@@ -213,6 +213,32 @@ params = [
      'Assert.assertNotNull("x must be nonnull");', 1, 1),
     (False, 'DMI_DOH', 'TestNonsensicalInvocation_03.java',
      'Preconditions.checkNotNull("msg", "OJBK");', 1, 1),
+    (False, 'DM_BOOLEAN_CTOR', 'TestBooleanCtorDetector_01.java',
+     'return new Boolean(s);', 1, 1),
+    (False, 'DM_BOOLEAN_CTOR', 'TestBooleanCtorDetector_02.java',
+     'return new Boolean(true);', 1, 1),
+    (False, 'DM_NUMBER_CTOR', 'TestNumberCTORDetector_01.java',
+     """    public String test1(int myInt) {
+        return new Integer(myInt).toString();
+    }""", 1, 2),
+    (False, 'DM_NUMBER_CTOR', 'TestNumberCTORDetector_02.java',
+     'return new Integer("123");', 1, 1),
+    (False, 'DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_01.java',
+     'System.out.println(new Double(3.14));', 1, 1),
+    (False, 'DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_02.java',
+     'System.out.println(new Float("3.2f"));', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_01.java',
+     'System.out.println(new Double(1.0).toString());', 2, 1),
+    (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_02.java',
+     'System.out.println(Integer.valueOf(12).toString());', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_01.java',
+     'return Integer.valueOf(value).intValue();', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_02.java',
+     'return Long.valueOf("123").longValue();', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_03.java',
+     'return new Long(value).longValue();', 2, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_04.java',
+     'return (new Integer(value)).intValue();', 2, 1),
 ]
 
 
@@ -223,12 +249,18 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     engine = DefaultEngine(Context(), included_filter=(
         'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
         'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
-        'NonsensicalInvocationDetector',
+        'NonsensicalInvocationDetector', 'BooleanCtorDetector', 'NumberCTORDetector', 'FPNumberCTORDetector',
+        'BoxedPrimitiveToStringDetector', 'BoxedPrimitiveForParsingDetector',
     ))
+
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
-        assert engine.bug_accumulator[0].line_no == line_no
-        assert engine.bug_accumulator[0].type == pattern_type
+        find = False
+        for instance in engine.bug_accumulator:
+            if instance.line_no == line_no and instance.type == pattern_type:
+                find = True
+                break
+        assert find
     else:
         assert len(engine.bug_accumulator) == 0
