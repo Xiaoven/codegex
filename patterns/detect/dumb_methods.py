@@ -393,3 +393,23 @@ class BoxedPrimitiveForParsingDetector(Detector):
                         'Boxing/unboxing to parse a primitive',
                         sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
+
+
+class BoxedPrimitiveForCompareDetector(Detector):
+    def __init__(self):
+        Detector.__init__(self)
+        self.pattern = regex.compile(
+            r'\(\s*\(\s*(?:Long|Integer)\s*\)\s*\w(?:[.\w]+|(?P<aux>\((?:[^()]++|(?&aux))*\)))*\s*\)\s*\.compareTo\s*(?&aux)')
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        if 'compareTo' in line_content and any(k for k in ('Integer', 'Long')):
+            m = self.pattern.search(line_content)
+            if m and not in_range(m.start(0), get_string_ranges(line_content)):
+                self.bug_accumulator.append(
+                    BugInstance(
+                        'DM_BOXED_PRIMITIVE_FOR_COMPARE', LOW_PRIORITY, context.cur_patch.name,
+                        get_exact_lineno(m.end(0), context.cur_line)[1],
+                        'Boxing/unboxing to parse a primitive',
+                        sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                )
