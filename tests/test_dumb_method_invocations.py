@@ -5,6 +5,7 @@ from rparser import parse
 from patterns.models.engine import DefaultEngine
 
 params = [
+    # ---------- DMI_USELESS_SUBSTRING ---------- #
     # From SpotBugs: https://github.com/spotbugs/spotbugs/blob/51e586bed98393e53559a38c1f9bd15f54514efa/spotbugsTestCases/src/java/DumbMethodInvocations.java
     ('DMI_USELESS_SUBSTRING', 'TestUselessSubstringDetector_01.java',
      '''
@@ -15,6 +16,28 @@ params = [
      '''
      String f(String msg) {return msg . substring ( 0 ) ;}
     ''', 1, 2),
+    # ---------- DMI_HARDCODED_ABSOLUTE_FILENAME ---------- #
+    # From SpotBugs:
+    ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_01.java',
+     ''''@ExpectWarning("DMI_HARDCODED_ABSOLUTE_FILENAME")
+    public void testFile() {
+        new File("c:\\test.txt");
+    }''', 1, 3),
+    ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_02.java',
+     '''@ExpectWarning("DMI_HARDCODED_ABSOLUTE_FILENAME")
+    public void testFile2() {
+        new File("c:\\temp", "test.txt");
+    }''', 1, 3),
+    ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_03.java',
+     '''@ExpectWarning("DMI_HARDCODED_ABSOLUTE_FILENAME")
+    public void testPrintStream() throws IOException {
+        new PrintStream("c:\\test.txt", "UTF-8");
+    }''', 1, 3),
+    ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_04.java',
+     '''@NoWarning("DMI_HARDCODED_ABSOLUTE_FILENAME")
+    public void testPrintStream2() throws IOException {
+        new PrintStream("UTF-8", "c:\\test.txt");
+    }''', 0, 4),
 ]
 
 
@@ -22,7 +45,7 @@ params = [
 def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, False)
     patch.name = file_name
-    engine = DefaultEngine(Context(), included_filter=('UselessSubstringDetector',))
+    engine = DefaultEngine(Context(), included_filter=('UselessSubstringDetector', 'IsAbsoluteFileNameDetector'))
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
