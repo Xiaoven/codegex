@@ -393,3 +393,24 @@ class BoxedPrimitiveForParsingDetector(Detector):
                         'Boxing/unboxing to parse a primitive',
                         sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
+
+
+class NweForGetclassDetector(Detector):
+    def __init__(self):
+        Detector.__init__(self)
+        self.pattern = regex.compile(r'\bnew\s+(?:[\w\.]+\(\))+\s*\.\s*getClass\s*\(\s*\)')
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        if 'new' not in line_content:
+            return
+        m = self.pattern.search(line_content)
+        if m:
+            line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
+            self.bug_accumulator.append(
+                BugInstance(
+                    'DM_NEW_FOR_GETCLASS', MEDIUM_PRIORITY, context.cur_patch.name, line_no,
+                    'Method allocates an object, only to get the class object',
+                    sha=context.cur_patch.sha,
+                    line_content=context.cur_line.content)
+            )
