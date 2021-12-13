@@ -56,10 +56,14 @@ class IsAbsoluteFileNameDetector(Detector):
             for fn in p.findall(args):
                 if is_abs_filename(fn) and not fn.startswith("/etc/") and not fn.startswith("/dev/") and not fn.startswith("/proc"):
                     line_no = get_exact_lineno(m.start(0), context.cur_line)[1]
+                    priority = MEDIUM_PRIORITY
+                    if fn.startswith("/tmp"):
+                        priority = LOW_PRIORITY
+                    elif "/home" in fn:
+                        priority = HIGH_PRIORITY
                     self.bug_accumulator.append(
-                        BugInstance('DMI_HARDCODED_ABSOLUTE_FILENAME', MEDIUM_PRIORITY, context.cur_patch.name, line_no,
-                                    'This code constructs a File object using a hard coded to an absolute pathname (e.g., '
-                                    'new File("/home/dannyc/workspace/j2ee/src/share/com/sun/enterprise/deployment");',
+                        BugInstance('DMI_HARDCODED_ABSOLUTE_FILENAME', priority, context.cur_patch.name, line_no,
+                                    'Code contains a hard coded reference to an absolute pathname',
                                     sha=context.cur_patch.sha,
                                     line_content=context.cur_line.content)
                     )
