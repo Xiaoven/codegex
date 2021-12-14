@@ -37,6 +37,13 @@ params = [
     public void testPrintStream2() throws IOException {
         new PrintStream("UTF-8", "c:\\test.txt");
     }''', 1, 3),
+    # DIY
+    ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_05.java',
+     'new PrintStream("/Users/codegex/Documents/projects", "UTF-8");', 1, 1),
+    ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_06.java',
+     'new PrintStream("UTF-8", "/etc/aliases");', 0, 0),
+    ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_06.java',
+     '"new PrintStream("UTF-8", \"/etc/aliases\");"', 0, 0),
 ]
 
 
