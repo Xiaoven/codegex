@@ -233,4 +233,11 @@ class BoxingImmediatelyUnboxedDetector(Detector):
                                 "Primitive value is boxed and then immediately unboxed",
                                 sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
+            else:
+                self.bug_accumulator.append(
+                    BugInstance('BX_BOXING_IMMEDIATELY_UNBOXED_TO_PERFORM_COERCION', MEDIUM_PRIORITY,
+                                context.cur_patch.name, get_exact_lineno(m.end(0), context.cur_line)[1],
+                                "Primitive value is boxed then unboxed to perform primitive coercion",
+                                sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                )
 
