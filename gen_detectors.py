@@ -33,6 +33,7 @@ from patterns.detect.find_self_assignment import CheckForSelfAssignment, CheckFo
 from patterns.detect.synchronize_on_class_literal_not_get_class import SynGetClassDetector
 from patterns.detect.volatile_usage import VolatileArrayDetector
 from patterns.detect.wait_in_loop import NotifyDetector
+from patterns.detect.dumb_method_invocations import UselessSubstringDetector
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -95,4 +96,5 @@ DETECTOR_DICT = {
     'BoxedPrimitiveToStringDetector': BoxedPrimitiveToStringDetector,
     'BoxedPrimitiveForParsingDetector': BoxedPrimitiveForParsingDetector,
     'BoxedPrimitiveForCompareDetector': BoxedPrimitiveForCompareDetector,
+    'UselessSubstringDetector': UselessSubstringDetector,
 }
