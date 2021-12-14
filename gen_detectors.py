@@ -34,6 +34,8 @@ from patterns.detect.synchronize_on_class_literal_not_get_class import SynGetCla
 from patterns.detect.volatile_usage import VolatileArrayDetector
 from patterns.detect.wait_in_loop import NotifyDetector
 from patterns.detect.dumb_method_invocations import UselessSubstringDetector, IsAbsoluteFileNameDetector
+from patterns.detect.dumb_methods import NweForGetclassDetector
+
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -97,5 +99,6 @@ DETECTOR_DICT = {
     'BoxedPrimitiveForParsingDetector': BoxedPrimitiveForParsingDetector,
     'BoxedPrimitiveForCompareDetector': BoxedPrimitiveForCompareDetector,
     'UselessSubstringDetector': UselessSubstringDetector,
+    'NweForGetclassDetector': NweForGetclassDetector,
     'IsAbsoluteFileNameDetector': IsAbsoluteFileNameDetector,
 }

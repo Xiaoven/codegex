@@ -255,6 +255,20 @@ params = [
      '''    public int compareTo(Point a, Point b) {
         return ((Integer)a.x).compareTo(b.x);
     }''', 1, 2),
+    # ============== DM_NEW_FOR_GETCLASS ==============
+    # From github: https://github.com/MinELenI/CBSviewer/commit/c59ce0149a60d88d6731b1de94eb1c43df9a7f9a
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNweForGetclassDetector_01.java',
+     '''
+     if (this.objStack.peek().getClass() == new StreetAddress()
+    .getClass())''', 1, 3),
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNweForGetclassDetector_02.java',
+     '''
+     if (this.objStack.peek().getClass() == new Position().getClass())''', 1, 2),
+    # DIY
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNweForGetclassDetector_03.java',
+     'return (new Position ()).getClass();', 1, 1),
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNweForGetclassDetector_04.java',
+     'return new java.io.File("dir/images").getClass();', 1, 1),
 ]
 
 
@@ -266,7 +280,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
         'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
         'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
         'NonsensicalInvocationDetector', 'BooleanCtorDetector', 'NumberCTORDetector', 'FPNumberCTORDetector',
-        'BoxedPrimitiveToStringDetector', 'BoxedPrimitiveForParsingDetector', 'BoxedPrimitiveForCompareDetector',
+        'BoxedPrimitiveToStringDetector', 'BoxedPrimitiveForParsingDetector', 'NweForGetclassDetector', 'BoxedPrimitiveForCompareDetector',
     ))
 
     engine.visit(patch)
