@@ -398,14 +398,15 @@ class BoxedPrimitiveForParsingDetector(Detector):
 class NweForGetclassDetector(Detector):
     def __init__(self):
         Detector.__init__(self)
-        self.pattern = regex.compile(r'\bnew\s+(?:[\w\.]+\(\))+\s*\.\s*getClass\s*\(\s*\)')
+        self.pattern = regex.compile(
+            r'\(?\bnew\s+[\w.]+\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))\s*\)?\s*\.\s*getClass\s*\(\s*\)')
 
     def match(self, context):
         line_content = context.cur_line.content
         if 'new' not in line_content:
             return
         m = self.pattern.search(line_content)
-        if m:
+        if m and not in_range(m.start(0), get_string_ranges(line_content)):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance(

@@ -248,6 +248,11 @@ params = [
     (False, 'DM_NEW_FOR_GETCLASS', 'TestNweForGetclassDetector_02.java',
      '''
      if (this.objStack.peek().getClass() == new Position().getClass())''', 1, 2),
+    # DIY
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNweForGetclassDetector_03.java',
+     'return (new Position ()).getClass();', 1, 1),
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNweForGetclassDetector_04.java',
+     'return new java.io.File("dir/images").getClass();', 1, 1),
 ]
 
 
