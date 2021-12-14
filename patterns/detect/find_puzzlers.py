@@ -62,9 +62,10 @@ class BadMonthDetector(Detector):
             if month < 0 or month > 11:
                 line_no = get_exact_lineno(offset, context.cur_line)[1]
                 self.bug_accumulator.append(BugInstance('DMI_BAD_MONTH', priority, context.cur_patch.name, line_no,
-                                                        'Bad constant value for month.', sha=context.cur_patch.sha, line_content=context.cur_line.content))
+                                                        'Bad constant value for month.', sha=context.cur_patch.sha,
+                                                        line_content=context.cur_line.content))
 
-                
+
 class ShiftAddPriorityDetector(Detector):
     def __init__(self):
         self.pattern = regex.compile(r'\b[\w$]+\s*<<\s*([\w$]+)\s*[+-]\s*[\w$]+')
@@ -95,7 +96,8 @@ class ShiftAddPriorityDetector(Detector):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('BSHIFT_WRONG_ADD_PRIORITY', priority, context.cur_patch.name, line_no,
-                            'Possible bad parsing of shift operation.', sha=context.cur_patch.sha, line_content=context.cur_line.content))
+                            'Possible bad parsing of shift operation.', sha=context.cur_patch.sha,
+                            line_content=context.cur_line.content))
 
 
 class OverwrittenIncrementDetector(Detector):
@@ -124,7 +126,8 @@ class OverwrittenIncrementDetector(Detector):
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
                         BugInstance('DLS_OVERWRITTEN_INCREMENT', HIGH_PRIORITY, context.cur_patch.name,
-                                    line_no, "DLS: Overwritten increment", sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                                    line_no, "DLS: Overwritten increment", sha=context.cur_patch.sha,
+                                    line_content=context.cur_line.content)
                     )
                     break
 
@@ -149,7 +152,7 @@ class ReuseEntryInIteratorDetector(Detector):
             super_type_str = GENERIC_REGEX.sub('', super_type_str)  # remove <...>
             super_types = [t.strip() for t in super_type_str.split(',')]
             if len(super_types) > 1 and 'Iterator' in super_types \
-                and ('Entry' in super_types or 'Map.Entry' in super_types):
+                    and ('Entry' in super_types or 'Map.Entry' in super_types):
                 # if in string
                 string_ranges = get_string_ranges(line_content)
                 if in_range(m.start(0), string_ranges):
@@ -204,3 +207,30 @@ class AnonymousArrayToStringDetector(Detector):
                                     "Invocation of toString on an unnamed array",
                                     sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
+
+
+class BoxingImmediatelyUnboxedDetector(Detector):
+    def __init__(self):
+        self.pattern = regex.compile(r'\bnew\s+(Byte|Short|Integer|Long|Float|Double|Character|Boolean)\s*\(.+\)\.(\w+)'
+                                     r'Value\s*\(\s*\)')
+        Detector.__init__(self)
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        #         new Double(realINum).doubleValue();
+        if 'new' not in line_content and \
+                not any(key in line_content for key in ('Byte', 'Short', 'Integer', 'Long',
+                                                        'Float', 'Double', 'Character', 'Boolean')):
+            return
+        m = self.pattern.search(line_content)
+        if m:
+            prev_class = m.groups()[0]
+            this_method = m.groups()[1]
+            if prev_class.lower() == this_method:
+                self.bug_accumulator.append(
+                    BugInstance('BX_BOXING_IMMEDIATELY_UNBOXED', MEDIUM_PRIORITY,
+                                context.cur_patch.name, get_exact_lineno(m.end(0), context.cur_line)[1],
+                                "Primitive value is boxed and then immediately unboxed",
+                                sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                )
+

@@ -122,6 +122,10 @@ params = [
      '''System.out.println((new Integer[] {
                 1,
                 2 } ).toString());''', 0, 1),
+    # ------------------------ BX_BOXING_IMMEDIATELY_UNBOXED ------------------------
+    # DIY
+    ('BX_BOXING_IMMEDIATELY_UNBOXED', 'TestBoxingImmediatelyUnboxedDetector_01.java',
+     'new Float( value ).floatValue();', 1, 1),
 ]
 
 
@@ -131,7 +135,7 @@ def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int
     patch.name = file_name
     engine = DefaultEngine(Context(), included_filter=(
         'BadMonthDetector', 'ShiftAddPriorityDetector', 'OverwrittenIncrementDetector', 'ReuseEntryInIteratorDetector',
-        'MultiplyIRemResultDetector', 'AnonymousArrayToStringDetector',
+        'MultiplyIRemResultDetector', 'AnonymousArrayToStringDetector', 'BoxingImmediatelyUnboxedDetector',
     ))
     engine.visit(patch)
     if expected_length > 0:
