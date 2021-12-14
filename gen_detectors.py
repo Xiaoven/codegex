@@ -35,6 +35,7 @@ from patterns.detect.volatile_usage import VolatileArrayDetector
 from patterns.detect.wait_in_loop import NotifyDetector
 from patterns.detect.dumb_method_invocations import UselessSubstringDetector, IsAbsoluteFileNameDetector
 from patterns.detect.dumb_methods import NweForGetclassDetector
+from patterns.detect.find_useless_control_flow import UselessControlFlowNextLineDetector
 
 
 DETECTOR_DICT = {
@@ -101,4 +102,5 @@ DETECTOR_DICT = {
     'UselessSubstringDetector': UselessSubstringDetector,
     'NweForGetclassDetector': NweForGetclassDetector,
     'IsAbsoluteFileNameDetector': IsAbsoluteFileNameDetector,
+    'UselessControlFlowNextLineDetector': UselessControlFlowNextLineDetector,
 }
