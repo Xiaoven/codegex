@@ -436,3 +436,33 @@ class NewForGetclassDetector(Detector):
                     line_content=context.cur_line.content)
             )
 
+class NextIntViaNextDoubleDetector(Detector):
+    def __init__(self):
+        Detector.__init__(self)
+        self.pattern = regex.compile(
+            r'\(\s*int\s*\)\s*\(\s*(?P<op>(\w+\s*\.\s*(?:random|nextDouble|nextFloat)\s*\(\s*\))|\w[\w.]*)\s*\*\s*((?&op))\s*\)')
+        self.random_pattern = regex.compile(r'^\w+\s*\.\s*(?:random|nextDouble|nextFloat)\s*\(\s*\)$')
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        if 'int' not in line_content or not any(key in line_content for key in ('random', 'nextFloat', 'nextDouble')):
+            return
+        itr = self.pattern.finditer(line_content)
+        str_range = get_string_ranges(line_content)
+        for m in itr:
+            if not in_range(m.start(0), str_range):
+                target = m.group(2)
+                if not target and self.random_pattern.match(m.group(3)):  # 第一个乘数不是random invocation，检查第二个乘数
+                    target = m.group(3)
+
+                if target:
+                    if target.endswith('random') and not target.startswith('Math'):  # 检查 Math.random()
+                        continue
+                    line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
+                    self.bug_accumulator.append(
+                        BugInstance('DM_NEXTINT_VIA_NEXTDOUBLE', MEDIUM_PRIORITY, context.cur_patch.name, line_no,
+                                    'Use the nextInt method of Random rather than nextDouble to generate a random integer.',
+                                    sha=context.cur_patch.sha,
+                                    line_content=context.cur_line.content)
+                    )
+                    break   # 一行报一个 warning 就够了
