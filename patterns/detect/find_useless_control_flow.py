@@ -3,18 +3,18 @@ import regex
 from patterns.models.priorities import *
 from patterns.models.bug_instance import BugInstance
 from patterns.models.detectors import Detector, get_exact_lineno
+from utils import get_string_ranges, in_range
 
 
 class UselessControlFlowNextLineDetector(Detector):
     def __init__(self):
-        self.pattern = regex.compile(r'\bif\s*\(.*\)\;')
+        self.pattern = regex.compile(r'\b(?:if|while|for)\s*(?P<aux>\(((?:[^()]++|(?&aux))*)\))\s*;')
         Detector.__init__(self)
 
     def match(self, context):
         line_content = context.cur_line.content
         m = self.pattern.search(line_content)
-        if m:
-            print('here!')
+        if m and not in_range(m.start(0), get_string_ranges(line_content)):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             # cannot retrieve branchLineNumber, targetLineNumber and nextLine
             self.bug_accumulator.append(

@@ -1,5 +1,3 @@
-
-
 import pytest
 
 from patterns.models.context import Context
@@ -14,7 +12,7 @@ params = [
     ''', 1, 1),
     # From SpotBugs: https://github.com/pfirmstone/JGDMS/commit/19723b8d66bd53761d4220fd42320d4eebbf204d
     ('UCF_USELESS_CONTROL_FLOW_NEXT_LINE', 'TestUselessControlFlowNextLineDetector_02.java',
-     '''if (type != null && type.isInstance(result));
+     '''if (type != null && type.isInstance(result)) ;
     ''', 1, 1),
     # DIY
     ('UCF_USELESS_CONTROL_FLOW_NEXT_LINE', 'TestUselessControlFlowNextLineDetector_03.java',
@@ -24,6 +22,12 @@ params = [
             System.out.println("false");
         System.out.println("true");
     ''', 1, 3),
+    ('UCF_USELESS_CONTROL_FLOW_NEXT_LINE', 'TestUselessControlFlowNextLineDetector_04.java',
+     "if(a>0) return (a%2==0);", 0, 0),
+    ('UCF_USELESS_CONTROL_FLOW_NEXT_LINE', 'TestUselessControlFlowNextLineDetector_05.java',
+     "while (count-- > 0);", 1, 1),
+    ('UCF_USELESS_CONTROL_FLOW_NEXT_LINE', 'TestUselessControlFlowNextLineDetector_06.java',
+     "for(char c : chars);", 1, 1),
 ]
 
 
