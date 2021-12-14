@@ -239,6 +239,36 @@ params = [
      'return new Long(value).longValue();', 2, 1),
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_04.java',
      'return (new Integer(value)).intValue();', 2, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_01.java',
+     '''    public int compareTo(long a, long b) {
+        return ((Long)a).compareTo(b);
+    }''', 1, 2),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_02.java',
+     '''    public int compareTo(int a, int b) {
+        return ((Integer)a).compareTo(b);
+    }''', 1, 2),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_03.java',
+     '''    public int compareTo(String a, String b) {
+        return ((Integer)a.length()).compareTo(b.length());
+    }''', 1, 2),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_03.java',
+     '''    public int compareTo(Point a, Point b) {
+        return ((Integer)a.x).compareTo(b.x);
+    }''', 1, 2),
+    # ============== DM_NEW_FOR_GETCLASS ==============
+    # From github: https://github.com/MinELenI/CBSviewer/commit/c59ce0149a60d88d6731b1de94eb1c43df9a7f9a
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_01.java',
+     '''
+     if (this.objStack.peek().getClass() == new StreetAddress()
+    .getClass())''', 1, 3),
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_02.java',
+     '''
+     if (this.objStack.peek().getClass() == new Position().getClass())''', 1, 2),
+    # DIY
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_03.java',
+     'return (new Position ()).getClass();', 1, 1),
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_04.java',
+     'return new java.io.File("dir/images").getClass();', 1, 1),
     # ============== DM_NEXTINT_VIA_NEXTDOUBLE ==============
     # From Github: https://github.com/das-developers/das2java/commit/90d358aa501e505e32ec91814bba9be29bd53700
     (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_01.java',
@@ -262,7 +292,8 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
         'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
         'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
         'NonsensicalInvocationDetector', 'BooleanCtorDetector', 'NumberCTORDetector', 'FPNumberCTORDetector',
-        'BoxedPrimitiveToStringDetector', 'BoxedPrimitiveForParsingDetector', 'NextIntViaNextDoubleDetector'
+        'BoxedPrimitiveToStringDetector', 'BoxedPrimitiveForParsingDetector', 'NewForGetclassDetector', 'BoxedPrimitiveForCompareDetector',
+        'NextIntViaNextDoubleDetector',
     ))
 
     engine.visit(patch)
