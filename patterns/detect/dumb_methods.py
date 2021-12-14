@@ -415,7 +415,7 @@ class BoxedPrimitiveForCompareDetector(Detector):
                 )
                 
 
-class NweForGetclassDetector(Detector):
+class NewForGetclassDetector(Detector):
     def __init__(self):
         Detector.__init__(self)
         self.pattern = regex.compile(
