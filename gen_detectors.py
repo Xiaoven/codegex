@@ -22,7 +22,7 @@ from patterns.detect.find_unrelated_types_in_generic_container import Suspicious
 from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDetector, RandomD2IDetector, \
     StringCtorDetector, InvalidMinMaxDetector, VacuousEasyMockCallDetector, BigDecimalConstructorDetector, \
     NonsensicalInvocationDetector, BooleanCtorDetector, NumberCTORDetector, FPNumberCTORDetector, \
-    BoxedPrimitiveToStringDetector, BoxedPrimitiveForParsingDetector
+    BoxedPrimitiveToStringDetector, BoxedPrimitiveForParsingDetector, BoxedPrimitiveForCompareDetector
 from patterns.detect.format_string_checker import NewLineDetector
 from patterns.detect.find_float_equality import FloatEqualityDetector
 from patterns.detect.find_puzzlers import OverwrittenIncrementDetector
@@ -95,5 +95,6 @@ DETECTOR_DICT = {
     'FPNumberCTORDetector': FPNumberCTORDetector,
     'BoxedPrimitiveToStringDetector': BoxedPrimitiveToStringDetector,
     'BoxedPrimitiveForParsingDetector': BoxedPrimitiveForParsingDetector,
+    'BoxedPrimitiveForCompareDetector': BoxedPrimitiveForCompareDetector,
     'UselessSubstringDetector': UselessSubstringDetector,
 }
