@@ -12,10 +12,16 @@ params = [
                     count++;}
     ''', 1, 1),
     # DIY
-    ('RV_DONT_JUST_NULL_CHECK_READLINE', 'TestDontJustCheckReadline_01.java',
+    ('RV_DONT_JUST_NULL_CHECK_READLINE', 'TestDontJustCheckReadline_02.java',
      '''while (input.readLine() == null) {
                     count++;}
     ''', 1, 1),
+    ('RV_DONT_JUST_NULL_CHECK_READLINE', 'TestDontJustCheckReadline_03.java',
+     '''while (input
+                    .readLine() == null) {
+                    count++;}''', 1, 2),
+    ('RV_DONT_JUST_NULL_CHECK_READLINE', 'TestDontJustCheckReadline_04.java',
+     'if (null != reader.readLine()) {}', 1, 1),
 
 ]
 
