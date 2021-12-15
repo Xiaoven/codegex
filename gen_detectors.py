@@ -36,6 +36,7 @@ from patterns.detect.wait_in_loop import NotifyDetector
 from patterns.detect.dumb_method_invocations import UselessSubstringDetector, IsAbsoluteFileNameDetector
 from patterns.detect.dumb_methods import NewForGetclassDetector, NextIntViaNextDoubleDetector
 from patterns.detect.find_useless_control_flow import UselessControlFlowNextLineDetector
+from patterns.detect.dumb_methods import ImmediateDereferenceOfReadlineDetector
 
 
 DETECTOR_DICT = {
@@ -104,4 +105,5 @@ DETECTOR_DICT = {
     'IsAbsoluteFileNameDetector': IsAbsoluteFileNameDetector,
     'UselessControlFlowNextLineDetector': UselessControlFlowNextLineDetector,
     'NextIntViaNextDoubleDetector': NextIntViaNextDoubleDetector,
+    'ImmediateDereferenceOfReadlineDetector': ImmediateDereferenceOfReadlineDetector,
 }
