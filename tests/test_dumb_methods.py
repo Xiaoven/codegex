@@ -54,7 +54,7 @@ params = [
         pool.setMaxWaitMillis(-1L);
         pool.setBlockWhenExhausted(true);
 +       pool.setMinEvictableIdleTimeMillis(threadLifetimeMs());
-+       pool.setTimeBetweenEvictionRunsMillis(threadLifetimeMs() + 
++       pool.setTimeBetweenEvictionRunsMillis(threadLifetimeMs() +
 +                                               new Random(threadLifetimeMs()).nextLong());
 +    return pool;''', 1, 405),
     # From other repository: https://github.com/adaptris/interlok/commit/8dd32e9b89a4b17662faa7ca986756f3cc348cc7#diff-766b5e25592ad321e107f1f856d8a08bL102
@@ -239,6 +239,48 @@ params = [
      'return new Long(value).longValue();', 2, 1),
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_04.java',
      'return (new Integer(value)).intValue();', 2, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_01.java',
+     '''    public int compareTo(long a, long b) {
+        return ((Long)a).compareTo(b);
+    }''', 1, 2),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_02.java',
+     '''    public int compareTo(int a, int b) {
+        return ((Integer)a).compareTo(b);
+    }''', 1, 2),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_03.java',
+     '''    public int compareTo(String a, String b) {
+        return ((Integer)a.length()).compareTo(b.length());
+    }''', 1, 2),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_03.java',
+     '''    public int compareTo(Point a, Point b) {
+        return ((Integer)a.x).compareTo(b.x);
+    }''', 1, 2),
+    # ============== DM_NEW_FOR_GETCLASS ==============
+    # From github: https://github.com/MinELenI/CBSviewer/commit/c59ce0149a60d88d6731b1de94eb1c43df9a7f9a
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_01.java',
+     '''
+     if (this.objStack.peek().getClass() == new StreetAddress()
+    .getClass())''', 1, 3),
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_02.java',
+     '''
+     if (this.objStack.peek().getClass() == new Position().getClass())''', 1, 2),
+    # DIY
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_03.java',
+     'return (new Position ()).getClass();', 1, 1),
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_04.java',
+     'return new java.io.File("dir/images").getClass();', 1, 1),
+    # ============== DM_NEXTINT_VIA_NEXTDOUBLE ==============
+    # From Github: https://github.com/das-developers/das2java/commit/90d358aa501e505e32ec91814bba9be29bd53700
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_01.java',
+     '''for (; i < n; i += (1 + (int) (jump * r.nextDouble ( ) ))) ''', 1, 1),
+    # From Github: https://github.com/justinjamesob/device_sprd/commit/b5d72a8df2606459a8ad5349613749bd572f175a
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_02.java',
+     '''int index = (int) (Math.random() * 3);''', 1, 1),
+    # DIY
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_03.java',
+     '''return (int)(myrandom() * 3);''', 0, 0),
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_04.java',
+     '''return (int) (1.2 * r.nextDouble());''', 1, 1),
 ]
 
 
@@ -250,7 +292,8 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
         'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
         'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
         'NonsensicalInvocationDetector', 'BooleanCtorDetector', 'NumberCTORDetector', 'FPNumberCTORDetector',
-        'BoxedPrimitiveToStringDetector', 'BoxedPrimitiveForParsingDetector',
+        'BoxedPrimitiveToStringDetector', 'BoxedPrimitiveForParsingDetector', 'NewForGetclassDetector', 'BoxedPrimitiveForCompareDetector',
+        'NextIntViaNextDoubleDetector',
     ))
 
     engine.visit(patch)
