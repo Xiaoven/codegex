@@ -39,6 +39,10 @@ params = [
     # From Github: https://github.com/Sandec/jfx/commit/8488a6fd03cc514dfb6214ffa62f2ab533e7baf4
     ('IIO_INEFFICIENT_INDEX_OF', 'TestInefficientIndexOfDetector_02.java',
      '''int dotIndex = style.indexOf(":");''', 1, 1),
+    # DIY
+    ('IIO_INEFFICIENT_INDEX_OF', 'TestInefficientIndexOfDetector_03.java',
+     '''int dotIndex = style
+                            .indexOf(":");''', 1, 2),
 
 ]
 
