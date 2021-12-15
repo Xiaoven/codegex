@@ -28,3 +28,4 @@ class InefficientIndexOfDetector(Detector):
                     BugInstance('IIO_INEFFICIENT_INDEX_OF', LOW_PRIORITY, context.cur_patch.name,
                                 line_no, 'IIO: Inefficient use of String.indexOf(String)', sha=context.cur_patch.sha,
                                 line_content=context.cur_line.content)
+                )

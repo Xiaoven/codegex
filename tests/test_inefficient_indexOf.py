@@ -5,35 +5,39 @@ from rparser import parse
 from patterns.models.engine import DefaultEngine
 
 params = [
+    # --------------- IIO_INEFFICIENT_INDEX_OF ---------------
     # From SpotBugs: https://github.com/spotbugs/spotbugs/blob/51e586bed98393e53559a38c1f9bd15f54514efa/spotbugsTestCases/src/java/DumbMethodInvocations.java
-    ('IIO_INEFFICIENT_LAST_INDEX_OF', 'TestUselessSubstringDetector_01.java',
+    ('IIO_INEFFICIENT_INDEX_OF', 'TestUselessSubstringDetector_01.java',
      '''@ExpectWarning("IIO_INEFFICIENT_INDEX_OF")
     int notBug2(String any) {
         return any.indexOf(".");
     }
     ''', 1, 3),
-    ('IIO_INEFFICIENT_LAST_INDEX_OF', 'TestUselessSubstringDetector_01.java',
+    ('IIO_INEFFICIENT_INDEX_OF', 'TestUselessSubstringDetector_01.java',
      '''@NoWarning("RE_POSSIBLE_UNINTENDED_PATTERN")
     @ExpectWarning("IIO_INEFFICIENT_INDEX_OF")
     int notBug22(String any) {
         return any.indexOf("|");
     }
     ''', 1, 4),
+    # From Github: https://github.com/openjdk/jfx17u/commit/8488a6fd03cc514dfb6214ffa62f2ab533e7baf4
+    ('IIO_INEFFICIENT_INDEX_OF', 'TestInefficientIndexOfDetector_02.java',
+     '''if (fieldSig.indexOf(".") >= 0)''', 1, 1),
+    # --------------- IIO_INEFFICIENT_LAST_INDEX_OF ---------------
+    ('IIO_INEFFICIENT_LAST_INDEX_OF', 'TestInefficientIndexOfDetector_02.java',
+     '''int i = className.lastIndexOf("$");''', 1, 1),
     # From Github: https://github.com/lgtminshi/self_spotbugs/commit/4210c99bd9394bd804f8252794a8542a3919ef4b
     ('IIO_INEFFICIENT_LAST_INDEX_OF', 'TestInefficientIndexOfDetector_02.java',
      '''if (one.contains("$") && two.contains("$")
                         && one.substring(0, one.lastIndexOf("$")).equals(two.substring(0, two.lastIndexOf("$"))))
     ''', 1, 2),
-    ('IIO_INEFFICIENT_LAST_INDEX_OF', 'TestInefficientIndexOfDetector_02.java',
-     '''if (fieldSig.indexOf(".") >= 0)''', 1, 1),
-     ('IIO_INEFFICIENT_LAST_INDEX_OF', 'TestInefficientIndexOfDetector_02.java',
-     '''int i = className.lastIndexOf("$");''', 1, 1),
-     # From Github: https://github.com/Sandec/jfx/commit/8488a6fd03cc514dfb6214ffa62f2ab533e7baf4
-     ('IIO_INEFFICIENT_LAST_INDEX_OF', 'TestInefficientIndexOfDetector_02.java',
+
+    # From Github: https://github.com/Sandec/jfx/commit/8488a6fd03cc514dfb6214ffa62f2ab533e7baf4
+    ('IIO_INEFFICIENT_INDEX_OF', 'TestInefficientIndexOfDetector_02.java',
      '''packageLine.append(controller.substring(0, controller.indexOf(".")));''', 1, 1),
-     # From Github: https://github.com/openjdk/jfx17u/commit/8488a6fd03cc514dfb6214ffa62f2ab533e7baf4
-      # From Github: https://github.com/Sandec/jfx/commit/8488a6fd03cc514dfb6214ffa62f2ab533e7baf4
-     ('IIO_INEFFICIENT_LAST_INDEX_OF', 'TestInefficientIndexOfDetector_02.java',
+
+    # From Github: https://github.com/Sandec/jfx/commit/8488a6fd03cc514dfb6214ffa62f2ab533e7baf4
+    ('IIO_INEFFICIENT_INDEX_OF', 'TestInefficientIndexOfDetector_02.java',
      '''int dotIndex = style.indexOf(":");''', 1, 1),
 
 ]
