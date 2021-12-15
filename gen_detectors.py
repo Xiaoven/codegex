@@ -37,6 +37,7 @@ from patterns.detect.dumb_method_invocations import UselessSubstringDetector, Is
 from patterns.detect.dumb_methods import NewForGetclassDetector, NextIntViaNextDoubleDetector
 from patterns.detect.find_useless_control_flow import UselessControlFlowNextLineDetector
 from patterns.detect.inefficient_indexOf import InefficientIndexOfDetector
+from patterns.detect.bad_use_of_return_value import DontJustCheckReadlineDetector
 
 
 DETECTOR_DICT = {
@@ -106,4 +107,5 @@ DETECTOR_DICT = {
     'UselessControlFlowNextLineDetector': UselessControlFlowNextLineDetector,
     'NextIntViaNextDoubleDetector': NextIntViaNextDoubleDetector,
     'InefficientIndexOfDetector': InefficientIndexOfDetector,
+    'DontJustCheckReadlineDetector': DontJustCheckReadlineDetector,
 }
