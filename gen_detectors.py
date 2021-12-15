@@ -22,7 +22,7 @@ from patterns.detect.find_unrelated_types_in_generic_container import Suspicious
 from patterns.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDetector, RandomD2IDetector, \
     StringCtorDetector, InvalidMinMaxDetector, VacuousEasyMockCallDetector, BigDecimalConstructorDetector, \
     NonsensicalInvocationDetector, BooleanCtorDetector, NumberCTORDetector, FPNumberCTORDetector, \
-    BoxedPrimitiveToStringDetector, BoxedPrimitiveForParsingDetector
+    BoxedPrimitiveToStringDetector, BoxedPrimitiveForParsingDetector, BoxedPrimitiveForCompareDetector
 from patterns.detect.format_string_checker import NewLineDetector
 from patterns.detect.find_float_equality import FloatEqualityDetector
 from patterns.detect.find_puzzlers import OverwrittenIncrementDetector
@@ -33,8 +33,12 @@ from patterns.detect.find_self_assignment import CheckForSelfAssignment, CheckFo
 from patterns.detect.synchronize_on_class_literal_not_get_class import SynGetClassDetector
 from patterns.detect.volatile_usage import VolatileArrayDetector
 from patterns.detect.wait_in_loop import NotifyDetector
-from patterns.detect.dumb_method_invocations import UselessSubstringDetector
+from patterns.detect.dumb_method_invocations import UselessSubstringDetector, IsAbsoluteFileNameDetector
+from patterns.detect.dumb_methods import NewForGetclassDetector, NextIntViaNextDoubleDetector
+from patterns.detect.find_useless_control_flow import UselessControlFlowNextLineDetector
+from patterns.detect.inefficient_indexOf import InefficientIndexOfDetector
 from patterns.detect.bad_use_of_return_value import DontJustCheckReadlineDetector
+
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
@@ -96,6 +100,12 @@ DETECTOR_DICT = {
     'FPNumberCTORDetector': FPNumberCTORDetector,
     'BoxedPrimitiveToStringDetector': BoxedPrimitiveToStringDetector,
     'BoxedPrimitiveForParsingDetector': BoxedPrimitiveForParsingDetector,
+    'BoxedPrimitiveForCompareDetector': BoxedPrimitiveForCompareDetector,
     'UselessSubstringDetector': UselessSubstringDetector,
+    'NewForGetclassDetector': NewForGetclassDetector,
+    'IsAbsoluteFileNameDetector': IsAbsoluteFileNameDetector,
+    'UselessControlFlowNextLineDetector': UselessControlFlowNextLineDetector,
+    'NextIntViaNextDoubleDetector': NextIntViaNextDoubleDetector,
+    'InefficientIndexOfDetector': InefficientIndexOfDetector,
     'DontJustCheckReadlineDetector': DontJustCheckReadlineDetector,
 }
