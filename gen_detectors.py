@@ -33,15 +33,11 @@ from patterns.detect.find_self_assignment import CheckForSelfAssignment, CheckFo
 from patterns.detect.synchronize_on_class_literal_not_get_class import SynGetClassDetector
 from patterns.detect.volatile_usage import VolatileArrayDetector
 from patterns.detect.wait_in_loop import NotifyDetector
-<<<<<<< HEAD
-from patterns.detect.dumb_method_invocations import UselessSubstringDetector
-from patterns.detect.inefficient_indexOf import InefficientIndexOfDetector
-=======
 from patterns.detect.dumb_method_invocations import UselessSubstringDetector, IsAbsoluteFileNameDetector
 from patterns.detect.dumb_methods import NewForGetclassDetector, NextIntViaNextDoubleDetector
 from patterns.detect.find_useless_control_flow import UselessControlFlowNextLineDetector
+from patterns.detect.inefficient_indexOf import InefficientIndexOfDetector
 
->>>>>>> master
 
 DETECTOR_DICT = {
     "IncompatMaskDetector": IncompatMaskDetector,
