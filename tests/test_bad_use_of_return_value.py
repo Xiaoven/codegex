@@ -11,6 +11,11 @@ params = [
      '''while (input.readLine() != null) {
                     count++;}
     ''', 1, 1),
+    # DIY
+    ('RV_DONT_JUST_NULL_CHECK_READLINE', 'TestDontJustCheckReadline_01.java',
+     '''while (input.readLine() == null) {
+                    count++;}
+    ''', 1, 1),
 
 ]
 
