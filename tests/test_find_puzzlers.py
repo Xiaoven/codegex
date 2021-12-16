@@ -109,6 +109,19 @@ params = [
     }
 }
      ''', 0, 1),
+    ('PZ_DONT_REUSE_ENTRY_OBJECTS_IN_ITERATORS', 'Main_12.java',
+     "public class TMP implements Iterator, Map.Entry {", 1, 1),
+    ('PZ_DONT_REUSE_ENTRY_OBJECTS_IN_ITERATORS', 'Main_13.java',
+     "public interface TMP extends Iterator, Entry {", 1, 1),
+    ('IM_MULTIPLYING_RESULT_OF_IREM', 'ReuseEntryInIteratorDetectorTest_01.java',
+     "return i % 60 * 1000;", 1, 1),
+    ('DMI_INVOKING_TOSTRING_ON_ANONYMOUS_ARRAY', 'AnonymousArrayToStringDetector_01.java',
+     'System.out.println((new String[] { new String("one"), "two" }).toString());', 1, 1),
+    # TODO: FN. The parser will split the following statement as several lines
+    ('DMI_INVOKING_TOSTRING_ON_ANONYMOUS_ARRAY', 'AnonymousArrayToStringDetector_02.java',
+     '''System.out.println((new Integer[] {
+                1,
+                2 } ).toString());''', 0, 1),
 ]
 
 
@@ -116,7 +129,10 @@ params = [
 def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, False)
     patch.name = file_name
-    engine = DefaultEngine(Context(), included_filter=('BadMonthDetector', 'ShiftAddPriorityDetector', 'OverwrittenIncrementDetector'))
+    engine = DefaultEngine(Context(), included_filter=(
+        'BadMonthDetector', 'ShiftAddPriorityDetector', 'OverwrittenIncrementDetector', 'ReuseEntryInIteratorDetector',
+        'MultiplyIRemResultDetector', 'AnonymousArrayToStringDetector',
+    ))
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length

@@ -54,7 +54,7 @@ params = [
         pool.setMaxWaitMillis(-1L);
         pool.setBlockWhenExhausted(true);
 +       pool.setMinEvictableIdleTimeMillis(threadLifetimeMs());
-+       pool.setTimeBetweenEvictionRunsMillis(threadLifetimeMs() + 
++       pool.setTimeBetweenEvictionRunsMillis(threadLifetimeMs() +
 +                                               new Random(threadLifetimeMs()).nextLong());
 +    return pool;''', 1, 405),
     # From other repository: https://github.com/adaptris/interlok/commit/8dd32e9b89a4b17662faa7ca986756f3cc348cc7#diff-766b5e25592ad321e107f1f856d8a08bL102
@@ -75,6 +75,8 @@ params = [
      "        if (\"random\".equals(seed)) {\n"
      "            seedValue = new java.util.Random().nextLong();\n"
      "        } else if (\"timestamp\".equals(seed)) {\n", 1, 173),
+    (False, 'DMI_RANDOM_USED_ONLY_ONCE', 'Benchmark/BenchmarkTest02415.java',
+     'new java.util.Random().nextBytes(bytes);', 1, 1),
 
     # ============== DM_STRING_VOID_CTOR ==============
     # From other repository: https://github.com/universAAL/middleware/commit/daf0a4ca23297f08713e722d5f2fd891699aa95f
@@ -184,6 +186,101 @@ params = [
      '''        return Math.min(100, Math.max(0, rawInput));''', 0, 1),
     (False, 'DM_INVALID_MIN_MAX', 'Feature329.java',
      '''        return Math.max(0, Math.min(100, rawInput));''', 0, 1),
+    (False, 'DM_INVALID_MIN_MAX', 'jmh/LinuxPerfNormProfiler.java',
+     'multiplier = Math.max(1D, Math.min(0D, multiplier));', 1, 1),
+    (False, 'DMI_VACUOUS_CALL_TO_EASYMOCK_METHOD', 'TestEasyMock_01.java',
+     '''public static void main(String[] args) {
+        EasyMock.verify();
+        EasyMock.reset();
+        EasyMock.resetToDefault();
+        EasyMock.replay();
+    }''', 4, 2),
+    (False, 'DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE', 'TestBigDecimalConstructor_01.java',
+     'BigDecimal bd = new BigDecimal(0.1);', 1, 1),
+    (False, 'DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE', 'TestBigDecimalConstructor_02.java',
+     'BigDecimal bd = new BigDecimal(0.1f);', 0, 0),
+    (False, 'DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE', 'TestBigDecimalConstructor_03.java',
+     'BigDecimal bd = new BigDecimal(100.00);', 0, 0),
+    (False, 'DMI_ARGUMENTS_WRONG_ORDER', 'TestArgWrongOrder_01.java',
+     'Preconditions.checkNotNull("x must be nonnull", x);', 1, 1),
+    (False, 'DMI_ARGUMENTS_WRONG_ORDER', 'TestArgWrongOrder_02.java',
+     'Assert.assertNotNull(x, "x must be nonnull");', 1, 1),
+    (False, 'DMI_ARGUMENTS_WRONG_ORDER', 'TestArgWrongOrder_03.java',
+     'Preconditions.checkNotNull(x, "x must be nonnull");', 0, 0),
+    (False, 'DMI_DOH', 'TestNonsensicalInvocation_01.java',
+     'Preconditions.checkNotNull("x must be nonnull");', 1, 1),
+    (False, 'DMI_DOH', 'TestNonsensicalInvocation_02.java',
+     'Assert.assertNotNull("x must be nonnull");', 1, 1),
+    (False, 'DMI_DOH', 'TestNonsensicalInvocation_03.java',
+     'Preconditions.checkNotNull("msg", "OJBK");', 1, 1),
+    (False, 'DM_BOOLEAN_CTOR', 'TestBooleanCtorDetector_01.java',
+     'return new Boolean(s);', 1, 1),
+    (False, 'DM_BOOLEAN_CTOR', 'TestBooleanCtorDetector_02.java',
+     'return new Boolean(true);', 1, 1),
+    (False, 'DM_NUMBER_CTOR', 'TestNumberCTORDetector_01.java',
+     """    public String test1(int myInt) {
+        return new Integer(myInt).toString();
+    }""", 1, 2),
+    (False, 'DM_NUMBER_CTOR', 'TestNumberCTORDetector_02.java',
+     'return new Integer("123");', 1, 1),
+    (False, 'DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_01.java',
+     'System.out.println(new Double(3.14));', 1, 1),
+    (False, 'DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_02.java',
+     'System.out.println(new Float("3.2f"));', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_01.java',
+     'System.out.println(new Double(1.0).toString());', 2, 1),
+    (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_02.java',
+     'System.out.println(Integer.valueOf(12).toString());', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_01.java',
+     'return Integer.valueOf(value).intValue();', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_02.java',
+     'return Long.valueOf("123").longValue();', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_03.java',
+     'return new Long(value).longValue();', 2, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_04.java',
+     'return (new Integer(value)).intValue();', 2, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_01.java',
+     '''    public int compareTo(long a, long b) {
+        return ((Long)a).compareTo(b);
+    }''', 1, 2),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_02.java',
+     '''    public int compareTo(int a, int b) {
+        return ((Integer)a).compareTo(b);
+    }''', 1, 2),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_03.java',
+     '''    public int compareTo(String a, String b) {
+        return ((Integer)a.length()).compareTo(b.length());
+    }''', 1, 2),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_03.java',
+     '''    public int compareTo(Point a, Point b) {
+        return ((Integer)a.x).compareTo(b.x);
+    }''', 1, 2),
+    # ============== DM_NEW_FOR_GETCLASS ==============
+    # From github: https://github.com/MinELenI/CBSviewer/commit/c59ce0149a60d88d6731b1de94eb1c43df9a7f9a
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_01.java',
+     '''
+     if (this.objStack.peek().getClass() == new StreetAddress()
+    .getClass())''', 1, 3),
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_02.java',
+     '''
+     if (this.objStack.peek().getClass() == new Position().getClass())''', 1, 2),
+    # DIY
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_03.java',
+     'return (new Position ()).getClass();', 1, 1),
+    (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_04.java',
+     'return new java.io.File("dir/images").getClass();', 1, 1),
+    # ============== DM_NEXTINT_VIA_NEXTDOUBLE ==============
+    # From Github: https://github.com/das-developers/das2java/commit/90d358aa501e505e32ec91814bba9be29bd53700
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_01.java',
+     '''for (; i < n; i += (1 + (int) (jump * r.nextDouble ( ) ))) ''', 1, 1),
+    # From Github: https://github.com/justinjamesob/device_sprd/commit/b5d72a8df2606459a8ad5349613749bd572f175a
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_02.java',
+     '''int index = (int) (Math.random() * 3);''', 1, 1),
+    # DIY
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_03.java',
+     '''return (int)(myrandom() * 3);''', 0, 0),
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_04.java',
+     '''return (int) (1.2 * r.nextDouble());''', 1, 1),
 ]
 
 
@@ -191,12 +288,22 @@ params = [
 def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expected_length: int, line_no: int):
     patch = parse(patch_str, is_patch)
     patch.name = file_name
-    engine = DefaultEngine(Context(), included_filter=('FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector',
-                                            'StringCtorDetector', 'InvalidMinMaxDetector'))
+    engine = DefaultEngine(Context(), included_filter=(
+        'FinalizerOnExitDetector', 'RandomOnceDetector', 'RandomD2IDetector','StringCtorDetector',
+        'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
+        'NonsensicalInvocationDetector', 'BooleanCtorDetector', 'NumberCTORDetector', 'FPNumberCTORDetector',
+        'BoxedPrimitiveToStringDetector', 'BoxedPrimitiveForParsingDetector', 'NewForGetclassDetector', 'BoxedPrimitiveForCompareDetector',
+        'NextIntViaNextDoubleDetector',
+    ))
+
     engine.visit(patch)
     if expected_length > 0:
         assert len(engine.bug_accumulator) == expected_length
-        assert engine.bug_accumulator[0].line_no == line_no
-        assert engine.bug_accumulator[0].type == pattern_type
+        find = False
+        for instance in engine.bug_accumulator:
+            if instance.line_no == line_no and instance.type == pattern_type:
+                find = True
+                break
+        assert find
     else:
         assert len(engine.bug_accumulator) == 0

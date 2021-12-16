@@ -137,7 +137,7 @@ def run():
             pr_timer.start()
             engine.visit(*patchset)
 
-            bugs = engine.filter_bugs(level='low')
+            bugs = engine.filter_bugs()
             if bugs:
                 save_path = f'{report_path}/{repo_name}/{pr_id}'
                 create_missing_dirs(save_path)
@@ -165,6 +165,6 @@ def run():
 
 if __name__ == '__main__':
     # find_missing_pr()
+    run()
     # report_diversity()
     # sum_time_and_warnings()
-    run()

@@ -236,12 +236,14 @@ def _parse_hunk(stream, is_patch, hunk=None):
         # remove single-line annotation from line content
         string_ranges = get_string_ranges(line_obj.content)
 
-        left_stars = [m.start() for m in ann_left.finditer(line_obj.content) if not in_range(m.start(), string_ranges)]
-        right_stars = [m.end() for m in ann_right.finditer(line_obj.content) if not in_range(m.start(), string_ranges)]
+        left_stars = [m for m in ann_left.finditer(line_obj.content) if not in_range(m.start(), string_ranges)]
+        right_stars = [m for m in ann_right.finditer(line_obj.content) if not in_range(m.start(), string_ranges)]
         if left_stars and right_stars:
-            old_content = line_obj.content
-            line_obj.content = old_content[:left_stars[0]] + old_content[right_stars[-1]:]
-            string_ranges = get_string_ranges(line_obj.content)
+            left, right = left_stars[0], right_stars[-1]
+            if left.end()-1 != right.start():  # fix "/*/"
+                old_content = line_obj.content
+                line_obj.content = old_content[:left.start()] + old_content[right.end():]
+                string_ranges = get_string_ranges(line_obj.content)
 
         slash_starts = [m.start() for m in ann_slash.finditer(line_obj.content) if not in_range(m.start(), string_ranges)]
         if slash_starts:

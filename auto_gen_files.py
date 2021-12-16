@@ -10,10 +10,11 @@ if __name__ == '__main__':
     p_detector = re.compile(r'class\s*([^\s()]+)\(Detector\)')
     p = re.compile(r'[\'"]([A-Z0-9]+_+[A-Z_0-9]+)[\'"]')
     detector_path = os.path.join(os.getcwd(), 'patterns/detect')
-    all_pattern_set = set()
-    file_names = list()
-    detector_names = list()
-    import_list = list()
+    all_pattern_set = set()     # Pattern names of Codegex, including synthetic patterns
+    # ========= gen_detectors.py is used to register detectors, i.e. let engine knows the detectors in Codegex.
+    file_names = list()         # File names of detectors in Codegex, used to update gen_detectors.py
+    detector_names = list()     # class names of detectors in Codegex, used to update gen_detectors.py
+    import_list = list()        # used to update the imports of gen_detectors.py
 
     for filename in os.listdir(detector_path):
         path = os.path.join(detector_path, filename)
@@ -43,13 +44,13 @@ if __name__ == '__main__':
         if import_stmt:
             import_list.append(import_stmt)
 
-    print('[Length of file names]', len(file_names))
-    print('[Number of patterns]', len(all_pattern_set))
-    print('[Number of Detectors]', len(detector_names))
+    # print('[Number of detector files in Codegex]', len(file_names))
+    # print('[Number of original patterns in Codegex]', len(all_pattern_set))
+    # print('[Number of detector classes in codegex]', len(detector_names))
 
-    print(all_pattern_set)
+    # print(all_pattern_set)
 
-    # print visitors
+    # print visitors which is used to config SpotBugs maven plugins to decide to run detectors in which files
     visitors = list()
     for name in file_names:
         if name == 'FindSelfAssignment':
@@ -62,16 +63,40 @@ if __name__ == '__main__':
             visitors.append('FindBadCast2')
         else:
             visitors.append(name)
-    print(','.join(visitors))
+    # print(','.join(visitors))
 
-    with open('gen_detectors.py', 'w') as f:
-        if import_list:
-            f.writelines(import_list)
-        if detector_names:
-            f.write('\nDETECTOR_DICT = {\n    ' + ',\n    '.join(detector_names) + '\n}')
 
-    with open('spotbugs-includeFilter.xml', 'w') as f:
-        f.write('<FindBugsFilter>\n')
-        for pattern in all_pattern_set:
-            f.write(f'\t<Match>\n\t\t<Bug pattern="{pattern}"/>\n\t</Match>\n')
-        f.write('</FindBugsFilter>')
+    # # This writing operation should be enabled only when the old gen_detectors.py is not maintained after implementing new patterns
+    # with open('gen_detectors.py', 'w') as f:
+    #     if import_list:
+    #         f.writelines(import_list)
+    #     if detector_names:
+    #         f.write('\nDETECTOR_DICT = {\n    ' + ',\n    '.join(detector_names) + '\n}')
+
+    # patterns_to_write matches codegex patterns to spotbugs patterns, and is used to generate warning filter files in comparison experiment with spotbugs
+    patterns_to_write = set()
+    for pattern in all_pattern_set:
+        if pattern == 'SA_SELF_ASSIGNMENT':
+            patterns_to_write.add('SA_FIELD_SELF_ASSIGNMENT')
+            patterns_to_write.add('SA_LOCAL_SELF_ASSIGNMENT')
+        elif pattern == 'SA_SELF_COMPARISON':
+            patterns_to_write.add('SA_FIELD_SELF_COMPARISON')
+            patterns_to_write.add('SA_LOCAL_SELF_COMPARISON')
+        elif pattern == 'SA_SELF_COMPUTATION':
+            patterns_to_write.add('SA_FIELD_SELF_COMPUTATION')
+            patterns_to_write.add('SA_LOCAL_SELF_COMPUTATION')
+        elif pattern == 'SA_DOUBLE_ASSIGNMENT':
+            patterns_to_write.add('SA_FIELD_DOUBLE_ASSIGNMENT')
+            patterns_to_write.add('SA_LOCAL_DOUBLE_ASSIGNMENT')
+        else:
+            patterns_to_write.add(pattern)
+
+    print(f'Number of implemented SpotBugs patterns by Codegex = {len(patterns_to_write)}')
+    print('\n'.join(list(patterns_to_write)))
+
+    # # Generate warning filter files used in comparison experiment with spotbugs
+    # with open('spotbugs-includeFilter.xml', 'w') as f:
+    #     f.write('<FindBugsFilter>\n')
+    #     for pattern in patterns_to_write:
+    #         f.write(f'\t<Match>\n\t\t<Bug pattern="{pattern}"/>\n\t</Match>\n')
+    #     f.write('</FindBugsFilter>')

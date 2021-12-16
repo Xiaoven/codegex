@@ -1,9 +1,10 @@
 import regex
 
-from patterns.models import priorities
+from patterns.models.priorities import *
 from patterns.models.bug_instance import BugInstance
 from patterns.models.detectors import Detector, get_exact_lineno
-from utils import convert_str_to_int, get_string_ranges, in_range
+from utils import convert_str_to_int, get_string_ranges, in_range, is_int_str
+from .naming import GENERIC_REGEX, INTERFACE_EXTENDS_REGEX
 
 
 class BadMonthDetector(Detector):
@@ -17,7 +18,7 @@ class BadMonthDetector(Detector):
         fire = False
         instance_name = None
         month = None
-        priority = priorities.MEDIUM_PRIORITY
+        priority = MEDIUM_PRIORITY
 
         line_content = context.cur_line.content
         string_ranges = get_string_ranges(line_content)
@@ -32,7 +33,7 @@ class BadMonthDetector(Detector):
                 g = m.groups()
                 instance_name = g[0]
                 month = int(g[1])
-                priority = priorities.HIGH_PRIORITY
+                priority = HIGH_PRIORITY
         elif 'set' in line_content:
             if 'calendar' in line_content.lower():  # To temporarily reduce unnecessary matches
                 m = self.calendar.search(line_content)
@@ -79,7 +80,7 @@ class ShiftAddPriorityDetector(Detector):
             string_ranges = get_string_ranges(line_content)
             if in_range(m.start(0), string_ranges):
                 return
-            priority = priorities.LOW_PRIORITY
+            priority = LOW_PRIORITY
             const = convert_str_to_int(m.groups()[0])
 
             if const is not None:
@@ -90,7 +91,7 @@ class ShiftAddPriorityDetector(Detector):
                     return
 
                 if const == 8:
-                    priority = priorities.MEDIUM_PRIORITY
+                    priority = MEDIUM_PRIORITY
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('BSHIFT_WRONG_ADD_PRIORITY', priority, context.cur_patch.name, line_no,
@@ -122,7 +123,84 @@ class OverwrittenIncrementDetector(Detector):
                 if pattern_inc.search(op_2):
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
                     self.bug_accumulator.append(
-                        BugInstance('DLS_OVERWRITTEN_INCREMENT', priorities.HIGH_PRIORITY, context.cur_patch.name,
+                        BugInstance('DLS_OVERWRITTEN_INCREMENT', HIGH_PRIORITY, context.cur_patch.name,
                                     line_no, "DLS: Overwritten increment", sha=context.cur_patch.sha, line_content=context.cur_line.content)
                     )
                     break
+
+
+class ReuseEntryInIteratorDetector(Detector):
+    def __init__(self):
+        self.interface_extends = INTERFACE_EXTENDS_REGEX
+        self.class_implements = regex.compile(
+            r'\bclass\s+([\w$]+)\s*(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+implements\s+([^{]+)')
+        Detector.__init__(self)
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        m = None
+        if all(key in line_content for key in ('class', 'implements')):
+            m = self.class_implements.search(line_content)
+        elif all(key in line_content for key in ('interface', 'extends')):
+            m = self.interface_extends.search(line_content)
+
+        if m:
+            super_type_str = m.groups()[-1]
+            super_type_str = GENERIC_REGEX.sub('', super_type_str)  # remove <...>
+            super_types = [t.strip() for t in super_type_str.split(',')]
+            if len(super_types) > 1 and 'Iterator' in super_types \
+                and ('Entry' in super_types or 'Map.Entry' in super_types):
+                # if in string
+                string_ranges = get_string_ranges(line_content)
+                if in_range(m.start(0), string_ranges):
+                    return
+                # generate warning
+                line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
+                self.bug_accumulator.append(
+                    BugInstance('PZ_DONT_REUSE_ENTRY_OBJECTS_IN_ITERATORS', MEDIUM_PRIORITY,
+                                context.cur_patch.name, line_no,
+                                "shouldn't reuse Iterator as a Map.Entry",
+                                sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                )
+
+
+class MultiplyIRemResultDetector(Detector):
+    def __init__(self):
+        self.pattern = regex.compile(r'\b(\w+)\s*%\s*(\w+)\s*\*\s*(\w+)')
+        Detector.__init__(self)
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        if '%' in line_content and '*' in line_content:
+            itr = self.pattern.finditer(line_content)
+            string_ranges = get_string_ranges(line_content)
+            for m in itr:
+                if m.group(1) and is_int_str(m.group(1)) or m.group(2) and is_int_str(m.group(2)) \
+                        or m.group(3) and is_int_str(m.group(3)):
+                    if not in_range(m.start(0), string_ranges):
+                        self.bug_accumulator.append(
+                            BugInstance('IM_MULTIPLYING_RESULT_OF_IREM', LOW_PRIORITY,
+                                        context.cur_patch.name, get_exact_lineno(m.end(0), context.cur_line)[1],
+                                        "Integer multiply of result of integer remainder",
+                                        sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                        )
+
+
+class AnonymousArrayToStringDetector(Detector):
+    def __init__(self):
+        self.pattern = regex.compile(
+            r'\(\s*new\s+\w+\[\s*\]\s*(?P<brk>\{(?:[^{}]++|(?&brk))\})\s*\)\s*\.\s*toString\s*\(\s*\)')
+        Detector.__init__(self)
+
+    def match(self, context):
+        line_content = context.cur_line.content
+        if all(key in line_content for key in ('new', 'toString', '[', '{')):
+            m = self.pattern.search(line_content)
+            if m:
+                if not in_range(m.start(0), get_string_ranges(line_content)):
+                    self.bug_accumulator.append(
+                        BugInstance('DMI_INVOKING_TOSTRING_ON_ANONYMOUS_ARRAY', MEDIUM_PRIORITY,
+                                    context.cur_patch.name, get_exact_lineno(m.end(0), context.cur_line)[1],
+                                    "Invocation of toString on an unnamed array",
+                                    sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                    )

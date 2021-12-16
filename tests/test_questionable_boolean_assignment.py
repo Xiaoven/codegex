@@ -5,7 +5,7 @@ from patterns.models.engine import DefaultEngine
 from rparser import parse
 
 
-params =[
+params = [
     # https://github.com/TouK/sputnik-test/pull/3#discussion_r57453267
     (False, 'QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT', 'BadCode.java',
      '''private static void incorrectAssignmentInIfCondition() {

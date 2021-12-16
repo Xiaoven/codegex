@@ -80,10 +80,12 @@ class GetResourceDetector(Detector):
                         if resp_json['total_count'] > 0:
                             return priorities.MEDIUM_PRIORITY
                         else:
-                            return None
+                            # return None
+                            return priorities.LOW_PRIORITY
 
         # default priority
-        return priorities.IGNORE_PRIORITY
+        # return priorities.IGNORE_PRIORITY
+        return priorities.LOW_PRIORITY
 
     def _init_extends_dict(self, ):
         self.extends_dict.clear()

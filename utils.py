@@ -5,7 +5,6 @@ import requests
 import time
 from cachetools import cached, LRUCache
 
-
 # ===========================================
 #                  Output
 # ===========================================
@@ -127,7 +126,7 @@ def get_string_ranges(content: str):
     # pair double quotes in order
     i = 0
     while i < size:
-        range_list.append((tmp_list[i], tmp_list[i+1] + 1))
+        range_list.append((tmp_list[i], tmp_list[i + 1] + 1))
         i += 2
 
     return range_list
@@ -175,4 +174,31 @@ def convert_str_to_int(num_str: str):
 
         return int_val
     except ValueError:
+        return None
+
+
+def str_to_float(num_str: str):
+    try:
+        if num_str.endswith(('D', 'd', 'F', 'f')):
+            return float(num_str[:-1])
+        elif num_str.endswith(('L', 'l')):
+            return int(num_str[:-1])
+        else:
+            return float(num_str)
+    except ValueError:
+        return None
+
+
+RE_INT_PATTERN = regex.compile(r'^\d+$')
+
+
+def is_int_str(operand_str: str):
+    return RE_INT_PATTERN.match(operand_str)
+
+
+def simple_str_to_int(num_str: str):
+    if is_int_str(num_str):
+        return int(num_str, 0)
+    else:
+        logger.error(f'"{num_str}" is not a number string')
         return None

@@ -62,6 +62,9 @@ params = [
     # RxJava/src/main/java/io/reactivex/rxjava3/observers/BaseTestConsumer.java
     (False, 'NM_SAME_SIMPLE_NAME_AS_SUPERCLASS', 'BaseTestConsumer.java',
      '''public abstract class BaseTestConsumer<T, U extends BaseTestConsumer<T, U>> {''', 0, 0),
+    (False, 'NM_SAME_SIMPLE_NAME_AS_INTERFACE', 'gchisto_GCLogFileReader.java',
+     '''public class GCLogFileReader
+        implements gchisto.gctracegenerator.file.GCLogFileReader {''', 1, 2),
     # ------------------------ NM_LCASE_HASHCODE ------------------------
     # DIY
     (False, 'NM_LCASE_HASHCODE', 'Main_01.java',
@@ -134,6 +137,9 @@ params = [
      'class className$className extends PreorderVisitor implements Detector {', 1, 1),
     (False, 'NM_CLASS_NAMING_CONVENTION', 'Main_22.java',
      'class helloProto$ extends PreorderVisitor implements Detector {', 0, 0),
+    (False, 'NM_CLASS_NAMING_CONVENTION', '2021_04_01.java',
+     '''public class gCLogFileReader
+        {''', 1, 2),
     # ------------------------ NM_METHOD_NAMING_CONVENTION ------------------------
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_15.java', '''private boolean MethodName(Obejct o){''', 1, 1),
     (False, 'NM_METHOD_NAMING_CONVENTION', 'Main_16.java', '''boolean methodName(Obejct o){''', 0, 0),
@@ -207,6 +213,18 @@ public enum Ternary implements Serializable, IsSerializable {
     public void testRequestWithBigContentWriteBlockedThenReset() throws Exception
     {
         final SSLSocket client = newClient();''', 0, 0),
+
+    # https://github.com/FINRAOS/JTAF-XCore/commit/ca5cc7b2b29fcec42e35bcccc3f78b7fcf99811d
+    (True, 'NM_CLASS_NOT_EXCEPTION', 'VerifyException.java',
+     "@@ -30,7 +30,7 @@\n"
+    "public class VerifyException extends Command {\n", 1, 30),
+    (True, 'NM_CLASS_NOT_EXCEPTION', 'VerifyExceptionCmd.java',
+     "@@ -30,7 +30,7 @@\n"
+     "+public class VerifyExceptionCmd extends Command {\n", 0, 0),
+    (False, 'NM_CLASS_NOT_EXCEPTION', 'ClassNotException_Test03.java',
+     "public class VerifyException {", 1, 1),
+    (False, 'NM_CLASS_NOT_EXCEPTION', 'ClassNotException_Test03.java',
+     "public class VerifyExceptionCmd {", 0, 0),
 ]
 
 
@@ -217,6 +235,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     engine = DefaultEngine(Context(), included_filter=[
         'SimpleSuperclassNameDetector', 'SimpleInterfaceNameDetector', 'HashCodeNameDetector', 'ToStringNameDetector',
         'EqualNameDetector', 'ClassNameConventionDetector', 'MethodNameConventionDetector',
+        'ExceptionClassNameDetector',
     ])
     engine.visit(patch)
 
