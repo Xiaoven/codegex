@@ -122,6 +122,23 @@ params = [
      '''System.out.println((new Integer[] {
                 1,
                 2 } ).toString());''', 0, 1),
+    # ------------------------ BX_BOXING_IMMEDIATELY_UNBOXED ------------------------
+    # DIY
+    ('BX_BOXING_IMMEDIATELY_UNBOXED', 'TestBoxingImmediatelyUnboxedDetector_01.java',
+     'new Float( value ).floatValue();', 1, 1),
+    # From Github: https://github.com/NetCal/DNC/commit/cf312e5786a48959962f3b8fa2a765bfa979b3fd
+    ('BX_BOXING_IMMEDIATELY_UNBOXED', 'TestBoxingImmediatelyUnboxedDetector_02.java',
+     'return new Double( value ).doubleValue();', 1, 1),
+    # From Github: https://github.com/NetCal/DNC/commit/daa1044bf55794f28e750de15ae3fc4f6df0bb09
+    ('BX_BOXING_IMMEDIATELY_UNBOXED', 'TestBoxingImmediatelyUnboxedDetector_03.java',
+     'rfloat num_float = new Float( num.doubleValue() ).floatValue();', 1, 1),
+    # ------------------------ BX_BOXING_IMMEDIATELY_UNBOXED_TO_PERFORM_COERCION ------------------------
+    # From Github: https://github.com/ShoOgino/poiMethod202104/commit/4c2543c107bc1f63954d0d5d1d03c568793920e9
+    ('BX_BOXING_IMMEDIATELY_UNBOXED_TO_PERFORM_COERCION', 'TestBoxingImmediatelyUnboxedDetector_04.java',
+     'strb.append(new Double(realINum).intValue());', 1, 1),
+    # From Github: https://github.com/halober/ovirt-engine/commit/533980c59d1cc8ba519eff67310a3eabb7dae508
+    ('BX_BOXING_IMMEDIATELY_UNBOXED_TO_PERFORM_COERCION', 'TestBoxingImmediatelyUnboxedDetector_05.java',
+     'formatTime.append((new Double(time/SECONDS_IN_A_DAY)).intValue());', 1, 1),
 ]
 
 
@@ -131,7 +148,7 @@ def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int
     patch.name = file_name
     engine = DefaultEngine(Context(), included_filter=(
         'BadMonthDetector', 'ShiftAddPriorityDetector', 'OverwrittenIncrementDetector', 'ReuseEntryInIteratorDetector',
-        'MultiplyIRemResultDetector', 'AnonymousArrayToStringDetector',
+        'MultiplyIRemResultDetector', 'AnonymousArrayToStringDetector', 'BoxingImmediatelyUnboxedDetector',
     ))
     engine.visit(patch)
     if expected_length > 0:
