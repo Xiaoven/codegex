@@ -40,6 +40,7 @@ from patterns.detect.inefficient_indexOf import InefficientIndexOfDetector
 from patterns.detect.bad_use_of_return_value import DontJustCheckReadlineDetector
 from patterns.detect.dumb_method_invocations import UselessSubstringDetector
 from patterns.detect.find_puzzlers import BoxingImmediatelyUnboxedDetector
+from patterns.detect.dumb_methods import ImmediateDereferenceOfReadlineDetector
 
 
 DETECTOR_DICT = {
@@ -111,4 +112,5 @@ DETECTOR_DICT = {
     'InefficientIndexOfDetector': InefficientIndexOfDetector,
     'DontJustCheckReadlineDetector': DontJustCheckReadlineDetector,
     'BoxingImmediatelyUnboxedDetector': BoxingImmediatelyUnboxedDetector,
+    'ImmediateDereferenceOfReadlineDetector': ImmediateDereferenceOfReadlineDetector,
 }
