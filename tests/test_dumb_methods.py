@@ -281,6 +281,16 @@ params = [
      '''return (int)(myrandom() * 3);''', 0, 0),
     (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_04.java',
      '''return (int) (1.2 * r.nextDouble());''', 1, 1),
+    # ============== NP_IMMEDIATE_DEREFERENCE_OF_READLINE ==============
+    # From Github: https://github.com/msakamoto-sf/javasnack/commit/3df1087b4e47a9a0ef3904c1b2735c5052f03a3a
+    (False, 'NP_IMMEDIATE_DEREFERENCE_OF_READLINE', 'TestImmediateDereferenceOfReadlineDetector_01.java',
+     '''BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int i = Integer.parseInt(br.readLine().trim());''', 1, 2),
+    # From Github: https://github.com/apache/commons-imaging/commit/a85d87255187bcfdddc684061418e4dbfad7f611
+    (False, 'NP_IMMEDIATE_DEREFERENCE_OF_READLINE', 'TestImmediateDereferenceOfReadlineDetector_02.java',
+     '''if (reader.readLine().length() != 0) {
+            throw new ImageReadException("Not a valid HDR: Incorrect Header");
+        }''', 1, 1),
 ]
 
 
@@ -293,7 +303,7 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
         'InvalidMinMaxDetector', 'VacuousEasyMockCallDetector', 'BigDecimalConstructorDetector',
         'NonsensicalInvocationDetector', 'BooleanCtorDetector', 'NumberCTORDetector', 'FPNumberCTORDetector',
         'BoxedPrimitiveToStringDetector', 'BoxedPrimitiveForParsingDetector', 'NewForGetclassDetector', 'BoxedPrimitiveForCompareDetector',
-        'NextIntViaNextDoubleDetector',
+        'NextIntViaNextDoubleDetector', 'ImmediateDereferenceOfReadlineDetector'
     ))
 
     engine.visit(patch)
