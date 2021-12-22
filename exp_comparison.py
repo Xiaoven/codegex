@@ -9,7 +9,7 @@ from patterns.models.engine import DefaultEngine
 from rparser import parse
 from timer import Timer
 
-BASE_PATH = '/home/zhouying/git/rbugs'
+BASE_PATH = '/home/zhouying/git/codegex'
 EXEC_LOG_PATH = '/home/zhouying/Documents/workspace/rbugs/experiment/log/exepath'
 REPORT_PATH = '/home/zhouying/Documents/workspace/rbugs/experiment/log/report/rbugs'
 REPO_PATH = '/home/zhouying/Documents/workspace/rbugs/experiment/top100repos'
@@ -116,27 +116,27 @@ if __name__ == '__main__':
     gen_analyze_paths()
 
     # Step 2: run rbugs against the files in Step 1
-    total_timer = Timer(name='Total', logger=None)
-    total_timer.start()
+    # total_timer = Timer(name='Total', logger=None)
+    # total_timer.start()
 
-    project_name_list = os.listdir(REPO_PATH)
-    for project_name in project_name_list:
-        project_timer = Timer(name=project_name, logger=None)
-        project_timer.start()
+    # project_name_list = os.listdir(REPO_PATH)
+    # for project_name in project_name_list:
+    #     project_timer = Timer(name=project_name, logger=None)
+    #     project_timer.start()
 
-        detect_project(project_name)
+    #     detect_project(project_name)
 
-        project_timer.stop()
+    #     project_timer.stop()
 
-    total_timer.stop()
+    # total_timer.stop()
 
     # Step 3: write time dict to file
-    time_log = path.join(REPORT_PATH, 'time.log')
-    with open(time_log, 'w') as f:
-        f.write('\n'.rjust(41, '=') + f'Total Time: {Timer.timers["Total"]}\n' + '\n'.rjust(41, '=') + '\n')
-        for project_name in project_name_list:
-            f.write('{:<30s} {:<10f} seconds\n'.format(project_name, Timer.timers[project_name]))
-        f.write(format('', '->40s') + '\n')
-        for key, time_s in Timer.timers.items():
-            if key != 'Total' and key not in project_name_list:
-                f.write('{:<30s} {:<10f} seconds\n'.format(key, time_s))
+    # time_log = path.join(REPORT_PATH, 'time.log')
+    # with open(time_log, 'w') as f:
+    #     f.write('\n'.rjust(41, '=') + f'Total Time: {Timer.timers["Total"]}\n' + '\n'.rjust(41, '=') + '\n')
+    #     for project_name in project_name_list:
+    #         f.write('{:<30s} {:<10f} seconds\n'.format(project_name, Timer.timers[project_name]))
+    #     f.write(format('', '->40s') + '\n')
+    #     for key, time_s in Timer.timers.items():
+    #         if key != 'Total' and key not in project_name_list:
+    #             f.write('{:<30s} {:<10f} seconds\n'.format(key, time_s))
