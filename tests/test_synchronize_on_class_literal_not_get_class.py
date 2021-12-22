@@ -1,8 +1,8 @@
 import pytest
 
-from patterns.models.context import Context
-from patterns.models.engine import DefaultEngine
-from rparser import parse
+from models.context import Context
+from models.engine import DefaultEngine
+from utils.rparser import parse
 
 params = [
     (False, 'WL_USING_GETCLASS_RATHER_THAN_CLASS_LITERAL', 'SynGetClassTest_01.java',

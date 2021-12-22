@@ -1,5 +1,5 @@
 import pytest
-from rparser import parse
+from utils.rparser import parse
 
 params = [
     # -------------------------- test support for patch and non-patch --------------------------

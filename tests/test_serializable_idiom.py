@@ -1,8 +1,8 @@
 import pytest
 
-from patterns.models.context import Context
-from patterns.models.engine import DefaultEngine
-from rparser import parse
+from models.context import Context
+from models.engine import DefaultEngine
+from utils.rparser import parse
 
 params = [
     # https://github.com/mhagnumdw/bean-info-generator/pull/5/files#diff-71bf0b35fa483782180f548a1a7d6cc4b3822ed12aa4bb86640f80dde9df3077R13

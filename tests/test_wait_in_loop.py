@@ -1,8 +1,8 @@
 import pytest
 
-from patterns.models.context import Context
-from patterns.models.engine import DefaultEngine
-from rparser import parse
+from models.context import Context
+from models.engine import DefaultEngine
+from utils.rparser import parse
 
 params = [
     # https://github.com/javaee/glassfish/commit/566f8ba3b206a3ca97a24d3d62acfa894fb21553

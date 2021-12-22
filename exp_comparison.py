@@ -4,9 +4,9 @@ from subprocess import check_output
 import re
 import json
 
-from patterns.models.context import Context
-from patterns.models.engine import DefaultEngine
-from rparser import parse
+from models.context import Context
+from models.engine import DefaultEngine
+from utils.rparser import parse
 from timer import Timer
 
 BASE_PATH = '/Users/audrey/Documents/GitHub/rbugs/comparison'

@@ -11,7 +11,7 @@ if __name__ == '__main__':
     p = re.compile(r'[\'"]([A-Z0-9]+_+[A-Z_0-9]+)[\'"]')
     detector_path = os.path.join(os.getcwd(), 'patterns/detect')
     all_pattern_set = set()     # Pattern names of Codegex, including synthetic patterns
-    # ========= gen_detectors.py is used to register detectors, i.e. let engine knows the detectors in Codegex.
+    # ========= gen_detectors.py is used to register detectors, i.e. let engine knows the detectors in
     file_names = list()         # File names of detectors in Codegex, used to update gen_detectors.py
     detector_names = list()     # class names of detectors in Codegex, used to update gen_detectors.py
     import_list = list()        # used to update the imports of gen_detectors.py
@@ -37,7 +37,7 @@ if __name__ == '__main__':
             detectors = p_detector.findall(content)
             if detectors:
                 tmp_str = ', '.join(detectors)
-                import_stmt = f'from patterns.detect.{strip_filename} import {tmp_str}\n'
+                import_stmt = f'from detect.{strip_filename} import {tmp_str}\n'
                 for name in detectors:
                     detector_names.append(f'"{name}": {name}')
 

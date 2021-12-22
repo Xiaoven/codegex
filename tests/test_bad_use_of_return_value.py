@@ -1,8 +1,8 @@
 import pytest
 
-from patterns.models.context import Context
-from rparser import parse
-from patterns.models.engine import DefaultEngine
+from models.context import Context
+from utils.rparser import parse
+from models.engine import DefaultEngine
 
 params = [
     # --------------- RV_DONT_JUST_NULL_CHECK_READLINE ---------------

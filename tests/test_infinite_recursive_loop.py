@@ -1,8 +1,8 @@
 import pytest
 
-from patterns.models.context import Context
-from patterns.models.engine import DefaultEngine
-from rparser import parse
+from models.context import Context
+from models.engine import DefaultEngine
+from utils.rparser import parse
 
 params = [
     #  From other repository: https://github.com/vavr-io/vavr/pull/1752#discussion_r92956593

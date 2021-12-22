@@ -1,9 +1,9 @@
 import pytest
 
-from patterns.models.context import Context
-from patterns.models.engine import DefaultEngine
-from rparser import parse
-from patterns.models.priorities import *
+from models.context import Context
+from models.engine import DefaultEngine
+from utils.rparser import parse
+from models.priorities import *
 
 params = [
     # From other repository: https://github.com/albfan/jmeld/commit/bab5df4d96b511dd1e4be36fce3a2eab52c24c4e

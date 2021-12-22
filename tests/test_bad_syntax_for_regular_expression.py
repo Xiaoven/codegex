@@ -1,9 +1,9 @@
 import pytest
 
-from patterns.models.context import Context
-from patterns.models.engine import DefaultEngine
-from rparser import parse
-from patterns.models.priorities import *
+from models.context import Context
+from models.engine import DefaultEngine
+from utils.rparser import parse
+from models.priorities import *
 
 params = [
     # https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugsTestCases/src/java/bugPatterns/RE_POSSIBLE_UNINTENDED_PATTERN.java

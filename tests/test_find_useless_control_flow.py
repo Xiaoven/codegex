@@ -1,8 +1,8 @@
 import pytest
 
-from patterns.models.context import Context
-from rparser import parse
-from patterns.models.engine import DefaultEngine
+from models.context import Context
+from utils.rparser import parse
+from models.engine import DefaultEngine
 
 params = [
     # From SpotBugs: https://github.com/spotbugs/spotbugs/blob/51e586bed98393e53559a38c1f9bd15f54514efa/spotbugsTestCases/src/java/DumbMethodInvocations.java
