@@ -1,0 +1,269 @@
+<FindBugsFilter>
+	<Match>
+		<Bug pattern="RE_POSSIBLE_UNINTENDED_PATTERN"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_RANDOM_USED_ONLY_ONCE"/>
+	</Match>
+	<Match>
+		<Bug pattern="RV_DONT_JUST_NULL_CHECK_READLINE"/>
+	</Match>
+	<Match>
+		<Bug pattern="STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE"/>
+	</Match>
+	<Match>
+		<Bug pattern="SA_FIELD_SELF_COMPUTATION"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_USING_REMOVEALL_TO_CLEAR_COLLECTION"/>
+	</Match>
+	<Match>
+		<Bug pattern="IL_CONTAINER_ADDED_TO_ITSELF"/>
+	</Match>
+	<Match>
+		<Bug pattern="BIT_AND"/>
+	</Match>
+	<Match>
+		<Bug pattern="BIT_SIGNED_CHECK_HIGH_BIT"/>
+	</Match>
+	<Match>
+		<Bug pattern="NM_SAME_SIMPLE_NAME_AS_SUPERCLASS"/>
+	</Match>
+	<Match>
+		<Bug pattern="BSHIFT_WRONG_ADD_PRIORITY"/>
+	</Match>
+	<Match>
+		<Bug pattern="DM_BOXED_PRIMITIVE_FOR_COMPARE"/>
+	</Match>
+	<Match>
+		<Bug pattern="DM_INVALID_MIN_MAX"/>
+	</Match>
+	<Match>
+		<Bug pattern="SA_FIELD_DOUBLE_ASSIGNMENT"/>
+	</Match>
+	<Match>
+		<Bug pattern="RE_CANT_USE_FILE_SEPARATOR_AS_REGULAR_EXPRESSION"/>
+	</Match>
+	<Match>
+		<Bug pattern="EC_NULL_ARG"/>
+	</Match>
+	<Match>
+		<Bug pattern="NM_LCASE_TOSTRING"/>
+	</Match>
+	<Match>
+		<Bug pattern="DM_STRING_CTOR"/>
+	</Match>
+	<Match>
+		<Bug pattern="NM_METHOD_NAMING_CONVENTION"/>
+	</Match>
+	<Match>
+		<Bug pattern="BIT_IOR"/>
+	</Match>
+	<Match>
+		<Bug pattern="DM_RUN_FINALIZERS_ON_EXIT"/>
+	</Match>
+	<Match>
+		<Bug pattern="IIO_INEFFICIENT_INDEX_OF"/>
+	</Match>
+	<Match>
+		<Bug pattern="FI_PUBLIC_SHOULD_BE_PROTECTED"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_VACUOUS_CALL_TO_EASYMOCK_METHOD"/>
+	</Match>
+	<Match>
+		<Bug pattern="SA_LOCAL_SELF_COMPARISON"/>
+	</Match>
+	<Match>
+		<Bug pattern="DM_BOXED_PRIMITIVE_TOSTRING"/>
+	</Match>
+	<Match>
+		<Bug pattern="DM_BOOLEAN_CTOR"/>
+	</Match>
+	<Match>
+		<Bug pattern="DM_NEW_FOR_GETCLASS"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_VACUOUS_SELF_COLLECTION_CALL"/>
+	</Match>
+	<Match>
+		<Bug pattern="SE_NONLONG_SERIALVERSIONID"/>
+	</Match>
+	<Match>
+		<Bug pattern="SA_LOCAL_SELF_COMPUTATION"/>
+	</Match>
+	<Match>
+		<Bug pattern="SE_METHOD_MUST_BE_PRIVATE"/>
+	</Match>
+	<Match>
+		<Bug pattern="SE_NONSTATIC_SERIALVERSIONID"/>
+	</Match>
+	<Match>
+		<Bug pattern="IMSE_DONT_CATCH_IMSE"/>
+	</Match>
+	<Match>
+		<Bug pattern="EQ_COMPARING_CLASS_NAMES"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_BAD_MONTH"/>
+	</Match>
+	<Match>
+		<Bug pattern="DLS_OVERWRITTEN_INCREMENT"/>
+	</Match>
+	<Match>
+		<Bug pattern="UCF_USELESS_CONTROL_FLOW_NEXT_LINE"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_COLLECTIONS_SHOULD_NOT_CONTAIN_THEMSELVES"/>
+	</Match>
+	<Match>
+		<Bug pattern="VO_VOLATILE_REFERENCE_TO_ARRAY"/>
+	</Match>
+	<Match>
+		<Bug pattern="DM_NEXTINT_VIA_NEXTDOUBLE"/>
+	</Match>
+	<Match>
+		<Bug pattern="DM_FP_NUMBER_CTOR"/>
+	</Match>
+	<Match>
+		<Bug pattern="NM_FUTURE_KEYWORD_USED_AS_IDENTIFIER"/>
+	</Match>
+	<Match>
+		<Bug pattern="SA_FIELD_SELF_COMPARISON"/>
+	</Match>
+	<Match>
+		<Bug pattern="NM_SAME_SIMPLE_NAME_AS_INTERFACE"/>
+	</Match>
+	<Match>
+		<Bug pattern="SE_READ_RESOLVE_IS_STATIC"/>
+	</Match>
+	<Match>
+		<Bug pattern="SE_READ_RESOLVE_MUST_RETURN_OBJECT"/>
+	</Match>
+	<Match>
+		<Bug pattern="DLS_DEAD_LOCAL_INCREMENT_IN_RETURN"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_INVOKING_TOSTRING_ON_ANONYMOUS_ARRAY"/>
+	</Match>
+	<Match>
+		<Bug pattern="UI_INHERITANCE_UNSAFE_GETRESOURCE"/>
+	</Match>
+	<Match>
+		<Bug pattern="RV_EXCEPTION_NOT_THROWN"/>
+	</Match>
+	<Match>
+		<Bug pattern="DM_NUMBER_CTOR"/>
+	</Match>
+	<Match>
+		<Bug pattern="NM_CLASS_NAMING_CONVENTION"/>
+	</Match>
+	<Match>
+		<Bug pattern="IIO_INEFFICIENT_LAST_INDEX_OF"/>
+	</Match>
+	<Match>
+		<Bug pattern="ES_COMPARING_STRINGS_WITH_EQ"/>
+	</Match>
+	<Match>
+		<Bug pattern="PZ_DONT_REUSE_ENTRY_OBJECTS_IN_ITERATORS"/>
+	</Match>
+	<Match>
+		<Bug pattern="FE_TEST_IF_EQUAL_TO_NOT_A_NUMBER"/>
+	</Match>
+	<Match>
+		<Bug pattern="FI_EXPLICIT_INVOCATION"/>
+	</Match>
+	<Match>
+		<Bug pattern="BX_BOXING_IMMEDIATELY_UNBOXED"/>
+	</Match>
+	<Match>
+		<Bug pattern="NP_IMMEDIATE_DEREFERENCE_OF_READLINE"/>
+	</Match>
+	<Match>
+		<Bug pattern="NM_BAD_EQUAL"/>
+	</Match>
+	<Match>
+		<Bug pattern="SA_FIELD_SELF_ASSIGNMENT"/>
+	</Match>
+	<Match>
+		<Bug pattern="NM_CLASS_NOT_EXCEPTION"/>
+	</Match>
+	<Match>
+		<Bug pattern="STCAL_STATIC_CALENDAR_INSTANCE"/>
+	</Match>
+	<Match>
+		<Bug pattern="BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY"/>
+	</Match>
+	<Match>
+		<Bug pattern="DM_BOXED_PRIMITIVE_FOR_PARSING"/>
+	</Match>
+	<Match>
+		<Bug pattern="NM_FUTURE_KEYWORD_USED_AS_MEMBER_IDENTIFIER"/>
+	</Match>
+	<Match>
+		<Bug pattern="BX_BOXING_IMMEDIATELY_UNBOXED_TO_PERFORM_COERCION"/>
+	</Match>
+	<Match>
+		<Bug pattern="NM_LCASE_HASHCODE"/>
+	</Match>
+	<Match>
+		<Bug pattern="DM_STRING_VOID_CTOR"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_COLLECTION_OF_URLS"/>
+	</Match>
+	<Match>
+		<Bug pattern="WL_USING_GETCLASS_RATHER_THAN_CLASS_LITERAL"/>
+	</Match>
+	<Match>
+		<Bug pattern="RV_01_TO_INT"/>
+	</Match>
+	<Match>
+		<Bug pattern="IM_MULTIPLYING_RESULT_OF_IREM"/>
+	</Match>
+	<Match>
+		<Bug pattern="CNT_ROUGH_CONSTANT_VALUE"/>
+	</Match>
+	<Match>
+		<Bug pattern="SA_LOCAL_DOUBLE_ASSIGNMENT"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_USELESS_SUBSTRING"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_DOH"/>
+	</Match>
+	<Match>
+		<Bug pattern="BIT_AND_ZZ"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_ARGUMENTS_WRONG_ORDER"/>
+	</Match>
+	<Match>
+		<Bug pattern="BIT_SIGNED_CHECK"/>
+	</Match>
+	<Match>
+		<Bug pattern="DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE"/>
+	</Match>
+	<Match>
+		<Bug pattern="SE_NONFINAL_SERIALVERSIONID"/>
+	</Match>
+	<Match>
+		<Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
+	</Match>
+	<Match>
+		<Bug pattern="QBA_QUESTIONABLE_BOOLEAN_ASSIGNMENT"/>
+	</Match>
+	<Match>
+		<Bug pattern="NO_NOTIFY_NOT_NOTIFYALL"/>
+	</Match>
+	<Match>
+		<Bug pattern="RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN"/>
+	</Match>
+	<Match>
+		<Bug pattern="SA_LOCAL_SELF_ASSIGNMENT"/>
+	</Match>
+</FindBugsFilter>

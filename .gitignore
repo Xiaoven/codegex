@@ -6,9 +6,9 @@ Java/
 **/out
 **/.DS_Store
 comparison_exp/
-spotbugs-excludeFilter.xml
+# spotbugs-excludeFilter.xml
+# spotbugs-includeFilter.xml
 student_exp/
 PullRequests
-spotbugs-includeFilter.xml
 *.zip
 comparison
