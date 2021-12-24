@@ -3,12 +3,12 @@ import re
 from os import path
 import json
 
-from models.context import Context
-from models.engine import DefaultEngine
-from utils.rparser import parse
-from utils.utils import create_missing_dirs
-from utils.timer import Timer
-from utils.gen_detectors import DETECTOR_DICT
+from codegex.models.context import Context
+from codegex.models.engine import DefaultEngine
+from codegex.utils.rparser import parse
+from codegex.utils.utils import create_missing_dirs
+from codegex.utils.timer import Timer
+from codegex.utils.gen_detectors import DETECTOR_DICT
 
 root = 'PullRequests/java/files'
 report_path = 'PullRequests/report'

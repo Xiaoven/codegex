@@ -4,10 +4,10 @@ from subprocess import check_output
 import re
 import json
 
-from models.context import Context
-from models.engine import DefaultEngine
-from utils.rparser import parse
-from utils.timer import Timer
+from codegex.models.context import Context
+from codegex.models.engine import DefaultEngine
+from codegex.utils.rparser import parse
+from codegex.utils.timer import Timer
 
 BASE_PATH = '/Users/audrey/Documents/GitHub/rbugs/comparison'
 REPORT_PATH = BASE_PATH + '/report'

@@ -37,7 +37,7 @@ if __name__ == '__main__':
             detectors = p_detector.findall(content)
             if detectors:
                 tmp_str = ', '.join(detectors)
-                import_stmt = f'from detect.{strip_filename} import {tmp_str}\n'
+                import_stmt = f'from codegex.detect.{strip_filename} import {tmp_str}\n'
                 for name in detectors:
                     detector_names.append(f'"{name}": {name}')
 

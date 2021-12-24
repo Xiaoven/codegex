@@ -15,4 +15,4 @@ setup(
         'loguru == 0.5.1', 'pytest == 6.0.1', 'regex == 2020.7.14', 'requests == 2.24.0', 'cachetools == 4.2.0'],
 )
 
-# to generate egg file: python setup.py bdist_egg
+# to generate tar.gz file: python setup.py sdist
