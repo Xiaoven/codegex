@@ -6,9 +6,9 @@ import json
 from models.context import Context
 from models.engine import DefaultEngine
 from utils.rparser import parse
-from utils import create_missing_dirs
-from timer import Timer
-from gen_detectors import DETECTOR_DICT
+from utils.utils import create_missing_dirs
+from utils.timer import Timer
+from utils.gen_detectors import DETECTOR_DICT
 
 root = 'PullRequests/java/files'
 report_path = 'PullRequests/report'

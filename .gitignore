@@ -12,3 +12,7 @@ PullRequests
 spotbugs-includeFilter.xml
 *.zip
 comparison
+
+codegex.egg-info/
+dist
+build

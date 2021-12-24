@@ -7,7 +7,7 @@ import json
 from models.context import Context
 from models.engine import DefaultEngine
 from utils.rparser import parse
-from timer import Timer
+from utils.timer import Timer
 
 BASE_PATH = '/Users/audrey/Documents/GitHub/rbugs/comparison'
 REPORT_PATH = BASE_PATH + '/report'
