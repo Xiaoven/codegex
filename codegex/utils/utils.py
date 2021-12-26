@@ -200,5 +200,5 @@ def simple_str_to_int(num_str: str):
     if is_int_str(num_str):
         return int(num_str, 0)
     else:
-        logger.error(f'"{num_str}" is not a number string')
+        # logger.debug(f'"{num_str}" is not a number string')
         return None
