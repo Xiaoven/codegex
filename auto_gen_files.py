@@ -3,13 +3,15 @@ import os
 
 
 def snake_to_camel(word):
+    # "indexOf".capitalize()    Indexof
+    # "URL".capitalize()    Url
     return ''.join(x.capitalize() for x in word.split('_'))
 
 
 if __name__ == '__main__':
     p_detector = re.compile(r'class\s*([^\s()]+)\(Detector\)')
     p = re.compile(r'[\'"]([A-Z0-9]+_+[A-Z_0-9]+)[\'"]')
-    detector_path = os.path.join(os.getcwd(), 'patterns/detect')
+    detector_path = os.path.join(os.getcwd(), 'codegex/detect')
     all_pattern_set = set()     # Pattern names of Codegex, including synthetic patterns
     # ========= gen_detectors.py is used to register detectors, i.e. let engine knows the detectors in
     file_names = list()         # File names of detectors in Codegex, used to update gen_detectors.py
@@ -61,9 +63,16 @@ if __name__ == '__main__':
             visitors.append('FindSelfComparison2')
         elif name == 'FindBadCast':
             visitors.append('FindBadCast2')
+        elif name == 'UrlProblems':   # "URL".capitalize() 返回 "Url"；该模式也在 DumbMethods.java 出现
+            visitors.append('URLProblems')
         else:
             visitors.append(name)
-    # print(','.join(visitors))
+
+    # DMI_DOH 出现在 FindRefComparison 和 DumbMethods 里
+    visitors.append('TestASM')  # NM_METHOD_NAMING_CONVENTION 出现在 TestASM.java 和 Naming.java 里
+
+    with open('visitor.txt', 'w') as out:
+        out.write(','.join(visitors))
 
 
     # # This writing operation should be enabled only when the old gen_detectors.py is not maintained after implementing new patterns
@@ -94,9 +103,9 @@ if __name__ == '__main__':
     print(f'Number of implemented SpotBugs patterns by Codegex = {len(patterns_to_write)}')
     print('\n'.join(list(patterns_to_write)))
 
-    # # Generate warning filter files used in comparison experiment with spotbugs
-    # with open('spotbugs-includeFilter.xml', 'w') as f:
-    #     f.write('<FindBugsFilter>\n')
-    #     for pattern in patterns_to_write:
-    #         f.write(f'\t<Match>\n\t\t<Bug pattern="{pattern}"/>\n\t</Match>\n')
-    #     f.write('</FindBugsFilter>')
+    # Generate warning filter files used in comparison experiment with spotbugs
+    with open('spotbugs-includeFilter.xml', 'w') as f:
+        f.write('<FindBugsFilter>\n')
+        for pattern in patterns_to_write:
+            f.write(f'\t<Match>\n\t\t<Bug pattern="{pattern}"/>\n\t</Match>\n')
+        f.write('</FindBugsFilter>')

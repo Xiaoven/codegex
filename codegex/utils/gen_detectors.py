@@ -6,6 +6,7 @@ from codegex.detect.find_puzzlers import BadMonthDetector, ShiftAddPriorityDetec
 from codegex.detect.find_self_comparison import CheckForSelfComputation, CheckForSelfComparison
 from codegex.detect.incompat_mask import IncompatMaskDetector
 from codegex.detect.inheritance_unsafe_get_resource import GetResourceDetector
+from codegex.detect.number_constructor import NumberCTORDetector, FPNumberCTORDetector
 from codegex.detect.questionable_boolean_assignment import BooleanAssignmentDetector
 from codegex.detect.static_calendar_detector import StaticDateFormatDetector
 from codegex.detect.method_return_check import NotThrowDetector
@@ -21,8 +22,8 @@ from codegex.detect.serializable_idiom import DefSerialVersionID, DefReadResolve
 from codegex.detect.find_unrelated_types_in_generic_container import SuspiciousCollectionMethodDetector
 from codegex.detect.dumb_methods import FinalizerOnExitDetector, RandomOnceDetector, RandomD2IDetector, \
     StringCtorDetector, InvalidMinMaxDetector, VacuousEasyMockCallDetector, BigDecimalConstructorDetector, \
-    NonsensicalInvocationDetector, BooleanCtorDetector, NumberCTORDetector, FPNumberCTORDetector, \
-    BoxedPrimitiveToStringDetector, BoxedPrimitiveForParsingDetector, BoxedPrimitiveForCompareDetector
+    NonsensicalInvocationDetector, BooleanCtorDetector, BoxedPrimitiveToStringDetector, \
+    BoxedPrimitiveForParsingDetector, BoxedPrimitiveForCompareDetector
 from codegex.detect.format_string_checker import NewLineDetector
 from codegex.detect.find_float_equality import FloatEqualityDetector
 from codegex.detect.find_puzzlers import OverwrittenIncrementDetector
@@ -36,7 +37,7 @@ from codegex.detect.wait_in_loop import NotifyDetector
 from codegex.detect.dumb_method_invocations import UselessSubstringDetector, IsAbsoluteFileNameDetector
 from codegex.detect.dumb_methods import NewForGetclassDetector, NextIntViaNextDoubleDetector
 from codegex.detect.find_useless_control_flow import UselessControlFlowNextLineDetector
-from codegex.detect.inefficient_indexOf import InefficientIndexOfDetector
+from codegex.detect.inefficient_index_of import InefficientIndexOfDetector
 from codegex.detect.bad_use_of_return_value import DontJustCheckReadlineDetector
 from codegex.detect.dumb_method_invocations import UselessSubstringDetector
 from codegex.detect.find_puzzlers import BoxingImmediatelyUnboxedDetector

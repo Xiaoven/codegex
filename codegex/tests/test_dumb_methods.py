@@ -217,16 +217,6 @@ params = [
      'return new Boolean(s);', 1, 1),
     (False, 'DM_BOOLEAN_CTOR', 'TestBooleanCtorDetector_02.java',
      'return new Boolean(true);', 1, 1),
-    (False, 'DM_NUMBER_CTOR', 'TestNumberCTORDetector_01.java',
-     """    public String test1(int myInt) {
-        return new Integer(myInt).toString();
-    }""", 1, 2),
-    (False, 'DM_NUMBER_CTOR', 'TestNumberCTORDetector_02.java',
-     'return new Integer("123");', 1, 1),
-    (False, 'DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_01.java',
-     'System.out.println(new Double(3.14));', 1, 1),
-    (False, 'DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_02.java',
-     'System.out.println(new Float("3.2f"));', 1, 1),
     (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_01.java',
      'System.out.println(new Double(1.0).toString());', 2, 1),
     (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_02.java',
