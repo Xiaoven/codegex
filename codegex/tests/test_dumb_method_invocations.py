@@ -42,8 +42,12 @@ params = [
      'new PrintStream("/Users/codegex/Documents/projects", "UTF-8");', 1, 1),
     ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_06.java',
      'new PrintStream("UTF-8", "/etc/aliases");', 0, 0),
-    ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_06.java',
+    ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_07.java',
      '"new PrintStream("UTF-8", \"/etc/aliases\");"', 0, 0),
+    ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_08.java',
+     'File file = new File(wkImageStorage + "/" + fileName + ".png");', 0, 0),
+    ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_09.java',
+     'File p = new File(pathName.substring(0, pathName.lastIndexOf("/")));', 0, 0),
 ]
 
 

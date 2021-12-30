@@ -56,18 +56,21 @@ class IsAbsoluteFileNameDetector(Detector):
             return
         m = self.pattern.search(line_content)
         if m and not in_range(m.start(0), get_string_ranges(line_content)):
-            args = m.group(1)
-            for fn in self.quote_pattern.findall(args):
-                if is_abs_filename(fn) and not any(fn.startswith(key) for key in ("/etc/", "/dev/", "/proc")):
-                    line_no = get_exact_lineno(m.start(0), context.cur_line)[1]
-                    priority = MEDIUM_PRIORITY
-                    if fn.startswith("/tmp"):
-                        priority = LOW_PRIORITY
-                    elif "/home" in fn:
-                        priority = HIGH_PRIORITY
-                    self.bug_accumulator.append(
-                        BugInstance('DMI_HARDCODED_ABSOLUTE_FILENAME', priority, context.cur_patch.name, line_no,
-                                    'Code contains a hard coded reference to an absolute pathname',
-                                    sha=context.cur_patch.sha,
-                                    line_content=context.cur_line.content)
-                    )
+            args = m.group(1)[1:-1].split(',')
+            for arg in args:
+                m2 = self.quote_pattern.match(arg.strip())
+                if m2:
+                    fn = m2.group(1)
+                    if is_abs_filename(fn) and not any(fn.startswith(key) for key in ("/etc/", "/dev/", "/proc")):
+                        line_no = get_exact_lineno(m.start(0), context.cur_line)[1]
+                        priority = MEDIUM_PRIORITY
+                        if fn.startswith("/tmp"):
+                            priority = LOW_PRIORITY
+                        elif "/home" in fn:
+                            priority = HIGH_PRIORITY
+                        self.bug_accumulator.append(
+                            BugInstance('DMI_HARDCODED_ABSOLUTE_FILENAME', priority, context.cur_patch.name, line_no,
+                                        'Code contains a hard coded reference to an absolute pathname',
+                                        sha=context.cur_patch.sha,
+                                        line_content=context.cur_line.content)
+                        )
