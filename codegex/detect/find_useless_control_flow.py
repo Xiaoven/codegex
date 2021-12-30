@@ -8,7 +8,7 @@ from codegex.utils.utils import get_string_ranges, in_range
 
 class UselessControlFlowNextLineDetector(Detector):
     def __init__(self):
-        self.pattern = regex.compile(r'\b(?:if|while|for)\s*(?P<aux>\(((?:[^()]++|(?&aux))*)\))\s*;')
+        self.pattern = regex.compile(r'\b(?:if|for)\s*(?P<aux>\(((?:[^()]++|(?&aux))*)\))\s*;')
         Detector.__init__(self)
 
     def match(self, context):

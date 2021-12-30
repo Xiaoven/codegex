@@ -24,10 +24,13 @@ params = [
     ''', 1, 3),
     ('UCF_USELESS_CONTROL_FLOW_NEXT_LINE', 'TestUselessControlFlowNextLineDetector_04.java',
      "if(a>0) return (a%2==0);", 0, 0),
-    ('UCF_USELESS_CONTROL_FLOW_NEXT_LINE', 'TestUselessControlFlowNextLineDetector_05.java',
-     "while (count-- > 0);", 1, 1),
+    # ('UCF_USELESS_CONTROL_FLOW_NEXT_LINE', 'TestUselessControlFlowNextLineDetector_05.java',
+    #  "while (count-- > 0);", 1, 1),  # abort this since it may be a part of do-while loop
     ('UCF_USELESS_CONTROL_FLOW_NEXT_LINE', 'TestUselessControlFlowNextLineDetector_06.java',
      "for(char c : chars);", 1, 1),
+    ('UCF_USELESS_CONTROL_FLOW_NEXT_LINE', 'TestUselessControlFlowNextLineDetector_07.java',
+     "} while ((ci = ci.getSuperClass()) != null);", 0, 0),
+
 ]
 
 
