@@ -80,6 +80,7 @@ class RandomD2IDetector(Detector):
 class StringCtorDetector(Detector):
     def __init__(self):
         self.pattern = regex.compile(r'\bnew\s+String\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
+        self.pattern_space = regex.compile(r'\s')
         Detector.__init__(self)
 
     def match(self, context):
@@ -97,11 +98,12 @@ class StringCtorDetector(Detector):
             p_type = None
             description = None
 
-            if not groups[1] or not groups[1].strip():
+            target = self.pattern_space.sub('', groups[1])
+            if not target:
                 p_type = 'DM_STRING_VOID_CTOR'
                 description = 'Method invokes inefficient new String() constructor'
             else:
-                if groups[1].strip().startswith('"'):
+                if target.startswith('"') or '.substring(' in target:
                     p_type = 'DM_STRING_CTOR'
                     description = 'Method invokes inefficient new String(String) constructor'
 

@@ -158,6 +158,8 @@ params = [
          @Test public void testIt()
          {
             data = new String(Files.readAllBytes(Paths.get("RawData.txt")));''', 0, 34),
+    (False, 'DM_STRING_CTOR', 'TestStringCtor01.java',
+     'attributes = new String(s.substring(start));', 1, 1),
 
     # ============== DM_INVALID_MIN_MAX ==============
     # From spotbugs https://github.com/spotbugs/spotbugs/blob/a6f9acb2932b54f5b70ea8bc206afb552321a222/spotbugsTestCases/src/java/sfBugsNew/Feature329.java
