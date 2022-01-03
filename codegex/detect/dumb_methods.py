@@ -331,9 +331,9 @@ class BoxedPrimitiveForParsingDetector(Detector):
     def __init__(self):
         Detector.__init__(self)
         self.pattern_1 = regex.compile(
-            r'\(?\bnew\s+(?:Integer|Long|Double|Float)\s*\(\s*["\w]+\s*\)\s*\)?\s*\.\s*(?:int|long|double|float)Value\s*\(\s*\)')
+            r'\(?\bnew\s+(Integer|Long|Double|Float)\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))\s*\)?\s*\.\s*(int|long|double|float)Value\s*\(\s*\)')
         self.pattern_2 = regex.compile(
-            r'\b(?:Integer|Long|Double|Float)\s*\.\s*valueOf\s*\(\s*["\w]+\s*\)\s*\.\s*(?:int|long|double|float)Value\s*\(\s*\)')
+            r'\b(Integer|Long|Double|Float)\s*\.\s*valueOf\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))\s*\.\s*(int|long|double|float)Value\s*\(\s*\)')
 
     def match(self, context):
         line_content = context.cur_line.content
@@ -346,13 +346,15 @@ class BoxedPrimitiveForParsingDetector(Detector):
                 m = self.pattern_2.search(line_content)
 
             if m and not in_range(m.start(0), get_string_ranges(line_content)):
-                self.bug_accumulator.append(
-                    BugInstance(
-                        'DM_BOXED_PRIMITIVE_FOR_PARSING', HIGH_PRIORITY, context.cur_patch.name,
-                        get_exact_lineno(m.end(0), context.cur_line)[1],
-                        'Boxing/unboxing to parse a primitive',
-                        sha=context.cur_patch.sha, line_content=context.cur_line.content)
-                )
+                ctor, method = m.group(1), m.group(3)
+                if ctor[0].lower() == method[0]:
+                    self.bug_accumulator.append(
+                        BugInstance(
+                            'DM_BOXED_PRIMITIVE_FOR_PARSING', HIGH_PRIORITY, context.cur_patch.name,
+                            get_exact_lineno(m.end(0), context.cur_line)[1],
+                            'Boxing/unboxing to parse a primitive',
+                            sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                    )
 
 
 class BoxedPrimitiveForCompareDetector(Detector):

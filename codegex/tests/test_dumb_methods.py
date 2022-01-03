@@ -231,6 +231,8 @@ params = [
      'return new Long(value).longValue();', 2, 1),
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_04.java',
      'return (new Integer(value)).intValue();', 2, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_05.java',
+     'total_max_contacts=new Double(minDomSize*maxDomSize*10).longValue();', 0, 0),  # only report 'DM_FP_NUMBER_CTOR'
     (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_01.java',
      '''    public int compareTo(long a, long b) {
         return ((Long)a).compareTo(b);
@@ -299,13 +301,13 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
     ))
 
     engine.visit(patch)
+    find = False
+    for instance in engine.bug_accumulator:
+        if instance.line_no == line_no and instance.type == pattern_type:
+            find = True
+            break
+
     if expected_length > 0:
-        assert len(engine.bug_accumulator) == expected_length
-        find = False
-        for instance in engine.bug_accumulator:
-            if instance.line_no == line_no and instance.type == pattern_type:
-                find = True
-                break
         assert find
     else:
-        assert len(engine.bug_accumulator) == 0
+        assert not find
