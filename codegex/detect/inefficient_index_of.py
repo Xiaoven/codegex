@@ -6,7 +6,7 @@ from codegex.models.detectors import Detector, get_exact_lineno
 
 class InefficientIndexOfDetector(Detector):
     def __init__(self):
-        self.pattern = regex.compile(r'\.\s*(lastIndexOf|indexOf)\s*\(\s*\".\"')
+        self.pattern = regex.compile(r'\.\s*(lastIndexOf|indexOf)\s*\(\s*"."\s*[,)]')
         Detector.__init__(self)
 
     def match(self, context):

@@ -220,7 +220,7 @@ params = [
     (False, 'DM_BOOLEAN_CTOR', 'TestBooleanCtorDetector_02.java',
      'return new Boolean(true);', 1, 1),
     (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_01.java',
-     'System.out.println(new Double(1.0).toString());', 2, 1),
+     'System.out.println(new Double(1.0).toString());', 1, 1),
     (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_02.java',
      'System.out.println(Integer.valueOf(12).toString());', 1, 1),
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_01.java',
@@ -228,9 +228,9 @@ params = [
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_02.java',
      'return Long.valueOf("123").longValue();', 1, 1),
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_03.java',
-     'return new Long(value).longValue();', 2, 1),
+     'return new Long(value).longValue();', 1, 1),
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_04.java',
-     'return (new Integer(value)).intValue();', 2, 1),
+     'return (new Integer(value)).intValue();', 1, 1),
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_05.java',
      'total_max_contacts=new Double(minDomSize*maxDomSize*10).longValue();', 0, 0),  # only report 'DM_FP_NUMBER_CTOR'
     (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_01.java',
@@ -302,12 +302,15 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
 
     engine.visit(patch)
     find = False
+    cnt = 0
     for instance in engine.bug_accumulator:
-        if instance.line_no == line_no and instance.type == pattern_type:
-            find = True
-            break
+        if instance.type == pattern_type:
+            cnt += 1
+            if instance.line_no == line_no:
+                find = True
 
     if expected_length > 0:
         assert find
+        assert expected_length == cnt
     else:
         assert not find

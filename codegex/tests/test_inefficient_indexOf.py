@@ -43,6 +43,12 @@ params = [
     ('IIO_INEFFICIENT_INDEX_OF', 'TestInefficientIndexOfDetector_03.java',
      '''int dotIndex = style
                             .indexOf(":");''', 1, 2),
+    ('IIO_INEFFICIENT_INDEX_OF', 'TestInefficientIndexOfDetector_04.java',
+     'int index   = hexPropertyNames.indexOf(" " + thisName + " ");', 0, 0),
+    ('IIO_INEFFICIENT_INDEX_OF', 'TestInefficientIndexOfDetector_05.java',
+     'int index   = hexPropertyNames.indexOf(" " + thisName + " ", 2);', 0, 0),
+    ('IIO_INEFFICIENT_INDEX_OF', 'TestInefficientIndexOfDetector_06.java',
+     'String cleaned = currentHypos[i].substring(0, currentHypos[i].indexOf("\""));', 0, 0),
 
 ]
 
@@ -53,9 +59,16 @@ def test(pattern_type: str, file_name: str, patch_str: str, expected_length: int
     patch.name = file_name
     engine = DefaultEngine(Context(), included_filter=('InefficientIndexOfDetector',))
     engine.visit(patch)
+    find = False
+    cnt = 0
+    for instance in engine.bug_accumulator:
+        if instance.type == pattern_type:
+            cnt += 1
+            if instance.line_no == line_no:
+                find = True
+
     if expected_length > 0:
-        assert len(engine.bug_accumulator) == expected_length
-        assert engine.bug_accumulator[0].line_no == line_no
-        assert engine.bug_accumulator[0].type == pattern_type
+        assert find
+        assert expected_length == cnt
     else:
-        assert len(engine.bug_accumulator) == 0
+        assert not find
