@@ -6,7 +6,6 @@ from codegex.detect.find_puzzlers import BadMonthDetector, ShiftAddPriorityDetec
 from codegex.detect.find_self_comparison import CheckForSelfComputation, CheckForSelfComparison
 from codegex.detect.incompat_mask import IncompatMaskDetector
 from codegex.detect.inheritance_unsafe_get_resource import GetResourceDetector
-from codegex.detect.number_constructor import NumberCTORDetector, FPNumberCTORDetector
 from codegex.detect.questionable_boolean_assignment import BooleanAssignmentDetector
 from codegex.detect.static_calendar_detector import StaticDateFormatDetector
 from codegex.detect.method_return_check import NotThrowDetector
@@ -100,8 +99,6 @@ DETECTOR_DICT = {
     'NotifyDetector': NotifyDetector,
     'URLCollectionDetector': URLCollectionDetector,
     'BooleanCtorDetector': BooleanCtorDetector,
-    'NumberCTORDetector': NumberCTORDetector,
-    'FPNumberCTORDetector': FPNumberCTORDetector,
     'BoxedPrimitiveToStringDetector': BoxedPrimitiveToStringDetector,
     'BoxedPrimitiveForParsingDetector': BoxedPrimitiveForParsingDetector,
     'BoxedPrimitiveForCompareDetector': BoxedPrimitiveForCompareDetector,
