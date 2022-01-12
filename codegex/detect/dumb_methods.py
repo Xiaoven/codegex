@@ -28,7 +28,8 @@ class FinalizerOnExitDetector(Detector):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('DM_RUN_FINALIZERS_ON_EXIT', confidence, context.cur_patch.name, line_no,
-                            'Method invokes dangerous method runFinalizersOnExit', sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                            'Method invokes dangerous method runFinalizersOnExit', sha=context.cur_patch.sha,
+                            line_content=context.cur_line.content)
             )
 
 
@@ -50,7 +51,8 @@ class RandomOnceDetector(Detector):
             line_no = get_exact_lineno(m.start(1), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('DMI_RANDOM_USED_ONLY_ONCE', HIGH_PRIORITY, context.cur_patch.name, line_no,
-                            'Random object created and used only once', sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                            'Random object created and used only once', sha=context.cur_patch.sha,
+                            line_content=context.cur_line.content)
             )
             return
 
@@ -72,7 +74,8 @@ class RandomD2IDetector(Detector):
                 line_no = get_exact_lineno(m.end(2), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('RV_01_TO_INT', HIGH_PRIORITY, context.cur_patch.name, line_no,
-                                'Random value from 0 to 1 is coerced to the integer 0', sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                                'Random value from 0 to 1 is coerced to the integer 0', sha=context.cur_patch.sha,
+                                line_content=context.cur_line.content)
                 )
                 return
 
@@ -111,7 +114,8 @@ class StringCtorDetector(Detector):
                 # m.start(1) is the offset of the naming group
                 line_no = get_exact_lineno(m.start(1), context.cur_line)[1]
                 self.bug_accumulator.append(BugInstance(p_type, MEDIUM_PRIORITY, context.cur_patch.name,
-                                                        line_no, description, sha=context.cur_patch.sha, line_content=context.cur_line.content))
+                                                        line_no, description, sha=context.cur_patch.sha,
+                                                        line_content=context.cur_line.content))
                 return
 
 
@@ -174,7 +178,8 @@ class InvalidMinMaxDetector(Detector):
                         line_no = get_exact_lineno(m1.end(0), context.cur_line)[1]
                         self.bug_accumulator.append(
                             BugInstance('DM_INVALID_MIN_MAX', HIGH_PRIORITY, context.cur_patch.name, line_no,
-                                        'Incorrect combination of Math.max and Math.min', sha=context.cur_patch.sha, line_content=context.cur_line.content))
+                                        'Incorrect combination of Math.max and Math.min', sha=context.cur_patch.sha,
+                                        line_content=context.cur_line.content))
 
 
 class VacuousEasyMockCallDetector(Detector):
@@ -239,7 +244,8 @@ class NonsensicalInvocationDetector(Detector):
     def match(self, context):
         line_content = context.cur_line.content
         if any(clazzName in line_content for clazzName in ('Preconditions', 'Strings')) and \
-                any(methodName in line_content for methodName in ('checkNotNull', 'nullToEmpty', 'emptyToNull', 'isNullOrEmpty')):
+                any(methodName in line_content for methodName in
+                    ('checkNotNull', 'nullToEmpty', 'emptyToNull', 'isNullOrEmpty')):
             itr = self.pattern.finditer(line_content)
             string_ranges = get_string_ranges(line_content)
             for m in itr:
@@ -374,21 +380,26 @@ class BoxedPrimitiveForCompareDetector(Detector):
     def __init__(self):
         Detector.__init__(self)
         self.pattern = regex.compile(
-            r'\(\s*\(\s*(?:Long|Integer)\s*\)\s*\w(?:[.\w]+|(?P<aux>\((?:[^()]++|(?&aux))*\)))*\s*\)\s*\.compareTo\s*(?&aux)')
+            r'\(\s*\(\s*(Long|Integer|Short|Double|Float|Character|Byte|Boolean)\s*\)\s*\w(?:[.\w]+|(?P<aux>\((?:[^()]++|(?&aux))*\)))*\s*\)\s*\.compareTo\s*(?&aux)')
 
     def match(self, context):
         line_content = context.cur_line.content
         if 'compareTo' in line_content and any(k for k in ('Integer', 'Long')):
             m = self.pattern.search(line_content)
             if m and not in_range(m.start(0), get_string_ranges(line_content)):
+                priority = HIGH_PRIORITY
+                if m.group(1) == 'Boolean':
+                    priority = LOW_PRIORITY
+                elif m.group(1) == 'Byte':
+                    priority = MEDIUM_PRIORITY
                 self.bug_accumulator.append(
                     BugInstance(
-                        'DM_BOXED_PRIMITIVE_FOR_COMPARE', LOW_PRIORITY, context.cur_patch.name,
+                        'DM_BOXED_PRIMITIVE_FOR_COMPARE', priority, context.cur_patch.name,
                         get_exact_lineno(m.end(0), context.cur_line)[1],
                         'Boxing/unboxing to parse a primitive',
                         sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
-                
+
 
 class NewForGetclassDetector(Detector):
     def __init__(self):
@@ -442,7 +453,7 @@ class NextIntViaNextDoubleDetector(Detector):
                                     sha=context.cur_patch.sha,
                                     line_content=context.cur_line.content)
                     )
-                    break   # 一行报一个 warning 就够了
+                    break  # 一行报一个 warning 就够了
 
 
 class ImmediateDereferenceOfReadlineDetector(Detector):

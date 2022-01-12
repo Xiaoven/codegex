@@ -249,6 +249,14 @@ params = [
      '''    public int compareTo(Point a, Point b) {
         return ((Integer)a.x).compareTo(b.x);
     }''', 1, 2),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_04.java',
+     'return ((Float)score).compareTo(((Score)o).score);', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_05.java',
+     'return ((Character) a).compareTo(b);', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_06.java',
+     'return ((Short) a).compareTo(b);', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_07.java',
+     'return ((Boolean) a).compareTo(b);', 1, 1),
     # ============== DM_NEW_FOR_GETCLASS ==============
     # From github: https://github.com/MinELenI/CBSviewer/commit/c59ce0149a60d88d6731b1de94eb1c43df9a7f9a
     (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_01.java',
