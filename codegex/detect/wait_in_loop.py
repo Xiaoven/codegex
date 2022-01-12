@@ -9,7 +9,7 @@ from codegex.utils.utils import in_range, get_string_ranges
 class NotifyDetector(Detector):
     def __init__(self):
         Detector.__init__(self)
-        self.pattern = regex.compile(r'\w+\s*\.\s*notify\s*\(\s*\)')
+        self.pattern = regex.compile(r'\bnotify\s*\(\s*\)')
 
     def match(self, context):
         line_content = context.cur_line.content

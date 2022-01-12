@@ -48,6 +48,8 @@ params = [
      'File file = new File(wkImageStorage + "/" + fileName + ".png");', 0, 0),
     ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_09.java',
      'File p = new File(pathName.substring(0, pathName.lastIndexOf("/")));', 0, 0),
+    ('DMI_HARDCODED_ABSOLUTE_FILENAME', 'TestIsAbsoluteFileNameDetector_10.java',
+     'MmtfActions.writeToFile(structure, Paths.get("/tmp/4cup.mmtf"));', 1, 1),
 ]
 
 

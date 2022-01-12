@@ -46,15 +46,18 @@ def is_abs_filename(fn):
 class IsAbsoluteFileNameDetector(Detector):
     def __init__(self):
         self.pattern = regex.compile(
-            r'\bnew\s+(?:File|RandomAccessFile|Paths|FileReader|FileWriter|FileInputStream|FileOutputStream|Formatter|JarFile|ZipFile|PrintStream|PrintWriter)\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))')
+            r'\bnew\s+(?:File|RandomAccessFile|FileReader|FileWriter|FileInputStream|FileOutputStream|Formatter|JarFile|ZipFile|PrintStream|PrintWriter)\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))')
+        self.pattern_paths = regex.compile(r'\bPaths\s*\.\s*get\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))')
         self.quote_pattern = regex.compile(r'"([^"]*)"')
         Detector.__init__(self)
 
     def match(self, context):
         line_content = context.cur_line.content
-        if not 'new' in line_content:
-            return
-        m = self.pattern.search(line_content)
+        m = None
+        if 'new' in line_content:
+            m = self.pattern.search(line_content)
+        elif 'Paths' in line_content:
+            m = self.pattern_paths.search(line_content)
         if m and not in_range(m.start(0), get_string_ranges(line_content)):
             args = m.group(1)[1:-1].split(',')
             for arg in args:

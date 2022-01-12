@@ -15,6 +15,8 @@ params = [
                 }
                 try {
                     mdbPool.close();''', 1, 961),
+    (False, 'NO_NOTIFY_NOT_NOTIFYALL', 'test-01',
+     ''' notify(); ''', 1, 1),
 ]
 
 

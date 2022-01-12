@@ -232,7 +232,7 @@ params = [
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_04.java',
      'return (new Integer(value)).intValue();', 1, 1),
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_05.java',
-     'total_max_contacts=new Double(minDomSize*maxDomSize*10).longValue();', 0, 0),  # only report 'DM_FP_NUMBER_CTOR'
+     'total_max_contacts=new Double(minDomSize*maxDomSize*10).longValue();', 0, 0),
     (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_01.java',
      '''    public int compareTo(long a, long b) {
         return ((Long)a).compareTo(b);
