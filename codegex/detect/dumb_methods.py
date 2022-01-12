@@ -416,12 +416,13 @@ class NextIntViaNextDoubleDetector(Detector):
     def __init__(self):
         Detector.__init__(self)
         self.pattern = regex.compile(
-            r'\(\s*int\s*\)\s*\(\s*(?P<op>(\w+\s*\.\s*(?:random|nextDouble|nextFloat)\s*\(\s*\))|\w[\w.]*)\s*\*\s*((?&op))\s*\)')
+            r'\(\s*(?:int|byte|short|char)\s*\)\s*\(\s*(?P<op>(\w+\s*\.\s*(?:random|nextDouble|nextFloat)\s*\(\s*\))|\w[\w.]*)\s*\*\s*((?&op))\s*\)')
         self.random_pattern = regex.compile(r'^\w+\s*\.\s*(?:random|nextDouble|nextFloat)\s*\(\s*\)$')
 
     def match(self, context):
         line_content = context.cur_line.content
-        if 'int' not in line_content or not any(key in line_content for key in ('random', 'nextFloat', 'nextDouble')):
+        if all(key not in line_content for key in ('int', 'byte', 'short', 'char')) \
+                or all(key not in line_content for key in ('random', 'nextFloat', 'nextDouble')):
             return
         itr = self.pattern.finditer(line_content)
         str_range = get_string_ranges(line_content)

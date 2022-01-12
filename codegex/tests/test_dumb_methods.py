@@ -275,6 +275,12 @@ params = [
      '''return (int)(myrandom() * 3);''', 0, 0),
     (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_04.java',
      '''return (int) (1.2 * r.nextDouble());''', 1, 1),
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_05.java',
+     'byte r = (byte) (Math.random() * Byte.MAX_VALUE);', 1, 1),
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_06.java',
+     'return (short) (Math.random() * Short.MAX_VALUE);', 1, 1),
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_06.java',
+     'return (char) (c*Math.random());', 1, 1),
     # ============== NP_IMMEDIATE_DEREFERENCE_OF_READLINE ==============
     # From Github: https://github.com/msakamoto-sf/javasnack/commit/3df1087b4e47a9a0ef3904c1b2735c5052f03a3a
     (False, 'NP_IMMEDIATE_DEREFERENCE_OF_READLINE', 'TestImmediateDereferenceOfReadlineDetector_01.java',

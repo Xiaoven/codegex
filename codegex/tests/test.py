@@ -13,11 +13,13 @@ expectations format: {type: [line no1, line no2, ...]}
 d_num_ctor = 'NumberCTORDetector'
 d_fp_ctor = 'FPNumberCTORDetector'
 d_boxed_parsing = 'BoxedPrimitiveForParsingDetector'
+d_boxing_unboxed = 'BoxingImmediatelyUnboxedDetector'
 
 # pattern type
 p_num_ctor = 'DM_NUMBER_CTOR'
 p_fp_ctor = 'DM_FP_NUMBER_CTOR'
 p_boxed_parsing = 'DM_BOXED_PRIMITIVE_FOR_PARSING'
+p_unboxed_coercion = 'BX_BOXING_IMMEDIATELY_UNBOXED_TO_PERFORM_COERCION'
 
 
 cases = [
@@ -36,7 +38,10 @@ cases = [
     ([d_num_ctor, d_boxed_parsing], 'test_02',
      'final long timeInMillis = new Long(str);\n'
      'int start = Integer.valueOf(m.group(3));\n'
-     'int offset = Integer.valueOf(params[0]);\n', False, {p_num_ctor: 1, p_boxed_parsing: [1, 2, 3]})
+     'int offset = Integer.valueOf(params[0]);\n', False, {p_num_ctor: 1, p_boxed_parsing: [1, 2, 3]}),
+    ([d_fp_ctor, d_boxing_unboxed], 'test_03',
+     'long size1= new Double(Math.min(PDPParameters.MAXSIZE,minDomSize)).longValue();', False,
+     {p_fp_ctor: 1, p_unboxed_coercion: 1}),
 ]
 
 
