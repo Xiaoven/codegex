@@ -190,10 +190,15 @@ def str_to_float(num_str: str):
 
 
 RE_INT_PATTERN = regex.compile(r'^\d+$')
+RE_NUMBER_PATTERN = regex.compile(r'[\d.]+[LlDdFf]?')
 
 
 def is_int_str(operand_str: str):
     return RE_INT_PATTERN.match(operand_str)
+
+
+def is_number_str(target: str):
+    return RE_NUMBER_PATTERN.match(target)
 
 
 def simple_str_to_int(num_str: str):

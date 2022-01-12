@@ -4,7 +4,7 @@ from decimal import Decimal
 from codegex.models.priorities import *
 from codegex.models.bug_instance import BugInstance
 from codegex.models.detectors import Detector, get_exact_lineno
-from codegex.utils.utils import log_message, get_string_ranges, in_range, str_to_float, simple_str_to_int
+from codegex.utils.utils import log_message, get_string_ranges, in_range, str_to_float, is_number_str
 
 
 class FinalizerOnExitDetector(Detector):
@@ -308,29 +308,37 @@ class BoxedPrimitiveToStringDetector(Detector):
     def __init__(self):
         Detector.__init__(self)
         self.pattern_1 = regex.compile(
-            r'\bnew\s+(?:Integer|Long|Float|Double|Byte|Short|Boolean)\s*\(\s*(?:[\d.]+|true|false)\s*\)\s*\.\s*toString\s*\(\s*\)')
+            r'\bnew\s+(Integer|Long|Float|Double|Byte|Short|Boolean|Character)\s*(?P<aux1>\(([^()]++|(?&aux1))*\))\s*\.\s*toString\s*\(\s*\)')
         self.pattern_2 = regex.compile(
-            r'\bInteger\s*\.\s*valueOf\s*\(\s*\d+\s*\)\s*\.\s*toString\s*\(\s*\)')
+            r'\b(Integer|Long|Float|Double|Byte|Short|Boolean|Character)\s*\.\s*valueOf\s*(?P<aux1>\(([^()]++|(?&aux1))*\))\s*\.\s*toString\s*\(\s*\)')
 
     def match(self, context):
         line_content = context.cur_line.content
-        m = None
-        priority = MEDIUM_PRIORITY
-        if all(k in line_content for k in ('new', 'toString')) and any(
-                k in line_content for k in ('Integer', 'Long', 'Float', 'Double', 'Byte', 'Short', 'Boolean')):
-            m = self.pattern_1.search(line_content)
-        elif all(k in line_content for k in ('Integer', 'valueOf', 'toString')):
-            m = self.pattern_2.search(line_content)
-            priority = HIGH_PRIORITY
 
-        if m and not in_range(m.start(0), get_string_ranges(line_content)):
-            self.bug_accumulator.append(
-                BugInstance(
-                    'DM_BOXED_PRIMITIVE_TOSTRING', priority, context.cur_patch.name,
-                    get_exact_lineno(m.end(0), context.cur_line)[1],
-                    'Method invokes inefficient floating-point Number constructor; use static valueOf instead',
-                    sha=context.cur_patch.sha, line_content=context.cur_line.content)
-            )
+        if 'toString' in line_content and any(k in line_content for k in (
+                'Integer', 'Long', 'Float', 'Double', 'Byte', 'Short', 'Boolean', 'Character')):
+            m = None
+            if 'new' in line_content:
+                m = self.pattern_1.search(line_content)
+            elif 'valueOf' in line_content:
+                m = self.pattern_2.search(line_content)
+
+            if m and not in_range(m.start(0), get_string_ranges(line_content)):
+                priority = LOW_PRIORITY
+                # aggressive strategy, if the parameter is a String type, FP occurs.
+                if is_number_str(m.group(3).strip()):
+                    if m.group(1) == 'Integer':
+                        priority = HIGH_PRIORITY
+                    else:
+                        priority = MEDIUM_PRIORITY
+
+                self.bug_accumulator.append(
+                    BugInstance(
+                        'DM_BOXED_PRIMITIVE_TOSTRING', priority, context.cur_patch.name,
+                        get_exact_lineno(m.end(0), context.cur_line)[1],
+                        'Method invokes inefficient floating-point Number constructor; use static valueOf instead',
+                        sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                )
 
 
 class BoxedPrimitiveForParsingDetector(Detector):
