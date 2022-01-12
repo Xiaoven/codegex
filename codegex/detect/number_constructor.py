@@ -9,11 +9,12 @@ from codegex.utils.utils import get_string_ranges, in_range, simple_str_to_int
 class NumberCTORDetector(Detector):
     def __init__(self):
         Detector.__init__(self)
-        self.pattern = regex.compile(r'\bnew\s+(?:Integer|Long|Short|Byte)\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
+        self.pattern = regex.compile(
+            r'\bnew\s+(?:Integer|Long|Short|Byte|Character)\s*(?P<aux1>\(((?:[^()]++|(?&aux1))*)\))')
 
     def match(self, context):
         line_content = context.cur_line.content
-        if 'new' in line_content and any(key in line_content for key in ('Integer', 'Long', 'Short', 'Byte')):
+        if 'new' in line_content and any(key in line_content for key in ('Integer', 'Long', 'Short', 'Byte', 'Character')):
             m = self.pattern.search(line_content)
             if m and not in_range(m.start(0), get_string_ranges(line_content)):
                 int_val = simple_str_to_int(m.group(2).strip('"'))

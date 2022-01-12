@@ -334,19 +334,32 @@ class BoxedPrimitiveForParsingDetector(Detector):
             r'\(?\bnew\s+(Integer|Long|Double|Float)\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))\s*\)?\s*\.\s*(int|long|double|float)Value\s*\(\s*\)')
         self.pattern_2 = regex.compile(
             r'\b(Integer|Long|Double|Float)\s*\.\s*valueOf\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))\s*\.\s*(int|long|double|float)Value\s*\(\s*\)')
+        self.pattern_3 = regex.compile(
+            r'\b(int|long|float|double)\s+\w+\s*=\s*new\s+(Integer|Long|Double|Float)\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))\s*;'
+        )
+        self.pattern_4 = regex.compile(
+            r'\b(int|long|float|double)\s+\w+\s*=\s*(Integer|Long|Double|Float)\s*\.\s*valueOf\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))\s*;'
+        )
 
     def match(self, context):
         line_content = context.cur_line.content
         m = None
-        if any(k in line_content for k in ('Integer', 'Long', 'Float', 'Double')) \
-                and any(k in line_content for k in ('intValue', 'longValue', 'floatValue', 'doubleValue')):
-            if 'new' in line_content:
-                m = self.pattern_1.search(line_content)
-            elif 'valueOf' in line_content:
-                m = self.pattern_2.search(line_content)
+        if any(k in line_content for k in ('Integer', 'Long', 'Float', 'Double')):
+            is_xxValue = False
+            if any(k in line_content for k in ('intValue', 'longValue', 'floatValue', 'doubleValue')):
+                is_xxValue = True
+                if 'new' in line_content:
+                    m = self.pattern_1.search(line_content)
+                elif 'valueOf' in line_content:
+                    m = self.pattern_2.search(line_content)
+            else:
+                if 'new' in line_content:
+                    m = self.pattern_3.search(line_content)
+                elif 'valueOf' in line_content:
+                    m = self.pattern_4.search(line_content)
 
             if m and not in_range(m.start(0), get_string_ranges(line_content)):
-                ctor, method = m.group(1), m.group(3)
+                ctor, method = (m.group(1), m.group(3)) if is_xxValue else (m.group(2), m.group(1))
                 if ctor[0].lower() == method[0]:
                     self.bug_accumulator.append(
                         BugInstance(

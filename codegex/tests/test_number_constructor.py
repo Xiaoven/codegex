@@ -11,6 +11,11 @@ params = [
     }""", 1, 2),
     (False, 'DM_NUMBER_CTOR', 'TestNumberCTORDetector_02.java',
      'return new Integer("123");', 1, 1),
+    (False, 'DM_NUMBER_CTOR', 'TestNumberCTORDetector_03.java',
+     "escapeChars.put(new Character('n'), new Character('\n'));", 1, 1),
+    (False, 'DM_NUMBER_CTOR', 'TestNumberCTORDetector_04.java',
+     '''av.visit(name, new Character(
+                    (char) readInt(items[readUnsignedShort(v)])));''', 1, 2),
     (False, 'DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_01.java',
      'System.out.println(new Double(3.14));', 1, 1),
     (False, 'DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_02.java',
