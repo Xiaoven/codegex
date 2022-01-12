@@ -48,7 +48,7 @@ params = [
     ('IIO_INEFFICIENT_INDEX_OF', 'TestInefficientIndexOfDetector_05.java',
      'int index   = hexPropertyNames.indexOf(" " + thisName + " ", 2);', 0, 0),
     ('IIO_INEFFICIENT_INDEX_OF', 'TestInefficientIndexOfDetector_06.java',
-     'String cleaned = currentHypos[i].substring(0, currentHypos[i].indexOf("\""));', 0, 0),
+     "String cleaned = currentHypos[i].substring(0, currentHypos[i].indexOf(\"\\\"\"));\n", 1, 1),
 
 ]
 
