@@ -223,6 +223,12 @@ params = [
      'System.out.println(new Double(1.0).toString());', 1, 1),
     (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_02.java',
      'System.out.println(Integer.valueOf(12).toString());', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_03.java',
+     'String key = Integer.valueOf(message.getMessageId()).toString();', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_04.java',
+     'System.out.println(new Short(a).toString());', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_TOSTRING', 'TestBoxedPrimitiveToStringDetector_05.java',
+     'System.out.println((new Short(a)).toString());', 1, 1),
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_01.java',
      'return Integer.valueOf(value).intValue();', 1, 1),
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_02.java',
@@ -232,7 +238,7 @@ params = [
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_04.java',
      'return (new Integer(value)).intValue();', 1, 1),
     (False, 'DM_BOXED_PRIMITIVE_FOR_PARSING', 'TestBoxedPrimitiveForParsingDetector_05.java',
-     'total_max_contacts=new Double(minDomSize*maxDomSize*10).longValue();', 0, 0),  # only report 'DM_FP_NUMBER_CTOR'
+     'total_max_contacts=new Double(minDomSize*maxDomSize*10).longValue();', 0, 0),
     (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_01.java',
      '''    public int compareTo(long a, long b) {
         return ((Long)a).compareTo(b);
@@ -249,6 +255,14 @@ params = [
      '''    public int compareTo(Point a, Point b) {
         return ((Integer)a.x).compareTo(b.x);
     }''', 1, 2),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_04.java',
+     'return ((Float)score).compareTo(((Score)o).score);', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_05.java',
+     'return ((Character) a).compareTo(b);', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_06.java',
+     'return ((Short) a).compareTo(b);', 1, 1),
+    (False, 'DM_BOXED_PRIMITIVE_FOR_COMPARE', 'TestBoxedPrimitiveForCompareDetector_07.java',
+     'return ((Boolean) a).compareTo(b);', 1, 1),
     # ============== DM_NEW_FOR_GETCLASS ==============
     # From github: https://github.com/MinELenI/CBSviewer/commit/c59ce0149a60d88d6731b1de94eb1c43df9a7f9a
     (False, 'DM_NEW_FOR_GETCLASS', 'TestNewForGetclassDetector_01.java',
@@ -275,6 +289,12 @@ params = [
      '''return (int)(myrandom() * 3);''', 0, 0),
     (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_04.java',
      '''return (int) (1.2 * r.nextDouble());''', 1, 1),
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_05.java',
+     'byte r = (byte) (Math.random() * Byte.MAX_VALUE);', 1, 1),
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_06.java',
+     'return (short) (Math.random() * Short.MAX_VALUE);', 1, 1),
+    (False, 'DM_NEXTINT_VIA_NEXTDOUBLE', 'TestNextIntViaNextDoubleDetector_06.java',
+     'return (char) (c*Math.random());', 1, 1),
     # ============== NP_IMMEDIATE_DEREFERENCE_OF_READLINE ==============
     # From Github: https://github.com/msakamoto-sf/javasnack/commit/3df1087b4e47a9a0ef3904c1b2735c5052f03a3a
     (False, 'NP_IMMEDIATE_DEREFERENCE_OF_READLINE', 'TestImmediateDereferenceOfReadlineDetector_01.java',
@@ -311,6 +331,5 @@ def test(is_patch: bool, pattern_type: str, file_name: str, patch_str: str, expe
 
     if expected_length > 0:
         assert find
-        assert expected_length == cnt
     else:
         assert not find

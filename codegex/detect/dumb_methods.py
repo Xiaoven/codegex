@@ -4,7 +4,7 @@ from decimal import Decimal
 from codegex.models.priorities import *
 from codegex.models.bug_instance import BugInstance
 from codegex.models.detectors import Detector, get_exact_lineno
-from codegex.utils.utils import log_message, get_string_ranges, in_range, str_to_float, simple_str_to_int
+from codegex.utils.utils import log_message, get_string_ranges, in_range, str_to_float, is_number_str
 
 
 class FinalizerOnExitDetector(Detector):
@@ -28,14 +28,15 @@ class FinalizerOnExitDetector(Detector):
             line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('DM_RUN_FINALIZERS_ON_EXIT', confidence, context.cur_patch.name, line_no,
-                            'Method invokes dangerous method runFinalizersOnExit', sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                            'Method invokes dangerous method runFinalizersOnExit', sha=context.cur_patch.sha,
+                            line_content=context.cur_line.content)
             )
 
 
 class RandomOnceDetector(Detector):
     def __init__(self):
         self.pattern = regex.compile(
-            r'\bnew\s+[\w.]*Random(?P<aux1>\((?:[^()]++|(?&aux1))*\))++\s*\.\s*next(?:Boolean|Bytes|Double|Float|Gaussian|Int|Long)\([^),]*\)')
+            r'\(?\bnew\s+[\w.]*Random(?P<aux1>\((?:[^()]++|(?&aux1))*\))++\s*\)?\s*\.\s*next(?:Boolean|Bytes|Double|Float|Gaussian|Int|Long)\s*(?&aux1)')
         Detector.__init__(self)
 
     def match(self, context):
@@ -50,7 +51,8 @@ class RandomOnceDetector(Detector):
             line_no = get_exact_lineno(m.start(1), context.cur_line)[1]
             self.bug_accumulator.append(
                 BugInstance('DMI_RANDOM_USED_ONLY_ONCE', HIGH_PRIORITY, context.cur_patch.name, line_no,
-                            'Random object created and used only once', sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                            'Random object created and used only once', sha=context.cur_patch.sha,
+                            line_content=context.cur_line.content)
             )
             return
 
@@ -72,7 +74,8 @@ class RandomD2IDetector(Detector):
                 line_no = get_exact_lineno(m.end(2), context.cur_line)[1]
                 self.bug_accumulator.append(
                     BugInstance('RV_01_TO_INT', HIGH_PRIORITY, context.cur_patch.name, line_no,
-                                'Random value from 0 to 1 is coerced to the integer 0', sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                                'Random value from 0 to 1 is coerced to the integer 0', sha=context.cur_patch.sha,
+                                line_content=context.cur_line.content)
                 )
                 return
 
@@ -111,7 +114,8 @@ class StringCtorDetector(Detector):
                 # m.start(1) is the offset of the naming group
                 line_no = get_exact_lineno(m.start(1), context.cur_line)[1]
                 self.bug_accumulator.append(BugInstance(p_type, MEDIUM_PRIORITY, context.cur_patch.name,
-                                                        line_no, description, sha=context.cur_patch.sha, line_content=context.cur_line.content))
+                                                        line_no, description, sha=context.cur_patch.sha,
+                                                        line_content=context.cur_line.content))
                 return
 
 
@@ -174,7 +178,8 @@ class InvalidMinMaxDetector(Detector):
                         line_no = get_exact_lineno(m1.end(0), context.cur_line)[1]
                         self.bug_accumulator.append(
                             BugInstance('DM_INVALID_MIN_MAX', HIGH_PRIORITY, context.cur_patch.name, line_no,
-                                        'Incorrect combination of Math.max and Math.min', sha=context.cur_patch.sha, line_content=context.cur_line.content))
+                                        'Incorrect combination of Math.max and Math.min', sha=context.cur_patch.sha,
+                                        line_content=context.cur_line.content))
 
 
 class VacuousEasyMockCallDetector(Detector):
@@ -206,7 +211,7 @@ class BigDecimalConstructorDetector(Detector):
 
     def match(self, context):
         line_content = context.cur_line.content
-        if all(key in line_content for key in ('new', 'BigDecimal', '.')):
+        if all(key in line_content for key in ('new', 'BigDecimal')):
             itr = self.pattern.finditer(line_content)
             string_ranges = get_string_ranges(line_content)
             for m in itr:
@@ -239,7 +244,8 @@ class NonsensicalInvocationDetector(Detector):
     def match(self, context):
         line_content = context.cur_line.content
         if any(clazzName in line_content for clazzName in ('Preconditions', 'Strings')) and \
-                any(methodName in line_content for methodName in ('checkNotNull', 'nullToEmpty', 'emptyToNull', 'isNullOrEmpty')):
+                any(methodName in line_content for methodName in
+                    ('checkNotNull', 'nullToEmpty', 'emptyToNull', 'isNullOrEmpty')):
             itr = self.pattern.finditer(line_content)
             string_ranges = get_string_ranges(line_content)
             for m in itr:
@@ -302,29 +308,37 @@ class BoxedPrimitiveToStringDetector(Detector):
     def __init__(self):
         Detector.__init__(self)
         self.pattern_1 = regex.compile(
-            r'\bnew\s+(?:Integer|Long|Float|Double|Byte|Short|Boolean)\s*\(\s*(?:[\d.]+|true|false)\s*\)\s*\.\s*toString\s*\(\s*\)')
+            r'\(?\bnew\s+(Integer|Long|Float|Double|Byte|Short|Boolean|Character)\s*(?P<aux1>\(([^()]++|(?&aux1))*\))\s*\)?\s*\.\s*toString\s*\(\s*\)')
         self.pattern_2 = regex.compile(
-            r'\bInteger\s*\.\s*valueOf\s*\(\s*\d+\s*\)\s*\.\s*toString\s*\(\s*\)')
+            r'\b(Integer|Long|Float|Double|Byte|Short|Boolean|Character)\s*\.\s*valueOf\s*(?P<aux1>\(([^()]++|(?&aux1))*\))\s*\.\s*toString\s*\(\s*\)')
 
     def match(self, context):
         line_content = context.cur_line.content
-        m = None
-        priority = MEDIUM_PRIORITY
-        if all(k in line_content for k in ('new', 'toString')) and any(
-                k in line_content for k in ('Integer', 'Long', 'Float', 'Double', 'Byte', 'Short', 'Boolean')):
-            m = self.pattern_1.search(line_content)
-        elif all(k in line_content for k in ('Integer', 'valueOf', 'toString')):
-            m = self.pattern_2.search(line_content)
-            priority = HIGH_PRIORITY
 
-        if m and not in_range(m.start(0), get_string_ranges(line_content)):
-            self.bug_accumulator.append(
-                BugInstance(
-                    'DM_BOXED_PRIMITIVE_TOSTRING', priority, context.cur_patch.name,
-                    get_exact_lineno(m.end(0), context.cur_line)[1],
-                    'Method invokes inefficient floating-point Number constructor; use static valueOf instead',
-                    sha=context.cur_patch.sha, line_content=context.cur_line.content)
-            )
+        if 'toString' in line_content and any(k in line_content for k in (
+                'Integer', 'Long', 'Float', 'Double', 'Byte', 'Short', 'Boolean', 'Character')):
+            m = None
+            if 'new' in line_content:
+                m = self.pattern_1.search(line_content)
+            elif 'valueOf' in line_content:
+                m = self.pattern_2.search(line_content)
+
+            if m and not in_range(m.start(0), get_string_ranges(line_content)):
+                priority = LOW_PRIORITY
+                # aggressive strategy, if the parameter is a String type, FP occurs.
+                if is_number_str(m.group(3).strip()):
+                    if m.group(1) == 'Integer':
+                        priority = HIGH_PRIORITY
+                    else:
+                        priority = MEDIUM_PRIORITY
+
+                self.bug_accumulator.append(
+                    BugInstance(
+                        'DM_BOXED_PRIMITIVE_TOSTRING', priority, context.cur_patch.name,
+                        get_exact_lineno(m.end(0), context.cur_line)[1],
+                        'Method invokes inefficient floating-point Number constructor; use static valueOf instead',
+                        sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                )
 
 
 class BoxedPrimitiveForParsingDetector(Detector):
@@ -334,19 +348,32 @@ class BoxedPrimitiveForParsingDetector(Detector):
             r'\(?\bnew\s+(Integer|Long|Double|Float)\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))\s*\)?\s*\.\s*(int|long|double|float)Value\s*\(\s*\)')
         self.pattern_2 = regex.compile(
             r'\b(Integer|Long|Double|Float)\s*\.\s*valueOf\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))\s*\.\s*(int|long|double|float)Value\s*\(\s*\)')
+        self.pattern_3 = regex.compile(
+            r'\b(int|long|float|double)\s+\w+\s*=\s*new\s+(Integer|Long|Double|Float)\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))\s*;'
+        )
+        self.pattern_4 = regex.compile(
+            r'\b(int|long|float|double)\s+\w+\s*=\s*(Integer|Long|Double|Float)\s*\.\s*valueOf\s*(?P<aux1>\((?:[^()]++|(?&aux1))*\))\s*;'
+        )
 
     def match(self, context):
         line_content = context.cur_line.content
         m = None
-        if any(k in line_content for k in ('Integer', 'Long', 'Float', 'Double')) \
-                and any(k in line_content for k in ('intValue', 'longValue', 'floatValue', 'doubleValue')):
-            if 'new' in line_content:
-                m = self.pattern_1.search(line_content)
-            elif 'valueOf' in line_content:
-                m = self.pattern_2.search(line_content)
+        if any(k in line_content for k in ('Integer', 'Long', 'Float', 'Double')):
+            is_xxValue = False
+            if any(k in line_content for k in ('intValue', 'longValue', 'floatValue', 'doubleValue')):
+                is_xxValue = True
+                if 'new' in line_content:
+                    m = self.pattern_1.search(line_content)
+                elif 'valueOf' in line_content:
+                    m = self.pattern_2.search(line_content)
+            else:
+                if 'new' in line_content:
+                    m = self.pattern_3.search(line_content)
+                elif 'valueOf' in line_content:
+                    m = self.pattern_4.search(line_content)
 
             if m and not in_range(m.start(0), get_string_ranges(line_content)):
-                ctor, method = m.group(1), m.group(3)
+                ctor, method = (m.group(1), m.group(3)) if is_xxValue else (m.group(2), m.group(1))
                 if ctor[0].lower() == method[0]:
                     self.bug_accumulator.append(
                         BugInstance(
@@ -361,21 +388,26 @@ class BoxedPrimitiveForCompareDetector(Detector):
     def __init__(self):
         Detector.__init__(self)
         self.pattern = regex.compile(
-            r'\(\s*\(\s*(?:Long|Integer)\s*\)\s*\w(?:[.\w]+|(?P<aux>\((?:[^()]++|(?&aux))*\)))*\s*\)\s*\.compareTo\s*(?&aux)')
+            r'\(\s*\(\s*(Long|Integer|Short|Double|Float|Character|Byte|Boolean)\s*\)\s*\w(?:[.\w]+|(?P<aux>\((?:[^()]++|(?&aux))*\)))*\s*\)\s*\.compareTo\s*(?&aux)')
 
     def match(self, context):
         line_content = context.cur_line.content
         if 'compareTo' in line_content and any(k for k in ('Integer', 'Long')):
             m = self.pattern.search(line_content)
             if m and not in_range(m.start(0), get_string_ranges(line_content)):
+                priority = HIGH_PRIORITY
+                if m.group(1) == 'Boolean':
+                    priority = LOW_PRIORITY
+                elif m.group(1) == 'Byte':
+                    priority = MEDIUM_PRIORITY
                 self.bug_accumulator.append(
                     BugInstance(
-                        'DM_BOXED_PRIMITIVE_FOR_COMPARE', LOW_PRIORITY, context.cur_patch.name,
+                        'DM_BOXED_PRIMITIVE_FOR_COMPARE', priority, context.cur_patch.name,
                         get_exact_lineno(m.end(0), context.cur_line)[1],
                         'Boxing/unboxing to parse a primitive',
                         sha=context.cur_patch.sha, line_content=context.cur_line.content)
                 )
-                
+
 
 class NewForGetclassDetector(Detector):
     def __init__(self):
@@ -403,12 +435,13 @@ class NextIntViaNextDoubleDetector(Detector):
     def __init__(self):
         Detector.__init__(self)
         self.pattern = regex.compile(
-            r'\(\s*int\s*\)\s*\(\s*(?P<op>(\w+\s*\.\s*(?:random|nextDouble|nextFloat)\s*\(\s*\))|\w[\w.]*)\s*\*\s*((?&op))\s*\)')
+            r'\(\s*(?:int|byte|short|char)\s*\)\s*\(\s*(?P<op>(\w+\s*\.\s*(?:random|nextDouble|nextFloat)\s*\(\s*\))|\w[\w.]*)\s*\*\s*((?&op))\s*\)')
         self.random_pattern = regex.compile(r'^\w+\s*\.\s*(?:random|nextDouble|nextFloat)\s*\(\s*\)$')
 
     def match(self, context):
         line_content = context.cur_line.content
-        if 'int' not in line_content or not any(key in line_content for key in ('random', 'nextFloat', 'nextDouble')):
+        if all(key not in line_content for key in ('int', 'byte', 'short', 'char')) \
+                or all(key not in line_content for key in ('random', 'nextFloat', 'nextDouble')):
             return
         itr = self.pattern.finditer(line_content)
         str_range = get_string_ranges(line_content)
@@ -428,7 +461,7 @@ class NextIntViaNextDoubleDetector(Detector):
                                     sha=context.cur_patch.sha,
                                     line_content=context.cur_line.content)
                     )
-                    break   # 一行报一个 warning 就够了
+                    break  # 一行报一个 warning 就够了
 
 
 class ImmediateDereferenceOfReadlineDetector(Detector):

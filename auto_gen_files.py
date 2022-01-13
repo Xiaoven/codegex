@@ -70,7 +70,6 @@ if __name__ == '__main__':
 
     # DMI_DOH 出现在 FindRefComparison 和 DumbMethods 里
     visitors.append('TestASM')  # NM_METHOD_NAMING_CONVENTION 出现在 TestASM.java 和 Naming.java 里
-    visitors.append('NumberConstructor')  # DM_FP_NUMBER_CTOR 和 DM_NUMBER_CTOR 放在 find_puzzlers.py
 
     with open('visitor.txt', 'w') as out:
         out.write(','.join(visitors))

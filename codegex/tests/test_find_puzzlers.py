@@ -139,17 +139,6 @@ params = [
     # From Github: https://github.com/halober/ovirt-engine/commit/533980c59d1cc8ba519eff67310a3eabb7dae508
     ('BX_BOXING_IMMEDIATELY_UNBOXED_TO_PERFORM_COERCION', 'TestBoxingImmediatelyUnboxedDetector_05.java',
      'formatTime.append((new Double(time/SECONDS_IN_A_DAY)).intValue());', 1, 1),
-    # ------------------------ DM_NUMBER_CTOR, DM_FP_NUMBER_CTOR ------------------------
-    ('DM_NUMBER_CTOR', 'TestNumberCTORDetector_01.java',
-     """    public String test1(int myInt) {
-        return new Integer(myInt).toString();
-    }""", 1, 2),
-    ('DM_NUMBER_CTOR', 'TestNumberCTORDetector_02.java',
-     'return new Integer("123");', 1, 1),
-    ('DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_01.java',
-     'System.out.println(new Double(3.14));', 1, 1),
-    ('DM_FP_NUMBER_CTOR', 'TestFPNumberCTORDetector_02.java',
-     'System.out.println(new Float("3.2f"));', 1, 1),
 ]
 
 
