@@ -117,6 +117,10 @@ def get_string_ranges(content: str):
     its = DOUBLE_QUOTE_REGEX.finditer(content)
     for m in its:
         tmp_list.append(m.start(1))
+        # fix '""'
+        nex = m.start(1) + 1
+        if nex < len(content) and content[nex] == '"':
+            tmp_list.append(nex)
 
     # whether double quotes appear in pairs
     size = len(tmp_list)
