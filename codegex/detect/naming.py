@@ -189,9 +189,29 @@ class ClassNameConventionDetector(Detector):
 
 class MethodNameConventionDetector(Detector):
     def __init__(self):
-        # Extract the method name
+        """
+        Explanation of regex
+            (\b\w+\s+)?
+                for access modifiers, optional; also match "new" of "new Object()", or return type in "int Method()"
+            (\b\w+(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+)?
+                for return type, optional; e.g. "public int" or "private Map<K, V>""
+            (?:\b\w[\w.]*\.)?
+                for package name chain, optional; e.g. a.b.Method()
+            (\b[A-Z][a-z]\w*)\s*\(\s*
+                for suspicious method name and the left parenthesis. e.g. "Method("
+            (?:(?=new)|(?!new)(\w+\s+\w+)?)
+                if-then conditional to extract possible "type paramName". It is one of the clues that help distinguish method definitions from method invocations.
+                It equals to (?(?!new)(\w+(?&gen)?\s+\w+)?), but Python does not support conditionals using lookaround.
+                
+        groups:
+            1 - access modifiers or "new"
+            2 - return type
+            3 - named captured group, e.g. "<K, V>"
+            4 - method name
+            5 - parameter definition, e.g. "int a"
+        """
         self.mn_pattern = regex.compile(
-            r'@?(\b\w+\s+)?(?:\b\w+\s*\.\s*)*(\b\w+)\s*\(\s*((?:(?!new)\w)+(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+\w+)?')
+            r'(\b\w+\s+)?(\b\w+(?P<gen><(?:[^<>]++|(?&gen))*>)?\s+)?(?:\b\w[\w.]*\.)?(\b[A-Z][a-z]\w*)\s*\(\s*(?:(?=new)|(?!new)(\w+\s+\w+)?)')
         self.patch, self.is_enum = None, False
         Detector.__init__(self)
 
@@ -201,30 +221,39 @@ class MethodNameConventionDetector(Detector):
             its = self.mn_pattern.finditer(line_content)
             string_ranges = get_string_ranges(line_content)
             for m in its:
-                # skip annotations
-                if line_content[m.start(0)] == '@':
-                    continue
+                # skip if the match is a part of a string
                 if in_range(m.start(0), string_ranges):
                     continue
-                g = m.groups()
-                pre_token = g[0].strip() if g[0] else g[0]
-                method_name = g[1]
-                args_def = g[2]
+                
+                # skip annotations
+                pre_str = line_content[:m.start(0)].rstrip() if m.start(0) > 0 else ''
+                if pre_str and pre_str[-1] == '@':
+                    continue
 
                 # skip statements like "new Object(...)"
-                if pre_token == 'new':
+                modifier = m.group(1).strip() if m.group(1) else None
+                if modifier == "new":
                     continue
+                
                 # skip constructor definitions, like "public Object(int i)"
-                if pre_token in ('public', 'private', 'protected', 'static'):
+                # Note modifier can match true modifiers, return type if modifier absent, and "new"
+                is_modifier = modifier in ('public', 'private', 'protected', 'static', 'final', 'abstract',
+                                           'synchronized', 'volatile')
+                return_type = m.group(2)
+                if is_modifier and not return_type:
                     continue
+                
                 # skip constructor definitions without access modifier, like "Object (int i)", "Object() {"
-                is_def = args_def or line_content.rstrip().endswith('{') or line_content.rstrip().endswith('}')
-                if not pre_token and is_def:
+                # if modifier match None, it means no modifiers or return type
+                param_def = m.group(5)
+                is_method_def = param_def or line_content.rstrip()[-1] in ('{', '}')
+                if not modifier and is_method_def:
                     continue
-
-                if len(method_name) >= 2 and method_name[0].isalpha() and not method_name[0].islower() and \
-                        method_name[1].isalpha() and method_name[1].islower() and '_' not in method_name:
-                    if not is_def:
+                
+                # skip method name with "_"
+                method_name = m.group(4)
+                if '_' not in method_name:
+                    if not is_method_def:
                         # i.e. obj.MethodName(param), or MethodName(param)
                         self._local_search(context)
                         if self.is_enum:  # skip elements defined in enum
@@ -233,7 +262,7 @@ class MethodNameConventionDetector(Detector):
                             priority = IGNORE_PRIORITY
                     else:
                         priority = LOW_PRIORITY
-                        if any(access in line_content for access in ('public', 'protected')):
+                        if modifier in ('public', 'protected'):
                             priority = MEDIUM_PRIORITY
 
                     line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
