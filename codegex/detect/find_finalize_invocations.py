@@ -33,13 +33,14 @@ class PublicAccessDetector(Detector):
 
     def match(self, context):
         line_content = context.cur_line.content
-        m = self.pattern.search(line_content)
-        if m:
-            string_ranges = get_string_ranges(line_content)
-            if in_range(m.start(0), string_ranges):
-                return
-            line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
-            self.bug_accumulator.append(
-                BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
-                            line_no, 'Finalizer should be protected, not public', sha=context.cur_patch.sha, line_content=context.cur_line.content)
-            )
+        if "finalize" in line_content and "public" in line_content:
+            m = self.pattern.search(line_content)
+            if m:
+                string_ranges = get_string_ranges(line_content)
+                if in_range(m.start(0), string_ranges):
+                    return
+                line_no = get_exact_lineno(m.end(0), context.cur_line)[1]
+                self.bug_accumulator.append(
+                    BugInstance('FI_PUBLIC_SHOULD_BE_PROTECTED', priorities.MEDIUM_PRIORITY, context.cur_patch.name,
+                                line_no, 'Finalizer should be protected, not public', sha=context.cur_patch.sha, line_content=context.cur_line.content)
+                )
